@@ -1,0 +1,13 @@
+package org.fenixedu.cms.domain;
+
+class ExecutionCourseSite extends .org.fenixedu.bennu.cms.domain.Site {}
+
+relation ExecutionCourseFenixEduExecutionCourseSite {
+	ExecutionCourseSite playsRole cmsSite;
+	.net.sourceforge.fenixedu.domain.ExecutionCourse playsRole executionCourse;
+}
+
+relation SummaryPost {
+	.net.sourceforge.fenixedu.domain.Summary playsRole; 
+	.org.fenixedu.bennu.cms.domain.Post playsRole post;
+}
