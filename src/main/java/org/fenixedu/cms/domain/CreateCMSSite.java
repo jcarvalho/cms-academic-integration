@@ -17,12 +17,14 @@ import org.fenixedu.bennu.cms.domain.Page;
 import org.fenixedu.bennu.cms.domain.Post;
 import org.fenixedu.bennu.cms.domain.Site;
 import org.fenixedu.bennu.cms.domain.StaticPost;
+import org.fenixedu.bennu.cms.domain.ViewPost;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
 import org.fenixedu.bennu.signals.DomainObjectEvent;
 import org.fenixedu.bennu.signals.Signal;
+import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
 
@@ -49,6 +51,7 @@ public class CreateCMSSite extends CustomTask {
         newSite.setPublished(true);
 
         Menu menu = createMenu(newSite, oldSite.getOrderedSections());
+        createViewPostPage(newSite);
         createPages(newSite, menu, null, oldSite.getOrderedSections());
     }
 
@@ -130,6 +133,14 @@ public class CreateCMSSite extends CustomTask {
             // propriedade visible = true significa que esta seccao e' mandatory e deve estar sempre visivel
             // custom path caminho para a action
         return null;
+    }
+
+    private void createViewPostPage(Site site) {
+        Page page = new Page();
+        page.setName(new LocalizedString(I18N.getLocale(), "View"));
+        page.setSite(site);
+        page.addComponents(new ViewPost());
+        page.setTemplate(site.getTheme().templateForType("view"));
     }
 
     private void createSummariesPage(Site site, Menu menu, TemplatedSection section) {
