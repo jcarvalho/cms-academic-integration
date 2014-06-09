@@ -126,12 +126,6 @@ public class CreateCMSSite extends CustomTask {
         default:
             break;
         }
-            // TODO
-            // Templated sections sao meta-paginas
-            // teem descricao do sitem e conteudo institicional
-            // controller que faz a cola entre a action e o link
-            // propriedade visible = true significa que esta seccao e' mandatory e deve estar sempre visivel
-            // custom path caminho para a action
         return null;
     }
 

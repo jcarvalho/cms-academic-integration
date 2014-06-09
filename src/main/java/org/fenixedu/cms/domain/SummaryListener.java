@@ -13,21 +13,21 @@ import com.google.common.eventbus.Subscribe;
 
 public class SummaryListener {
 
-    public static class CreateSummaryListener {
+    public static class Create {
         @Subscribe
         public void doIt(DomainObjectEvent<Summary> event) {
             updatePost(new Post(), event.getInstance());
         }
     }
 
-    public static class DeleteSummaryListener {
+    public static class Delete {
         @Subscribe
         public void doIt(DomainObjectEvent<Summary> event) {
             event.getInstance().getPost().delete();
         }
     }
 
-    public static class EditSummaryListener {
+    public static class Edit {
         @Subscribe
         public void doIt(DomainObjectEvent<Summary> event) {
             updatePost(event.getInstance().getPost(), event.getInstance());

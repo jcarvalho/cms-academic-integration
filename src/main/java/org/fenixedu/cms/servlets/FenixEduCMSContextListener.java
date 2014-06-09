@@ -13,9 +13,10 @@ import org.fenixedu.cms.domain.SummaryListener;
 public class FenixEduCMSContextListener implements ServletContextListener {
     @Override
     public void contextInitialized(ServletContextEvent event) {
-        Signal.registerWithTransaction(Summary.CREATED_SIGNAL, new SummaryListener.CreateSummaryListener());
-        Signal.registerWithTransaction(Summary.DELETED_SIGNAL, new SummaryListener.DeleteSummaryListener());
-        Signal.registerWithTransaction(Summary.EDITED_SIGNAL, new SummaryListener.EditSummaryListener());
+        Signal.registerWithTransaction(Summary.CREATED_SIGNAL, new SummaryListener.Create());
+        Signal.registerWithTransaction(Summary.DELETED_SIGNAL, new SummaryListener.Delete());
+        Signal.registerWithTransaction(Summary.EDITED_SIGNAL, new SummaryListener.Edit());
+
     }
 
     @Override
