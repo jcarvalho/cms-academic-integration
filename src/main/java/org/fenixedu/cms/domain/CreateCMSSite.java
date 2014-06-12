@@ -122,11 +122,38 @@ public class CreateCMSSite extends CustomTask {
         case "/publico/executionCourse.do?method=summaries":
             createSummariesPage(site, menu, section);
             break;
-
+        case "/publico/executionCourse.do?method=objectives":
+            createObjectivesPage(site, menu, section);
+            break;
+        case "/publico/executionCourse.do?method=evaluationMethod":
+            createEvaluationMethodPage(site, menu, section);
+            break;
         default:
             break;
         }
         return null;
+    }
+
+    private void createEvaluationMethodPage(Site site, Menu menu, TemplatedSection section) {
+        Page page = new Page();
+        page.setName(section.getName().toLocalizedString());
+        page.setSite(site);
+        page.addComponents(new ExecutionCourseEvaluationMethods());
+        page.setTemplate(site.getTheme().templateForType("evaluationMethods"));
+
+        createMenuItem(site, menu, page, section, null);
+        createMenuComponenet(menu, page);
+    }
+
+    private void createObjectivesPage(Site site, Menu menu, TemplatedSection section) {
+        Page page = new Page();
+        page.setName(section.getName().toLocalizedString());
+        page.setSite(site);
+        page.addComponents(new ExecutionCourseObjectives());
+        page.setTemplate(site.getTheme().templateForType("objectives"));
+
+        createMenuItem(site, menu, page, section, null);
+        createMenuComponenet(menu, page);
     }
 
     private void createViewPostPage(Site site) {
@@ -151,9 +178,8 @@ public class CreateCMSSite extends CustomTask {
         component.setPage(page);
         page.setTemplate(site.getTheme().templateForType("category"));
 
-        MenuItem menuItem = new MenuItem();
-        menuItem.setMenu(menu);
-        menuItem.setName(section.getName().toLocalizedString());
+        createMenuItem(site, menu, page, section, null);
+        createMenuComponenet(menu, page);
     }
 
     private void migrateSummaries(ExecutionCourseSite site, Menu menu) {
