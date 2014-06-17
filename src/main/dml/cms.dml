@@ -2,6 +2,8 @@ package org.fenixedu.cms.domain;
 
 class ExecutionCourseSite extends .org.fenixedu.bennu.cms.domain.Site {}
 
+class ExecutionCourseBibliographicReferences extends .org.fenixedu.bennu.cms.domain.Component  {}
+class ExecutionCourseComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
 class ExecutionCourseSchedule extends .org.fenixedu.bennu.cms.domain.Component  {}
 class ExecutionCourseObjectives extends .org.fenixedu.bennu.cms.domain.Component  {}
 class ExecutionCourseEvaluationMethods extends .org.fenixedu.bennu.cms.domain.Component  {}
