@@ -131,10 +131,24 @@ public class CreateCMSSite extends CustomTask {
         case "/publico/executionCourse.do?method=bibliographicReference":
             createBibliographicReferencePage(site, menu, section);
             break;
+        case "/publico/executionCourse.do?method=evaluations":
+            createEvaluationsPage(site, menu, section);
+            break;
         default:
             break;
         }
         return null;
+    }
+
+    private void createEvaluationsPage(Site site, Menu menu, TemplatedSection section) {
+        Page page = new Page();
+        page.setName(section.getName().toLocalizedString());
+        page.setSite(site);
+        page.addComponents(new ExecutionCourseEvaluations());
+        page.setTemplate(site.getTheme().templateForType("evaluations"));
+
+        createMenuItem(site, menu, page, section, null);
+        createMenuComponenet(menu, page);
     }
 
     private void createBibliographicReferencePage(Site site, Menu menu, TemplatedSection section) {
