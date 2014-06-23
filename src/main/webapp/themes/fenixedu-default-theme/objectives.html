@@ -7,11 +7,12 @@
 	    	{% for curricularCourse in info.curricularCourses %}
 
 	    		{% set degree = curricularCourse.degreeCurricularPlan.degree %}
-		    	<p>{{ degree.degreeType.name }} in {{ degree.nameI18N }}
+		    	<p>{{ i18n('resources.EnumerationResources', degree.degreeType.name) }}
+		    			 {{ i18n('resources.ApplicationResources', 'label.in') }} {{ degree.nameI18N }}
 			
 			{% endfor %}
 
-			<h4>General Objectives</h4>
+			<h4>{{ i18n('resources.ApplicationResources', 'link.objectives') }}</h4>
 			<p>{{ info.objectives.content }}</p>
 
 		{% endfor %}
@@ -21,23 +22,24 @@
 			{% set curriculum = entry.value %}
 			{% set degree = curricularCourse.degreeCurricularPlan.degree %}
 			
-			<h3>{{ degree.degreeType.name }} in {{ degree.nameI18N }}</h3>
+			<h3>{{ i18n('resources.EnumerationResources', degree.degreeType.name) }}
+				 {{ i18n('resources.ApplicationResources', 'label.in') }} {{ degree.nameI18N }}</h3>
 
 			{% if curriculum is not empty %}
 
-				<h4>General Objectives</h4>
+				<h4>{{ i18n('resources.ApplicationResources', 'label.generalObjectives') }}</h4>
 				<p>{{ curriculum.generalObjectivesI18N }}</p>
 			
 				{% if curriculum.operacionalObjectives is not empty %}
 				
-					<h4>Operational Objectives</h4>
+					<h4>{{ i18n('resources.ApplicationResources', 'label.operacionalObjectives') }}</h4>
 					<p>{{ curriculum.operacionalObjectivesI18N }}</p>
 				
 				{% endif %}
 
 			{% else %}
 				
-				<p>Operational Objectives are not defined.</p>
+				<p>{{ i18n('resources.ApplicationResources', 'message.objectives.not.defined') }}</p>
 
 			{% endif %}
 
