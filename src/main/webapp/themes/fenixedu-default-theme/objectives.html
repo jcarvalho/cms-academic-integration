@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="blog-post">
+    	{% for info in competenceCourseBeans %}
+
+	    	{% for curricularCourse in info.curricularCourses %}
+
+	    		{% set degree = curricularCourse.degreeCurricularPlan.degree %}
+		    	<p>{{ degree.degreeType.name }} in {{ degree.nameI18N }}
+			
+			{% endfor %}
+
+			<h4>General Objectives</h4>
+			<p>{{ info.objectives.content }}</p>
+
+		{% endfor %}
+
+		{% for entry in curriculumByCurricularCourse.keySet %}
+			{% set curricularCourse = entry.key %}
+			{% set curriculum = entry.value %}
+			{% set degree = curricularCourse.degreeCurricularPlan.degree %}
+			
+			<h3>{{ degree.degreeType.name }} in {{ degree.nameI18N }}</h3>
+
+			{% if curriculum is not empty %}
+
+				<h4>General Objectives</h4>
+				<p>{{ curriculum.generalObjectivesI18N }}</p>
+			
+				{% if curriculum.operacionalObjectives is not empty %}
+				
+					<h4>Operational Objectives</h4>
+					<p>{{ curriculum.operacionalObjectivesI18N }}</p>
+				
+				{% endif %}
+
+			{% else %}
+				
+				<p>Operational Objectives are not defined.</p>
+
+			{% endif %}
+
+
+		{% endfor %}
+
+  </div>
+{% endblock content %}

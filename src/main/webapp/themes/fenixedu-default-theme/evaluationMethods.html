@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+	<h2>Evaluation Method</h2>
+
+	{% if evaluationMethod is not empty and evaluationMethod.evaluationElements is not empty %}
+		<p>{{ evaluationMethod.evaluationElements.content | raw }}</p>
+	{% elseif evaluationMethodText is not empty %}
+		<p>{{ evaluationMethodText | raw }}</p>
+	{% else %}
+		<p>Evaluation methods not available</p>
+	{% endif %}
+
+
+{% endblock content %}

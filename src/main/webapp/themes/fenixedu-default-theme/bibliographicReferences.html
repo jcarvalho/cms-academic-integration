@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% macro referencesList(refs) %}
+  {% if refs is not empty %}
+    {% for ref in refs %}
+		<li>{{ reference(ref) }}</li>
+	{% endfor %}
+  {% endif %}
+{% endmacro %}
+
+{% macro reference(ref) %}
+	<a href="{{ ref.url is empty ? "'#'" : ref.url }}"><span>{{ ref.title | raw }}</span></a>
+	<span>{{ ref.authors | raw }}</span>
+	<span>{{ ref.year | raw }}</span>
+	<span>{{ ref.reference | raw }}</span>
+{% endmacro %}
+
+{% block content %}
+	<h2>{{ i18n('resources.ApplicationResources', 'title.bibliography') }}</h2>
+
+	<h3>{{ i18n('resources.ApplicationResources', 'message.recommendedBibliography') }}</h3>
+	<ul>	
+		{{ referencesList(mainReferences) }}
+		{{ referencesList(nonOptionalReferences) }}
+	</ul>
+	
+	<h3>{{ i18n('resources.ApplicationResources', 'message.optionalBibliography') }}<h3>
+	<ul>
+		{{ referencesList(secundaryReferences) }}
+		{{ referencesList(optionalReferences) }}
+	</ul>
+
+{% endblock content %}

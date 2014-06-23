@@ -15,10 +15,32 @@
     <name>FenixEduCMS</name>
 
     <properties>
-        <version.pt.ist.fenix>3.1.0-SNAPSHOT</version.pt.ist.fenix>
+        <version.pt.ist.fenix>3.3.0-SNAPSHOT</version.pt.ist.fenix>
         <version.org.fenixedu.bennu-cms>1.0.0-SNAPSHOT</version.org.fenixedu.bennu-cms>
         <version.org.fenixedu.bennu-signals>0.0.1-SNAPSHOT</version.org.fenixedu.bennu-signals>
     </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <target>
+                                <zip destfile="${project.build.directory}/classes/META-INF/resources/WEB-INF/fenixedu-default-theme.zip" basedir="${project.basedir}/src/main/webapp/themes/fenixedu-default-theme"></zip>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
         <dependency>
