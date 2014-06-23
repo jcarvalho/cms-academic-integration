@@ -40,7 +40,7 @@ public class CreateCMSSite extends CustomTask {
         Site newSite = createSiteInstance(oldSite);
 
         newSite.setBennu(Bennu.getInstance());
-        newSite.setTheme(CMSTheme.forType("cms-default-theme"));
+        newSite.setTheme(CMSTheme.forType("fenixedu-default-theme"));
         newSite.setDescription(localized(oldSite.getDescription()));
         newSite.setAlternativeSite(oldSite.getAlternativeSite());
         newSite.setName(localized(oldSite.getExecutionCourse().getNameI18N()));
@@ -98,6 +98,22 @@ public class CreateCMSSite extends CustomTask {
         return menuItem;
     }
 
+    private MenuItem createMenuItem(Site site, Menu menu, Page page, LocalizedString name, MenuItem parent) {
+        MenuItem menuItem = new MenuItem();
+        menuItem.setMenu(menu);
+        menuItem.setName(name);
+        menuItem.setPage(page);
+        menuItem.setParent(parent);
+        if (parent != null) {
+            parent.add(menuItem);
+            menu.add(menuItem);
+        } else {
+            menuItem.setPosition(menu.getToplevelItemsSet().size());
+            menu.addToplevelItems(menuItem);
+        }
+        return menuItem;
+    }
+
     private void createPages(Site site, Menu menu, MenuItem menuItemParent, List<Section> sections) {
         for (Section section : sections) {
             Page page = createPage(site, menu, section);
@@ -133,11 +149,25 @@ public class CreateCMSSite extends CustomTask {
             break;
         case "/publico/executionCourse.do?method=evaluations":
             createEvaluationsPage(site, menu, section);
+            createMarksPage(site, menu, section);
             break;
         default:
             break;
         }
         return null;
+    }
+
+    private void createMarksPage(Site site, Menu menu, TemplatedSection section) {
+        Page page = new Page();
+        LocalizedString name = makeLocalized("Evaluation Marks");
+        page.setName(name);
+        page.setName(name);
+        page.setSite(site);
+        page.addComponents(new ExecutionCourseMarks());
+        page.setTemplate(site.getTheme().templateForType("marks"));
+        
+        createMenuItem(site, menu, page, name, null);
+        createMenuComponenet(menu, page);
     }
 
     private void createEvaluationsPage(Site site, Menu menu, TemplatedSection section) {

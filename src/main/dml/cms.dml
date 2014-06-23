@@ -9,6 +9,7 @@ class ExecutionCourseObjectives extends .org.fenixedu.bennu.cms.domain.Component
 class ExecutionCourseEvaluationMethods extends .org.fenixedu.bennu.cms.domain.Component  {}
 class ExecutionCourseContentSearch extends .org.fenixedu.bennu.cms.domain.Component  {}
 class ExecutionCourseEvaluations extends .org.fenixedu.bennu.cms.domain.Component  {}
+class ExecutionCourseMarks extends .org.fenixedu.bennu.cms.domain.Component  {}
 
 relation ExecutionCourseFenixEduExecutionCourseSite {
 	ExecutionCourseSite playsRole cmsSite;

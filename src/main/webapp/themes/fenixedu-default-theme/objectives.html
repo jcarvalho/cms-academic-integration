@@ -17,7 +17,7 @@
 
 		{% endfor %}
 
-		{% for entry in curriculumByCurricularCourse.keySet %}
+		{% for entry in curriculumByCurricularCourse.entrySet %}
 			{% set curricularCourse = entry.key %}
 			{% set curriculum = entry.value %}
 			{% set degree = curricularCourse.degreeCurricularPlan.degree %}
