@@ -47,6 +47,16 @@
 			"name": "Marks",
 			"description": "Marks of the Execution Course",
 			"file":"marks.html"
+		},
+		"program":{
+			"name": "Program",
+			"description":"Execution Course Program",
+			"file":"program.html"
+		},
+		"lessonPlanings":{
+			"name": "Planing",
+			"description":"Lesson Planings for an Course Program",
+			"file":"lessonPlanings.html"
 		}
 	}
 }

@@ -151,10 +151,24 @@ public class CreateCMSSite extends CustomTask {
             createEvaluationsPage(site, menu, section);
             createMarksPage(site, menu, section);
             break;
+        case "/publico/executionCourse.do?method=program":
+            createProgramPage(site, menu, section);
+            break;
         default:
             break;
         }
         return null;
+    }
+
+    private void createProgramPage(Site site, Menu menu, TemplatedSection section) {
+        Page page = new Page();
+        page.setName(section.getName().toLocalizedString());
+        page.setSite(site);
+        page.addComponents(new ExecutionCourseObjectives());
+        page.setTemplate(site.getTheme().templateForType("program"));
+
+        createMenuItem(site, menu, page, section, null);
+        createMenuComponenet(menu, page);
     }
 
     private void createMarksPage(Site site, Menu menu, TemplatedSection section) {
