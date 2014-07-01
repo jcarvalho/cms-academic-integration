@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+	<h2>{{ i18n('resources.ApplicationResources', 'link.lessonPlannings') }}</h2>
+	
+	{% if lessonPlanningsMap is not empty %}
+	
+		<p>{{ i18n('resources.ApplicationResources', 'label.lessonPlannings.not.available') }}</p>
+	
+	{% endif %}
+
+	{% for lessonPlannings in entries(lessonPlanningsMap) %}
+		
+		{% if lessonPlannings.value is not empty %}
+			<h3>{{ i18n('resources.ApplicationResources', 'label.lessons') }} {{ i18n('resources.ApplicationResources', lessonPlannings.key.name) }}</h3>
+		{% endif %}
+
+		{% for lessonPlanning in lessonPlannings.value %}
+
+			<div>
+				<h4>
+					{{ i18n('resources.ApplicationResources', 'label.lesson') }} {{ lessonPlanning.orderOfPlanning }}
+					<small>{{ lessonPlanning.title }}</small>
+				</h4>
+				<p>{{ lessonPlanning.planning }}</p>
+			</div>
+
+		{% endfor %}
+
+	{% endfor %}
+			
+{% endblock content %}
