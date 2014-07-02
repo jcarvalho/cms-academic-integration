@@ -156,10 +156,37 @@ public class CreateCMSSite extends CustomTask {
             break;
         case "/publico/executionCourse.do?method=lessonPlannings":
             createLessonPlaningsPage(site, menu, section);
+        case "/publico/executionCourse.do?method=groupings":
+            createGroupingsPage(site, menu, section);
+            createGroupingPage(site, menu, section);
         default:
             break;
         }
         return null;
+    }
+
+    private void createGroupingPage(Site site, Menu menu, TemplatedSection section) {
+        Page page = new Page();
+        LocalizedString name = makeLocalized("Shift Grouping");
+        page.setName(name);
+        page.setName(name);
+        page.setSite(site);
+        page.addComponents(new ExecutionCourseGrouping());
+        page.setTemplate(site.getTheme().templateForType("shift-grouping"));
+        
+        createMenuItem(site, menu, page, name, null);
+        createMenuComponenet(menu, page);
+    }
+
+    private void createGroupingsPage(Site site, Menu menu, TemplatedSection section) {
+        Page page = new Page();
+        page.setName(section.getName().toLocalizedString());
+        page.setSite(site);
+        page.addComponents(new ExecutionCourseGroups());
+        page.setTemplate(site.getTheme().templateForType("groupings"));
+
+        createMenuItem(site, menu, page, section, null);
+        createMenuComponenet(menu, page);
     }
 
     private void createLessonPlaningsPage(Site site, Menu menu, TemplatedSection section) {

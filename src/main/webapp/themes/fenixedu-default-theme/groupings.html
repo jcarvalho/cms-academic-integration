@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if groupings is not empty %}
+
+	<a id="breadcrumb" href="#" onclick="back();">Back</a>
+
+	<section id="groupings">
+		<h2>{{ i18n('resources.ApplicationResources', 'label.groupings') }}</h2>
+		<table>
+			<thead>
+				<tr>
+					<th>{{ i18n('resources.ApplicationResources', 'label.groupingName') }}</th>
+					<th>{{ i18n('resources.ApplicationResources', 'label.groupingDescription') }}</th>
+					<th>{{ i18n('resources.ApplicationResources', 'label.executionCourses') }}</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for grouping in groupings %}
+					<tr class="grouping">
+						<td>
+							<a href="#" onclick="selectGrouping({{ grouping.externalId }})">
+								{{ grouping.name }}
+							</a>
+						</td>
+
+						<td>
+							{% if grouping.projectDescription is not empty %}
+								{{ grouping.projectDescription | raw }}
+							{% else %}
+								{{ i18n('resources.ApplicationResources', 'message.project.wihtout.description') }}				
+							{% endif %}
+					   	</td>
+					   	
+					   	<td>
+					   		{% if size(grouping.exportGroupings) > 1 %}
+					   			{% for exportGrouping in grouping.exportGroupings %}
+					   				{{ exportGrouping.executionCourse.nome }}
+					   			{% endfor %}
+					   		{% else %}
+					   			{{ i18n('resources.ApplicationResources', 'message.project.wihtout.coavaliation') }}
+					   		{% endif %}
+		               </td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<section id="shifts">
+		{% for grouping in groupings %}
+			<div grouping="{{ grouping.externalId }}">
+				<h4><strong>{{ grouping.name }}</strong></h4>
+				
+				{% if entries(grouping.studentGroupsIndexedByShift) is not empty %}
+
+					<table>
+						<thead>
+							<tr>
+								<th rowspan="2">{{ i18n('resources.ApplicationResources', 'property.shift') }}</th>
+								<th colspan="4">{{ i18n('resources.ApplicationResources', 'label.lesson') }}</th>
+								<th rowspan="2">{{ i18n('resources.ApplicationResources', 'property.groupOrGroups') }}</th>
+							</tr>	
+							<tr>
+								<th>{{ i18n('resources.ApplicationResources', 'label.day') }}</th>
+								<th>{{ i18n('resources.ApplicationResources', 'property.lesson.beginning') }}</th>
+								<th>{{ i18n('resources.ApplicationResources', 'property.lesson.end') }}</th>
+								<th>{{ i18n('resources.ApplicationResources', 'property.lesson.room') }}</th>
+							</tr>
+						</thead>
+						{% for shiftEntry in entries(grouping.studentGroupsIndexedByShift) %}
+							{% set shift = shiftEntry.key %}
+							{% set studentGroups = shiftEntry.value %}
+							
+							<tbody class ="shift" shift="{{ shift.externalId }}">
+									{% for lesson in shift.associatedLessons %}
+										<tr>
+											<td>{{ shift.nome }}</td>
+											<td>{{ lesson.diaSemana }}</td>
+											<td>{{ lesson.inicio.time | date("HH:mm") }}</td>
+											<td>{{ lesson.fim.time | date("HH:mm") }}</td>
+											<td>{{ lesson.roomOccupation.room.name }}</td>
+											<td>
+												{% for group in studentGroups %}
+													<a onclick="selectStudentGroup({{ group.externalId }})" href="#">
+														{{ group.groupNumber }} 
+													</a>
+												{% endfor %}
+											</td>
+										</tr>
+									{% endfor %}
+							</tbody>
+						{% endfor %}	
+					</table>
+				{% endif %}
+			</div>
+		{% endfor %}
+	</div>
+	
+	<section id="students">
+		<h4 id="title"><small id="sub-title"></small></h4>
+		
+		<table>
+			<thead>
+				<tr>
+					<th>{{ i18n('resources.ApplicationResources', 'label.student.group.number') }}</th>
+					<th>{{ i18n('resources.ApplicationResources', 'label.student.number') }}</th>
+					<th>{{ i18n('resources.ApplicationResources', 'label.name') }}</th>
+				</tr>
+			</thead>
+			{% for grouping in groupings %}
+				<tbody>
+					{% for studentGroup in grouping.studentGroupsOrderedByGroupNumber %}
+						{% for attend in studentGroup.attends %}
+							{% set student = attend.aluno %}
+							<tr class="student" grouping="{{ grouping.externalId }}"
+								 student-group="{{ studentGroup.externalId }}" shift="{{ studentGroup.shift.externalId }}">
+								<td>
+									<a onclick="selectStudentGroup({{ studentGroup.externalId }})" href="#">
+										{{ studentGroup.groupNumber }}
+									</a>
+								</td>
+								<td>{{ student.number }}</td>
+								<td>{{ student.person.name }}</td>
+							</tr>
+						{% endfor %}
+					{% endfor %}
+				</tbody>
+			{% endfor %}
+		</table>
+
+	</div>
+{% else %}
+
+	<h2>{{ i18n('resources.ApplicationResources', 'label.groupings') }}</h2>
+	<p><em>{{ i18n('resources.ApplicationResources', 'message.infoGroupPropertiesList.not.available') }}</em></p>
+
+{% endif %}
+
+<script type="text/javascript" charset="utf-8">
+
+	var h = [];
+
+	function selectGrouping(groupingId) {
+		execute(function(){
+			$('#groupings').hide();
+			$('#shifts').show();
+			$('#students').show();
+			
+			$('[grouping]').hide();
+			$('[grouping='+ groupingId +']').show();
+		});
+	}
+
+	function selectShift(shiftId) {
+		execute(function() {
+			$('#groupings').hide();
+			$('#shifts').show();
+			$('#students').show();
+			
+			$('[student-group]').show();
+			$('[shift]').hide();
+			$('[shift='+ shiftId +']').show();
+		});
+	}
+
+	function selectStudentGroup(groupId) {
+		if ( $("#shifts").is(":visible") ) {
+		    studentsGroup(groupId);
+		} else { 
+			studentsOnly(groupId);
+		}
+	}
+
+	function studentsGroup(groupId) {
+		execute(function() {
+			$('#groupings').hide();
+			$('#shifts').show();
+			$('#students').show();
+			
+			$('[student-group]').hide();
+			$('[student-group=' + groupId + ']').show();
+		});
+	}
+
+	function studentsOnly(groupId) {
+		execute(function() {
+			$('#groupings').hide();
+			$('#shifts').hide();
+			$('#students').show();
+			
+			$('[student-group]').hide();
+			$('[student-group=' + groupId + ']').show();
+		});
+	}
+
+	function restart() {
+		h = [];
+		$('section').hide();
+		$('#groupings').show();
+	}
+
+	function execute(fn) {
+		fn();
+		h.push(fn);
+	}
+
+	function back() {
+		if(h.length > 1) {
+			h.pop();
+			var method = h.pop();
+			method();
+		} else {
+			restart();
+		}
+	}
+
+	restart();
+</script>
+
+<style type="text/css" media="screen">
+	table { margin: 1em 0 1em 0;  border: 1px solid #ccc; padding: 1px;}
+	table th { background-color: #ccc; font-weight: bold; text-align: left; padding: 5px; }
+	table td { background-color: #eee; border: 1px dotted #ccc; text-align: left; padding: 5px;}
+</style>
+
+{% endblock content %}

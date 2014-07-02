@@ -15,7 +15,7 @@
 		},
 		"categories":{
 			"name": "Categories",
-			"description": "List of Categories",
+			"description": "List of Categoryories",
 			"file":"categories.html"
 		},
 		"category":{
@@ -57,6 +57,11 @@
 			"name": "Planing",
 			"description":"Lesson Planings for an Course Program",
 			"file":"lessonPlanings.html"
+		},
+		"groupings":{
+			"name": "Groupings",
+			"description":"Groups for an Course Program",
+			"file":"groupings.html"
 		}
 	}
 }
