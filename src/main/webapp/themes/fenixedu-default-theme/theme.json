@@ -62,6 +62,11 @@
 			"name": "Groupings",
 			"description":"Groups for an Course Program",
 			"file":"groupings.html"
+		},
+		"shifts":{
+			"name": "Shifts",
+			"description":"Shifts for an Course Program",
+			"file":"shifts.html"
 		}
 	}
 }

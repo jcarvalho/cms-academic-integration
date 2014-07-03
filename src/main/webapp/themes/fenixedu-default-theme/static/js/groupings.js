@@ -71,13 +71,10 @@ function restart() {
 
 function execute(fn) {
 	fn();
-	console.log("before",h);
 	h.push(fn);
-	console.log("after:",h);
 }
 
 function back() {
-	console.log("before",h);
 	if(h.length > 1) {
 		h.pop();
 		var method = h.pop();
@@ -86,5 +83,4 @@ function back() {
 		console.log("restart",h);
 		restart();
 	}
-	console.log("after",h);
 }

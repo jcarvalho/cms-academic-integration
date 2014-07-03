@@ -39,7 +39,7 @@
 					   	</td>
 					   	
 					   	<td>
-					   		{% if size(grouping.exportGroupings) > 1 %}
+					   		{% if grouping.exportGroupings | length > 1 %}
 					   			{% for exportGrouping in grouping.exportGroupings %}
 					   				{{ exportGrouping.executionCourse.nome }}
 					   			{% endfor %}
