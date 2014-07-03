@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block header %}
+<script src="{{ staticDir }}/js/groupings.js"></script>
+{% endblock header %}
+
 {% block content %}
 
 {% if groupings is not empty %}
@@ -8,7 +12,8 @@
 
 	<section id="groupings">
 		<h2>{{ i18n('resources.ApplicationResources', 'label.groupings') }}</h2>
-		<table>
+
+		<table class="table">
 			<thead>
 				<tr>
 					<th>{{ i18n('resources.ApplicationResources', 'label.groupingName') }}</th>
@@ -46,7 +51,7 @@
 				{% endfor %}
 			</tbody>
 		</table>
-	</div>
+	</section>
 
 	<section id="shifts">
 		{% for grouping in groupings %}
@@ -55,12 +60,18 @@
 				
 				{% if entries(grouping.studentGroupsIndexedByShift) is not empty %}
 
-					<table>
+					<table class="table">
 						<thead>
 							<tr>
-								<th rowspan="2">{{ i18n('resources.ApplicationResources', 'property.shift') }}</th>
+								<th rowspan="2">
+									{{ i18n('resources.ApplicationResources', 'property.shift') }}
+									<a hfref="#" onclick="selectShift(null)">(all)</a>
+								</th>
 								<th colspan="4">{{ i18n('resources.ApplicationResources', 'label.lesson') }}</th>
-								<th rowspan="2">{{ i18n('resources.ApplicationResources', 'property.groupOrGroups') }}</th>
+								<th rowspan="2">
+									{{ i18n('resources.ApplicationResources', 'property.groupOrGroups') }}
+									<a hfref="#" onclick="selectStudentGroup(null)">(all)</a>
+								</th>
 							</tr>	
 							<tr>
 								<th>{{ i18n('resources.ApplicationResources', 'label.day') }}</th>
@@ -73,10 +84,14 @@
 							{% set shift = shiftEntry.key %}
 							{% set studentGroups = shiftEntry.value %}
 							
-							<tbody class ="shift" shift="{{ shift.externalId }}">
+							<tbody>
 									{% for lesson in shift.associatedLessons %}
-										<tr>
-											<td>{{ shift.nome }}</td>
+										<tr class="shift" shift="{{ shift.externalId }}" grouping="{{ grouping.externalId }}">
+											<td>
+												<a href="#" onclick="selectShift({{ shift.externalId }})">
+													{{ shift.nome }}
+												</a>
+											</td>
 											<td>{{ lesson.diaSemana }}</td>
 											<td>{{ lesson.inicio.time | date("HH:mm") }}</td>
 											<td>{{ lesson.fim.time | date("HH:mm") }}</td>
@@ -96,12 +111,12 @@
 				{% endif %}
 			</div>
 		{% endfor %}
-	</div>
+	</section>
 	
 	<section id="students">
 		<h4 id="title"><small id="sub-title"></small></h4>
 		
-		<table>
+		<table class="table">
 			<thead>
 				<tr>
 					<th>{{ i18n('resources.ApplicationResources', 'label.student.group.number') }}</th>
@@ -130,7 +145,7 @@
 			{% endfor %}
 		</table>
 
-	</div>
+	</section>
 {% else %}
 
 	<h2>{{ i18n('resources.ApplicationResources', 'label.groupings') }}</h2>
@@ -138,91 +153,11 @@
 
 {% endif %}
 
-<script type="text/javascript" charset="utf-8">
+<style type="text/css" media="screen">
+</style>
 
-	var h = [];
-
-	function selectGrouping(groupingId) {
-		execute(function(){
-			$('#groupings').hide();
-			$('#shifts').show();
-			$('#students').show();
-			
-			$('[grouping]').hide();
-			$('[grouping='+ groupingId +']').show();
-		});
-	}
-
-	function selectShift(shiftId) {
-		execute(function() {
-			$('#groupings').hide();
-			$('#shifts').show();
-			$('#students').show();
-			
-			$('[student-group]').show();
-			$('[shift]').hide();
-			$('[shift='+ shiftId +']').show();
-		});
-	}
-
-	function selectStudentGroup(groupId) {
-		if ( $("#shifts").is(":visible") ) {
-		    studentsGroup(groupId);
-		} else { 
-			studentsOnly(groupId);
-		}
-	}
-
-	function studentsGroup(groupId) {
-		execute(function() {
-			$('#groupings').hide();
-			$('#shifts').show();
-			$('#students').show();
-			
-			$('[student-group]').hide();
-			$('[student-group=' + groupId + ']').show();
-		});
-	}
-
-	function studentsOnly(groupId) {
-		execute(function() {
-			$('#groupings').hide();
-			$('#shifts').hide();
-			$('#students').show();
-			
-			$('[student-group]').hide();
-			$('[student-group=' + groupId + ']').show();
-		});
-	}
-
-	function restart() {
-		h = [];
-		$('section').hide();
-		$('#groupings').show();
-	}
-
-	function execute(fn) {
-		fn();
-		h.push(fn);
-	}
-
-	function back() {
-		if(h.length > 1) {
-			h.pop();
-			var method = h.pop();
-			method();
-		} else {
-			restart();
-		}
-	}
-
+<script type="text/javascript">
 	restart();
 </script>
-
-<style type="text/css" media="screen">
-	table { margin: 1em 0 1em 0;  border: 1px solid #ccc; padding: 1px;}
-	table th { background-color: #ccc; font-weight: bold; text-align: left; padding: 5px; }
-	table td { background-color: #eee; border: 1px dotted #ccc; text-align: left; padding: 5px;}
-</style>
 
 {% endblock content %}
