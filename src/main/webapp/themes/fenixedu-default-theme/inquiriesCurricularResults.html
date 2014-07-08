@@ -1,0 +1,54 @@
+<h2>{{ i18n('resources.InquiriesResources', 'label.teachingInquiries.studentInquiriesResults') }}</h2>
+
+{% if hasAccess %}
+
+	<table class="table">
+		<tbody>
+			<tr>
+				<th>{{ inquiriesResultsBean.executionCourse.nome }}</tr>
+				<td>
+					<ul>
+						{% for curricularCourse in inquiriesResultsBean.executionCourse.curricularCoursesSortedByDegreeAndCurricularCourseName %}
+							{% set url = "/publico/executionCourse.do?method=dispatchToInquiriesResultPage" 
+								+ "&executionCourseID=" + inquiriesResultsBean.executionCourse.externalId 
+								+ "&degreeCurricularPlanOID=" + curricularCourse.degreeCurricularPlan.externalId
+							%}
+							<li>
+								<a href="{{ url }}">
+									{{ i18n('resources.InquiriesResources', 'link.teachingInquiries.cuResults') }}
+									({{ curricularCourse.degreeCurricularPlan.degree.sigla }})
+								</a>
+							</li>
+						{% endfor %}
+					</ul>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<table class="table">
+		{% for teacherInquiry in entries(inquiriesResultsBean.professorshipsShifts) %}
+			{% set professorshipID = teacherInquiry.key.externalId %}
+			<tr>
+				<th>{{ teacherInquiry.key.person.name }}</th>
+				<td>
+					<ul>
+						{% for teacherInquiryByShift in teacherInquiry.value %}
+							{% set url = "/publico/executionCourse.do?method=dispatchToTeacherInquiriesResultPage" 
+								+ "&professorshipOID=" + professorshipID
+								+ "&shiftType=" + teacherInquiryByShift 
+								+ "&executionCourseID=" + inquriesResultsBean.executionCourse.externalId 
+							%}
+							<li>
+								<a href="{{ url }}">{{ i18n('resources.EnumerationResources', teacherInquiryByShift.name) }}
+							</li>
+						{% endfor %}
+					</ul>
+				</td>
+			</tr>
+		{% endfor %}
+	</table>
+
+{% else %}
+	<h2>{{ i18n('resources.InquiriesResources', 'message.inquiries.information.not.public') }}</h2>
+{% endif %}

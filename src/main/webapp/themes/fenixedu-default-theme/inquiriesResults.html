@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+	{% if inquiriesResultsBean.isNewQuc %}
+		{% if inquiriesResultsBean.isNewQucAvailable %}
+			{% include "inquiriesCurricularResults.html" %}
+		 {% else %}
+			{% include "inquiriesResultsNotAvailable.html" %}
+		{% endif %}
+	{% else %}
+		{% if inquiriesResultsBean.isOldQucAvailable %}
+			{% if inquiriesResultsBean.isOldQucStudentCourseResultsAvailable %}
+				{% include "inquiriesStudentResults.html" %}
+			{% else %}
+				{% if inquiriesResultsBean.isOldQucStudentCourseFullResultsAvailable %}
+					{% include "inquiriesStudentFullResults.html" %}
+				{% else %}
+					{% include "inquiriesResultsNotAvailable.html" %}
+				{% endif %}
+			{% endif %}
+		{% else %}
+			{% include "inquiriesResultsNotAvailable.html" %}
+		{% endif %}
+	{% endif %}
+{% endblock content %}

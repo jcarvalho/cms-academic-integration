@@ -13,6 +13,7 @@ class ExecutionCourseMarks extends .org.fenixedu.bennu.cms.domain.Component  {}
 class ExecutionCourseLessonsPlanning extends .org.fenixedu.bennu.cms.domain.Component  {}
 class ExecutionCourseGroups extends .org.fenixedu.bennu.cms.domain.Component  {}
 class ExecutionCourseGrouping extends .org.fenixedu.bennu.cms.domain.Component  {}
+class ExecutionCourseInquiriesResults extends .org.fenixedu.bennu.cms.domain.Component  {}
 
 relation ExecutionCourseFenixEduExecutionCourseSite {
 	ExecutionCourseSite playsRole cmsSite;

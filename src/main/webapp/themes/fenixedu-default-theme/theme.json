@@ -67,6 +67,32 @@
 			"name": "Shifts",
 			"description":"Shifts for an Course Program",
 			"file":"shifts.html"
+		},
+		"inqueriesResults":{
+			"name": "Inquiries Results",
+			"description":"Inquerires Results for an Execution Course",
+			"file":"inquiriesResults.html"
+		},
+		"inquiriesResultsNotAvailable":{
+			"name": "Inquiries Results Not Available",
+			"description":"Page for when the inquerires results are not available",
+			"file":"inquiriesResultsNotAvailable.html"
+		},
+		"inquiriesCurricularResults":{
+			"name": "Inquiries Curricular Results",
+			"description":"Inquiries Curricular Results",
+			"file":"inquiriesCurricularResults.html"
+		},
+		"inquiriesStudentResults":{
+			"name": "Inquiries Student Results",
+			"description":"Inquiries Student Results",
+			"file":"inquiriesStudentResults.html"
+		},
+		"inquiriesStudentFullResults":{
+			"name": "Inquiries Student Full Results",
+			"description":"Inquiries Full Student Results",
+			"file":"inquiriesStudentFullResults.html"
 		}
+
 	}
 }

@@ -1,0 +1,73 @@
+<h2>{{ i18n('resources.InquiriesResources', 'label.teachingInquiries.studentInquiriesResults') }}</h2>
+
+{% if hasAccess %}
+	{% if inquiriesResultsBean.studentInquiriesCourseResults is not empty %}
+
+		{% for courseResult in studentInquiriesResults %}
+			<p>
+				<strong>
+					{% set url = "/publico/executionCourse.do?method=showInquiryCourseResult"
+						+ "&resultId=" + courseResult.studentInquiriesCourseResult.externalId
+						+ "&executionCourseID=" + inquiriesResultsBean.executionCourse.externalId
+					%}
+					<a href="{{ url }}">
+						{{ courseResult.studentInquiriesCourseResult.executionCourse.nome }}
+						 - 
+						{{ courseResult.studentInquiriesCourseResult.executionDegree.degreeCurricularPlan.name }}
+				</strong>
+			</p>
+			{% if courseResult.studentInquiriesTeachingResults is not empty %}
+				<ul>
+					{% for teachingResult in courseResult.studentInquiriesTeachingResults %}
+						<li>
+							{% set url = "/publico/executionCourse.do?method=showInquiryTeachingResult"
+								+ "&resultId=" + teachingResult.externalId
+								+ "&executionCourseID=" + inquiriesResultsBean.executionCourse.externalId
+							%}
+							<a href="{{ url }}">
+								{{ teachingResult.professorship.person.name }}
+								&nbsp;
+								({{ i18n('resources.EnumerationResources', teachingResult.shiftType.name) }})
+								<br />
+							</a>
+						</li>			
+					{% endfor %}
+				</ul>
+			{% endif %}
+		{% endfor %}
+	{% endif %}
+	
+	<p><strong>{{ i18n('resources.InquiriesResources', 'title.inquiries.teachingReports') }}<strong></p>
+	<ul>
+		{% for professorship in inquiriesResultsBean.executionCourse.professorships %}
+			{% if professorship.teachingInquiry is not empty and professorship.teachingInquiry.reportDisclosureToAcademicComunity %}
+				<li>
+					{% set url = "/publico/executionCourse.do?method=showInquiryTeachingReport"
+						+ "&teachingInquiry=" + teachingInquiry.externalId
+						+ "&degreeCurricularPlanID=" + degreeCurricularPlanID
+						+ "&executionCourseID=" + inquiriesResultsBean.executionCourse.externalId
+					%}
+					<a href="{{ url }}">{{ professorship.person.name }}</a>
+				</li>
+			{% endif %}
+		{% endfor %}
+	</ul>
+
+	<p><strong>{{ i18n('resources.InquiriesResources', 'title.inquiries.delegateReports') }}<strong></p>
+	<ul>
+		{% for delegateInquiry in executionCourse.yearDelegateCourseInquiries %}
+			{% if delegateInquiry.reportDisclosureAuthorization equals "YES" %}
+				{% set url = "/executionCourse.do?method=showYearDelegateInquiryReport"
+					+ "&yearDelegateInquiryId=" + delegateInquiryID
+					+ "&degreeCurricularPlanID=" + degreeCurricularPlanID 
+					+ "&executionCourseID=" + executionCourse.externalId
+				%}
+				<a href="{{ url }}">{{ delegateInquiry.delegate.registration.student.person.name }}</a>
+			{% endif %}
+		{% endfor %}
+	</ul>
+
+</logic:present>
+{% else %}
+	<h2>{{ i18n('resources.InquiriesResources', 'message.inquiries.information.not.public') }}</h2>
+{% endif %}

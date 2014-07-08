@@ -1,0 +1,42 @@
+<h2>{{ i18n('resources.InquiriesResources', 'label.teachingInquiries.studentInquiriesResults') }}</h2>
+
+{% if hasAccess %}
+	{% if inquiriesResultsBean.studentInquiriesCourseResults is not empty %}	
+		{% for courseResult in studentInquiriesResults %}
+			<p>
+				<strong>{{ i18n('resources.InquiriesResources', 'link.teachingInquiries.cuResults') }}</strong>
+
+				{% set url = "/publico/executionCourse.do?method=showInquiryCourseResult" 
+					+ "&resultId=" + courseResult.studentInquiriesCourseResult.externalId 
+				%}
+
+				<a href="{{ url }}">
+					{{ courseResult.studentInquiriesCourseResult.executionCourse.nome }}
+					 - 
+					{{ courseResult.studentInquiriesCourseResult.executionDegree.degreeCurricularPlan.name }}
+				</a>
+
+				{% if courseResult.studentInquiriesTeachingResults %}
+
+					<ul>
+						{% for teachingResult in courseResult.studentInquiriesTeachingResults %}
+							<li>
+								{% set url = "/publico/executionCourse.do?method=showInquiryTeachingResult" + 
+									"&resultId=" + teachingResult.externalId
+								%}
+								<a href="{{ url }}">
+									{{ teachingResult.professorship.person.name }}
+									&nbsp;
+									({{ i18n('resources.EnumerationResources', teachingResult.shiftType.name) }})
+									<br />
+								</a>
+							</li>
+						{% endfor %}
+					</ul>
+
+				{% endif %}
+		{% endfor %}
+	{% endif %}
+{% else %}
+	<h2>{{ i18n('resources.InquiriesResources', 'message.inquiries.information.not.public') }}</h2>
+{% endif %}
