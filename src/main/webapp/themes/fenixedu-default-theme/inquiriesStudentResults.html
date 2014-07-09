@@ -6,7 +6,7 @@
 			<p>
 				<strong>{{ i18n('resources.InquiriesResources', 'link.teachingInquiries.cuResults') }}</strong>
 
-				{% set url = "/publico/executionCourse.do?method=showInquiryCourseResult" 
+				{% set url = inquiriesResultsBean.showInquiryshowInquiryCourseResultUrl
 					+ "&resultId=" + courseResult.studentInquiriesCourseResult.externalId 
 				%}
 
@@ -21,8 +21,8 @@
 					<ul>
 						{% for teachingResult in courseResult.studentInquiriesTeachingResults %}
 							<li>
-								{% set url = "/publico/executionCourse.do?method=showInquiryTeachingResult" + 
-									"&resultId=" + teachingResult.externalId
+								{% set url = inquiriesResultsBean.showInquiryTeachingResultUrl
+									+ "&resultId=" + teachingResult.externalId
 								%}
 								<a href="{{ url }}">
 									{{ teachingResult.professorship.person.name }}
@@ -38,5 +38,5 @@
 		{% endfor %}
 	{% endif %}
 {% else %}
-	<h2>{{ i18n('resources.InquiriesResources', 'message.inquiries.information.not.public') }}</h2>
+	<p>{{ i18n('resources.InquiriesResources', 'message.inquiries.information.not.public') }}<a href="{{ loginUrl }}">Login</a></p>
 {% endif %}

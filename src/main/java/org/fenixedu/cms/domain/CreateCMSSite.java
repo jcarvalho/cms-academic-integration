@@ -3,11 +3,13 @@ package org.fenixedu.cms.domain;
 import java.util.List;
 import java.util.Locale;
 
+import net.sourceforge.fenixedu.domain.ExecutionCourse;
 import net.sourceforge.fenixedu.domain.Item;
 import net.sourceforge.fenixedu.domain.Section;
 import net.sourceforge.fenixedu.domain.Summary;
 import net.sourceforge.fenixedu.domain.cms.TemplatedSection;
 
+import org.apache.commons.lang.StringUtils;
 import org.fenixedu.bennu.cms.domain.CMSTheme;
 import org.fenixedu.bennu.cms.domain.ListCategoryPosts;
 import org.fenixedu.bennu.cms.domain.Menu;
@@ -35,8 +37,33 @@ public class CreateCMSSite extends CustomTask {
 
     @Override
     public void runTask() throws Exception {
-        /*compiladores*/
-        net.sourceforge.fenixedu.domain.ExecutionCourseSite oldSite = FenixFramework.getDomainObject("2293514188720");
+//        createExecutionCourseSite(oldExecutionCourseSite("2293514188720"));
+        deleteAllSites();
+
+        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612946319"));
+        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612917134"));
+        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612898443"));
+        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612875684"));
+        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612846760"));
+        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612818202"));
+        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612802249"));
+
+    }
+
+    private void deleteAllSites() {
+        Bennu.getInstance().getSitesSet().forEach(site -> site.delete());
+    }
+
+    private net.sourceforge.fenixedu.domain.ExecutionCourseSite oldExecutionCourseSiteByExecutionCourse(String executionCourseOID) {
+        ExecutionCourse executionCourse = FenixFramework.getDomainObject(executionCourseOID);
+        return executionCourse.getSite();
+    }
+
+    private net.sourceforge.fenixedu.domain.ExecutionCourseSite oldExecutionCourseSite(String siteOID) {
+        return net.sourceforge.fenixedu.domain.ExecutionCourseSite.readExecutionCourseSiteByOID(siteOID);
+    }
+
+    private void createExecutionCourseSite(net.sourceforge.fenixedu.domain.ExecutionCourseSite oldSite) {
         Site newSite = createSiteInstance(oldSite);
 
         newSite.setBennu(Bennu.getInstance());
@@ -44,9 +71,12 @@ public class CreateCMSSite extends CustomTask {
         newSite.setDescription(localized(oldSite.getDescription()));
         newSite.setAlternativeSite(oldSite.getAlternativeSite());
         newSite.setName(localized(oldSite.getExecutionCourse().getNameI18N()));
-//        if (!oldSite.getName().getAllContents().isEmpty()) {
-//            newSite.setSlug(Iterables.getFirst(oldSite.getName().getAllContents(), null));
-//        }
+        String slug = oldSite.getReversePath();
+        if (slug.startsWith("/")) {
+            slug = StringUtils.right(oldSite.getReversePath(), slug.length() - 1);
+        }
+        slug = StringUtils.replace(slug, "/", "-");
+        newSite.setSlug(slug);
         newSite.setStyle(oldSite.getStyle());
         newSite.setPublished(true);
 

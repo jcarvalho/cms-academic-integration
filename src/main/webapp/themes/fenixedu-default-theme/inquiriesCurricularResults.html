@@ -9,7 +9,7 @@
 				<td>
 					<ul>
 						{% for curricularCourse in inquiriesResultsBean.executionCourse.curricularCoursesSortedByDegreeAndCurricularCourseName %}
-							{% set url = "/publico/executionCourse.do?method=dispatchToInquiriesResultPage" 
+							{% set url = inquiriesResultsBean.inquiriesResultPageUrl
 								+ "&executionCourseID=" + inquiriesResultsBean.executionCourse.externalId 
 								+ "&degreeCurricularPlanOID=" + curricularCourse.degreeCurricularPlan.externalId
 							%}
@@ -34,10 +34,10 @@
 				<td>
 					<ul>
 						{% for teacherInquiryByShift in teacherInquiry.value %}
-							{% set url = "/publico/executionCourse.do?method=dispatchToTeacherInquiriesResultPage" 
+							{% set url = inquiriesResultsBean.teacherInquiriesResultPageUrl
 								+ "&professorshipOID=" + professorshipID
 								+ "&shiftType=" + teacherInquiryByShift 
-								+ "&executionCourseID=" + inquriesResultsBean.executionCourse.externalId 
+								+ "&executionCourseID=" + inquiriesResultsBean.executionCourse.externalId 
 							%}
 							<li>
 								<a href="{{ url }}">{{ i18n('resources.EnumerationResources', teacherInquiryByShift.name) }}
@@ -50,5 +50,6 @@
 	</table>
 
 {% else %}
-	<h2>{{ i18n('resources.InquiriesResources', 'message.inquiries.information.not.public') }}</h2>
+	<p>{{ i18n('resources.InquiriesResources', 'message.inquiries.information.not.public') }}<a href="{{ loginUrl }}">Login</a></p>
+
 {% endif %}
