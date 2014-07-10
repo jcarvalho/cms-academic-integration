@@ -21,7 +21,7 @@ public class ExecutionCourseMarks extends ExecutionCourseMarks_Base {
     public void handle(Page page, HttpServletRequest req, TemplateContext componentContext, TemplateContext globalContext) {
         ExecutionCourse executionCourse = ((ExecutionCourseSite) page.getSite()).getExecutionCourse();
         Map<Attends, Map<Evaluation, Mark>> attendsMap = attendsMap(executionCourse);
-        globalContext.put("attendsMap", attendsMap.entrySet());
+        globalContext.put("attendsMap", attendsMap);
         globalContext.put("numberOfStudents", attendsMap.size());
         globalContext.put("dont-cache-pages-in-search-engines", Boolean.TRUE);
         globalContext.put("evaluations", executionCourse.getOrderedAssociatedEvaluations());

@@ -27,6 +27,10 @@
 	<h2>{{ i18n('resources.ApplicationResources', 'title.evaluation') }}</h2>
 	<p>{{ i18n('resources.ApplicationResources', 'classification.nonOfficial.information') }}</p>
 
+
+{{menu.childrenSorted}}
+
+
 	<table cellspacing="1" cellpadding="2">
 		<tr>
 			<th nowrap>{{ i18n('resources.ApplicationResources', 'label.number') }}</th>
@@ -36,14 +40,14 @@
 				{{ evaluationMethod(eval) }}
 			{% endfor %}
 		</tr>
-		{% for attendEntry in attendsMap %}
+		{% for attendEntry in entries(attendsMap) %}
 			{% set attends = attendEntry.key %}
 			{% set evaluations = attendEntry.value %}
 			<tr>
 				<td nowrap>{{ attends.registration.number }}</td>
 				<td nowrap>{{ attends.registration.person.name }}</td>
 				<td nowrap>{{ attends.registration.degreeCurricularPlanName }}</td>
-				{% for evaluationEntry in evaluations.entrySet %}
+				{% for evaluationEntry in entries(evaluations) %}
 					{% set mark = evaluationEntry.value %}
 					<td nowrap>{{ mark is not empty ? mark.publishedMark : ""}}</td>
 				{% endfor %}
