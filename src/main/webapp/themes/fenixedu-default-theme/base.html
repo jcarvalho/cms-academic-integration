@@ -1,16 +1,17 @@
-{% macro menuChildren(menuItems) %}
+{% macro menuChildren(menuItems, currentPage) %}
   {% if menuItems.size != 0 %}
     {% for item in menuItems %}
-      {{menuItem(item)}}
+      {{menuItem(item, currentPage)}}
     {% endfor %}
   {% endif %}
 {% endmacro %}
 
-{% macro menuItem(item) %}
-  <li><a href="{{item.address}}">{{ item.name.content }}</a></li>
-  {% if item.childrenSet.size != 0 %}
-    <ol class="list-unstyled">
-      {{menuChildren(item.childrenSorted)}}
+{% macro menuItem(item, currentPage) %}
+  {% set isSelected = item.page equals currentPage %}
+  <li><a class="{{ isSelected ? 'active' : ''}}" href="{{ item.address }}">{{ item.name.content }}</a></li>
+  {% if item.childrenSet.size != 0 and isSelected %}
+    <ol style="padding-left: 5px;" class="list-unstyled">
+      {{ menuChildren(item.childrenSorted) }}
     </ol>
   {% endif %}
 {% endmacro %}
@@ -23,7 +24,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>{{site.name.content}}</title>
+    <title>{{ site.name.content }}</title>
     
     <!-- Bootstrap core CSS -->
     <link href="{{ staticDir }}/css/bootstrap.min.css" rel="stylesheet">
@@ -50,8 +51,8 @@
     <div class="container">
 
       <div class="blog-header">
-        <h1 class="blog-title">{{site.name.content}}</h1>
-        <p class="lead blog-description">{{page.name.content}}</p>
+        <h1 class="blog-title">{{ site.name.content }}</h1>
+        <p class="lead blog-description">{{ page.name.content }}</p>
       </div>
 
       <div class="row">
@@ -69,9 +70,9 @@
           </div>
           {% for menu in menus %}
             <div class="sidebar-module">
-              <h4>{{menu.name.content}}</h4>
+              <h4>{{ menu.name.content }}</h4>
               <ol class="list-unstyled">
-              {{menuChildren(menu.childrenSorted)}}
+              {{ menuChildren(menu.childrenSorted, page) }}
               </ol>
             </div>
           {% endfor %}
@@ -83,8 +84,8 @@
 
     <div style="margin-top:50px;"class="blog-footer container">
       <p>{{app.title.content}}</p>
-      <p class="small">{{app.title.content}}</p>
-      <p class="small">{{app.title.copyright}}</p>
+      <p class="small">{{ app.title.content }}</p>
+      <p class="small">{{ app.title.copyright }}</p>
       </p>
     </div>
 

@@ -1,7 +1,9 @@
 package org.fenixedu.cms.domain;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import net.sourceforge.fenixedu.domain.ExecutionCourse;
 import net.sourceforge.fenixedu.domain.Item;
@@ -11,6 +13,7 @@ import net.sourceforge.fenixedu.domain.cms.TemplatedSection;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.bennu.cms.domain.CMSTheme;
+import org.fenixedu.bennu.cms.domain.Category;
 import org.fenixedu.bennu.cms.domain.ListCategoryPosts;
 import org.fenixedu.bennu.cms.domain.Menu;
 import org.fenixedu.bennu.cms.domain.MenuComponent;
@@ -18,7 +21,6 @@ import org.fenixedu.bennu.cms.domain.MenuItem;
 import org.fenixedu.bennu.cms.domain.Page;
 import org.fenixedu.bennu.cms.domain.Post;
 import org.fenixedu.bennu.cms.domain.Site;
-import org.fenixedu.bennu.cms.domain.StaticPost;
 import org.fenixedu.bennu.cms.domain.ViewPost;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.security.Authenticate;
@@ -29,25 +31,41 @@ import org.fenixedu.bennu.signals.Signal;
 import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import pt.ist.fenixframework.FenixFramework;
 import pt.utl.ist.fenix.tools.util.i18n.MultiLanguageString;
 
+import com.google.common.collect.Sets;
+
 public class CreateCMSSite extends CustomTask {
+    Logger log = LoggerFactory.getLogger(CreateCMSSite.class);
 
     @Override
     public void runTask() throws Exception {
 //        createExecutionCourseSite(oldExecutionCourseSite("2293514188720"));
+        deleteAllMenuItems();
         deleteAllSites();
 
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612946319"));
-        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612917134"));
-        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612898443"));
-        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612875684"));
-        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612846760"));
-        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612818202"));
-        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612802249"));
+//        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612917134"));
+//        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612898443"));
+//        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612875684"));
+//        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612846760"));
+//        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612818202"));
+//        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612802249"));
 
+    }
+
+    private void deleteAllMenuItems() {
+        Set<MenuItem> items = Sets.newHashSet();
+        for (Site site : Bennu.getInstance().getSitesSet()) {
+            for (Menu menu : site.getMenusSet()) {
+                items.addAll(menu.getChildrenSorted());
+            }
+        }
+        items.forEach(i -> i.delete());
     }
 
     private void deleteAllSites() {
@@ -113,49 +131,35 @@ public class CreateCMSSite extends CustomTask {
     }
 
     private MenuItem createMenuItem(Site site, Menu menu, Page page, Section section, MenuItem parent) {
-        MenuItem menuItem = new MenuItem();
-        menuItem.setMenu(menu);
-        menuItem.setName(localized(section.getName()));
-        menuItem.setPage(page);
-        menuItem.setParent(parent);
+        MenuItem menuItem = createMenuItem(site, menu, page, localized(section.getName()), parent);
         menuItem.setPosition(section.getOrder());
-        if (parent != null) {
-            parent.add(menuItem);
-            menu.add(menuItem);
-        } else {
-            menu.addToplevelItems(menuItem);
-        }
         return menuItem;
     }
 
     private MenuItem createMenuItem(Site site, Menu menu, Page page, LocalizedString name, MenuItem parent) {
         MenuItem menuItem = new MenuItem();
-        menuItem.setMenu(menu);
         menuItem.setName(name);
         menuItem.setPage(page);
         menuItem.setParent(parent);
-        if (parent != null) {
-            parent.add(menuItem);
+        menuItem.setMenu(menu);
+        if (parent == null) {
             menu.add(menuItem);
-        } else {
-            menuItem.setPosition(menu.getToplevelItemsSet().size());
-            menu.addToplevelItems(menuItem);
         }
         return menuItem;
     }
 
-    private void createPages(Site site, Menu menu, MenuItem menuItemParent, List<Section> sections) {
+    private void createPages(Site site, Menu menu, MenuItem menuItemParent, Collection<Section> sections) {
         for (Section section : sections) {
             Page page = createPage(site, menu, section);
             MenuItem menuItem = page != null ? createMenuItem(site, menu, page, section, menuItemParent) : null;
-            if (!section.getSubSections().isEmpty()) {
-                createPages(site, menu, menuItem, section.getSubSections());
+            if (!section.getChildrenSections().isEmpty()) {
+                log.info("has sub-sections ! " + section.getChildrenSections());
+                createPages(site, menu, menuItem, section.getChildrenSections());
             }
         }
     }
 
     private Page createPage(Site site, Menu menu, Section section) {
-
         if (section instanceof TemplatedSection) {
             return createDynamicPage(site, menu, (TemplatedSection) section);
         } else {
@@ -368,26 +372,29 @@ public class CreateCMSSite extends CustomTask {
         page.setName(localized(section.getName()));
         page.setPublished(section.getEnabled());
         page.setSite(site);
-        page.setTemplate(site.getTheme().templateForType("view"));
+        page.setTemplate(site.getTheme().templateForType("category"));
+        Category category = new Category();
+        category.setName(page.getName());
+        page.addComponents(new ListCategoryPosts(category));
         for (Item item : section.getChildrenItems()) {
-            createStaticPost(site, page, item);
+            createStaticPost(site, page, item, category);
         }
         createMenuComponenet(menu, page);
 
         return page;
     }
 
-    private void createStaticPost(Site site, Page page, Item item) {
+    private void createStaticPost(Site site, Page page, Item item, Category category) {
 
         Post post = new Post();
         post.setSite(site);
         post.setName(localized(item.getName()));
         post.setBody(localized(item.getBody()));
         post.setCreationDate(new DateTime());
-
-        StaticPost staticPostComponent = new StaticPost();
-        staticPostComponent.setPage(page);
-        staticPostComponent.setPost(post);
+        post.addCategories(category);
+//        StaticPost staticPostComponent = new StaticPost();
+//        staticPostComponent.setPage(page);
+//        staticPostComponent.setPost(post);
     }
 
     private static LocalizedString makeLocalized(String value) {
