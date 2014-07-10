@@ -196,10 +196,24 @@ public class CreateCMSSite extends CustomTask {
         case "/publico/executionCourse.do?method=studentInquiriesResults":
             createInquiriesResultsPage(site, menu, section);
             break;
+        case "/publico/executionCourse.do?method=firstPage":
+            createFirstPage(site, menu, section);
+            break;
         default:
             break;
         }
         return null;
+    }
+
+    private void createFirstPage(Site site, Menu menu, TemplatedSection section) {
+        Page page = new Page();
+        page.setName(section.getName().toLocalizedString());
+        page.setSite(site);
+        page.addComponents(new ExecutionCourseInitialPage());
+        page.setTemplate(site.getTheme().templateForType("firstPage"));
+
+        createMenuItem(site, menu, page, section, null);
+        createMenuComponenet(menu, page);
     }
 
     private void createInquiriesResultsPage(Site site, Menu menu, TemplatedSection section) {

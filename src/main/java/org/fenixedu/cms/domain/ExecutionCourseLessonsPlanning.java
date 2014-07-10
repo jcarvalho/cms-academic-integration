@@ -10,9 +10,11 @@ import net.sourceforge.fenixedu.domain.ExecutionCourse;
 import net.sourceforge.fenixedu.domain.LessonPlanning;
 import net.sourceforge.fenixedu.domain.ShiftType;
 
+import org.fenixedu.bennu.cms.domain.ComponentType;
 import org.fenixedu.bennu.cms.domain.Page;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
 
+@ComponentType(type = "lessonsPlaning", name = "LessonsPlanning", description = "Lessons planing for an Execution Course")
 public class ExecutionCourseLessonsPlanning extends ExecutionCourseLessonsPlanning_Base {
 
     @Override

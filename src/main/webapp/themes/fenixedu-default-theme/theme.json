@@ -92,7 +92,11 @@
 			"name": "Inquiries Student Full Results",
 			"description":"Inquiries Full Student Results",
 			"file":"inquiriesStudentFullResults.html"
+		},
+		"firstPage":{
+			"name": "Initial Page",
+			"description":"Initial Page for the Execution Course Site",
+			"file":"firstPage.html"
 		}
-
 	}
 }

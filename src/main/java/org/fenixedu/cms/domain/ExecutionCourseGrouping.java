@@ -6,11 +6,13 @@ import net.sourceforge.fenixedu.domain.ExecutionCourse;
 import net.sourceforge.fenixedu.domain.Grouping;
 import net.sourceforge.fenixedu.domain.StudentGroup;
 
+import org.fenixedu.bennu.cms.domain.ComponentType;
 import org.fenixedu.bennu.cms.domain.Page;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
 
 import pt.ist.fenixframework.FenixFramework;
 
+@ComponentType(type = "grouping", name = "grouping", description = "Specific grouping information")
 public class ExecutionCourseGrouping extends ExecutionCourseGrouping_Base {
 
     @Override

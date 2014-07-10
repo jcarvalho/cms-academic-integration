@@ -12,9 +12,11 @@ import net.sourceforge.fenixedu.domain.Lesson;
 import net.sourceforge.fenixedu.domain.Shift;
 import net.sourceforge.fenixedu.domain.StudentGroup;
 
+import org.fenixedu.bennu.cms.domain.ComponentType;
 import org.fenixedu.bennu.cms.domain.Page;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
 
+@ComponentType(type = "groups", name = "Groups", description = "Groups for an Execution Course")
 public class ExecutionCourseGroups extends ExecutionCourseGroups_Base {
 
     @Override

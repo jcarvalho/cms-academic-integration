@@ -9,11 +9,13 @@ import net.sourceforge.fenixedu.domain.organizationalStructure.Unit;
 import net.sourceforge.fenixedu.presentationTier.Action.publico.InquirieResultsBean;
 import net.sourceforge.fenixedu.util.FenixConfigurationManager;
 
+import org.fenixedu.bennu.cms.domain.ComponentType;
 import org.fenixedu.bennu.cms.domain.Page;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 
+@ComponentType(type = "inquiriesResults", name = "InquiriesResults", description = "Inquirires Results of an Execution Course")
 public class ExecutionCourseInquiriesResults extends ExecutionCourseInquiriesResults_Base {
 
     @Override

@@ -14,6 +14,7 @@ class ExecutionCourseLessonsPlanning extends .org.fenixedu.bennu.cms.domain.Comp
 class ExecutionCourseGroups extends .org.fenixedu.bennu.cms.domain.Component  {}
 class ExecutionCourseGrouping extends .org.fenixedu.bennu.cms.domain.Component  {}
 class ExecutionCourseInquiriesResults extends .org.fenixedu.bennu.cms.domain.Component  {}
+class ExecutionCourseInitialPage extends .org.fenixedu.bennu.cms.domain.Component  {}
 
 relation ExecutionCourseFenixEduExecutionCourseSite {
 	ExecutionCourseSite playsRole cmsSite;

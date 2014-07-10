@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% macro personName(person) %}
+	{% if person.homepage is not empty %}
+		{% if person.homepage.activated is not empty %}
+			{% if person.homepage.activated %}
+				<a href="{{ person.homepage.fullPath }}" >{{ person.nickname }}</a>
+			{% else %}
+				<p>{{ person.name }}</p>
+			{% endif %}
+		{% else %}
+			{{ person.nickname }}
+		{% endif %}
+	{% endif %}
+{% endmacro %}
+{% block content %}
+
+{% if executionCourse.executionPeriod.inquiryResponsePeriod is not empty
+	and executionCourse.availableForInquiries 
+	and executionCourse.executionPeriod.inquiryResponsePeriod.insideResponsePeriod %}
+	
+	<p>
+		<strong>{{ i18n('resources.ApplicationResources', 'message.inquiries.available.prefix') }}</strong>
+		{% if isStudent %}
+			{{ i18n('resources.ApplicationResources', 'message.inquiries.available.students') }}
+			<a href="{{ showCoursesToAnswerUrl }}">
+				{{ i18n('resources.ApplicationResources', 'message.inquiries.available.at.here') }}
+			</a>
+		{% else %}
+			{{ i18n('resources.ApplicationResources', 'message.inquiries.available.non.students') }}
+		{% endif %}
+	</p>
+{% endif %}
+
+{% if professorships is not empty %}
+	<h2>{{ i18n('resources.ApplicationResources', 'label.lecturingTeachers') }}</h2>
+
+	{% for professorship in professorships %}
+		{% if professorship.responsibleFor %}
+			<p>
+				{{ personName(professorship.person)}}
+				({{ i18n('resources.ApplicationResources', 'label.responsible') }})
+			</p>
+		{% endif %}
+	{% endfor %}
+
+	{% for professorship in professorships %}
+		{% if not professorship.responsibleFor %}
+			<p>{{ personName(professorship.person)}}</p>
+		{% endif %}
+	{% endfor %}
+
+{% endif %}
+
+{% endblock content %}
