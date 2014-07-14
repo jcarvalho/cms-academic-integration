@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% import "unitView.html" %}
+{% import "curricularPlanView.html" %}
+{% import "contactView.html" %}
+{% import "courseView.html" %}
+
+{% macro presentationRow(title, content) %}
+	<tr>
+		<th>{{ i18n('resources.HomepageResources', title) }}:</th>
+		<td>
+			{{ content | raw }}
+		</td>
+	</tr>
+{% endmacro %}
+
+{% macro presentationContactRows(title, contacts, type, ctxPath='') %}
+	{% for contact in contacts %}
+		<tr>
+			{% if loop.index == 0 %}
+				<th rowspan="{{ contacts | length }}">{{ i18n('resources.HomepageResources', title) }}:</th>
+			{% endif %}
+			<td>
+				{{ contactView(contact,type,showDefault=(contacts | length > 1),publicSpace=true,ctxPath=ctxPath) }}
+			</td>
+		</tr>
+	{% endfor %}
+{% endmacro %}
+
+{% block content %}
+<h1 id="no">
+	{{homepage.ownersName}}
+</h1>
+
+<table class="thleft">
+	<!-- photo -->
+    <tr>
+        <th></th>
+        <td>
+			<div>
+				<img src="{{ request.contextPath + "/publico/retrievePersonalPhoto.do?method=retrievePhotographOnPublicSpace&amp;personId=" + owner.externalId }}"  style="padding: 1em 0;" alt="{{ i18n('resources.ImageResources','personPhoto') }}" />
+			</div>
+        </td>
+    </tr>
+    
+    <!-- units -->
+	{% if homepage.showUnit %}
+		{{ presentationRow('label.homepage.showUnit',listUnitTree(owner.employee.currentWorkingContract.workingUnit)) }}
+	{% endif %}
+	
+	<!-- categories -->
+	{% if homepage.showCategory %}
+		{{ presentationRow('label.homepage.showCategory', owner.employee.currentWorkingContract is not null ? owner.teacher.category.name.content | default('') | title : '') }}
+	{% endif %}
+	
+	<!-- research unit -->
+	{% if homepage.showResearchUnitHomepage %}
+		{% if owner.workingResearchUnits is empty %}
+			{% if owner.teacher is not null and owner.employee.currentWorkingContract is not null and homepage.researchUnitHomepage is not empty and homepage.researchUnit is not null %}
+				{{ presentationRow('label.homepage.showResearchUnitHomepage','<a href="' + homepage.researchUnitHomepage + '">' + homepage.researchUnit.content + '</a>') }}
+			{% endif %}
+		{% else %}
+			{{ presentationRow('label.homepage.showResearchUnitHomepage', researchUnitsList(owner.workingResearchUnits)) }}
+		{% endif %}
+	{% endif %}
+	
+	<!-- active student curricular plans -->
+	{% if homepage.showActiveStudentCurricularPlans and owner.activeStudentCurricularPlansSortedByDegreeTypeAndDegreeName is not empty %}
+		{{ presentationRow('label.homepage.showActiveStudentCurricularPlans',curricularPlanDegreeList(owner.activeStudentCurricularPlansSortedByDegreeTypeAndDegreeName)) }}
+	{% endif %}
+	
+	<!-- Attending Courses -->
+	{% if homepage.showCurrentAttendingExecutionCourses and attendingCourses is not empty %}
+		{{ presentationRow('label.homepage.showCurrentAttendingExecutionCourses', courseList(attendedCourses)) }}
+	{% endif %}
+	
+	
+	<!-- Alumni Degrees -->
+	{% if homepage.showAlumniDegrees and owner.completedStudentCurricularPlansSortedByDegreeTypeAndDegreeName is not empty %}
+		{{ presentationRow('label.homepage.showAlumniDegrees', curricularPlanDegreeList(owner.completedStudentCurricularPlansSortedByDegreeTypeAndDegreeName)) }}
+	{% endif %}
+
+	<!-- email -->
+	{{ presentationContactRows('label.homepage.showEmail', visibleEmails, 'email', request.contextPath) }}
+	
+	<!-- phone -->
+	{{ presentationContactRows('label.homepage.showTelephone', visiblePersonalPhones, 'phone') }}
+	
+	<!-- work phone -->
+	{{ presentationContactRows('label.homepage.showWorkTelephone', visibleWorkPhones, 'phone') }}
+	
+	<!-- mobile phone -->
+	{{ presentationContactRows('label.homepage.showMobileTelephone', visibleMobilePhones, 'phone') }}
+
+	<!-- alternative page -->
+	{{ presentationContactRows('label.homepage.showAlternativeHomepage', visibleWebsites, 'website') }}
+	
+	<!-- Teaching Courses -->
+	{% if homepage.showCurrentExecutionCourses and owner.teacher is not null and owner.employee.currentWorkingContract is not null %}
+		{{ presentationRow('label.homepage.showCurrentExecutionCourses', courseList(owner.teacher.currentExecutionCourses)) }}
+	{% endif %}
+
+</table>
+
+{% endblock content %}

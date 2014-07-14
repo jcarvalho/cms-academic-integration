@@ -97,6 +97,11 @@
 			"name": "Initial Page",
 			"description":"Initial Page for the Execution Course Site",
 			"file":"firstPage.html"
+		},
+		"presentation":{
+			"name": "Presentation",
+			"description": "Homepage owner's presentation.",
+			"file": "presentation.html"
 		}
 	}
 }

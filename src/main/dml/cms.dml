@@ -25,3 +25,12 @@ relation SummaryPost {
 	.net.sourceforge.fenixedu.domain.Summary playsRole; 
 	.org.fenixedu.bennu.cms.domain.Post playsRole post;
 }
+
+class homepage.HomepageSite extends .org.fenixedu.bennu.cms.domain.Site {}
+
+class homepage.HomepagePresentation extends .org.fenixedu.bennu.cms.domain.Component  {}
+
+relation HomepageFenixEduHomepageSite {
+	homepage.HomepageSite playsRole cmsSite;
+	.net.sourceforge.fenixedu.domain.homepage.Homepage playsRole homepage;
+}
