@@ -14,6 +14,7 @@ import net.sourceforge.fenixedu.domain.cms.TemplatedSection;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.bennu.cms.domain.CMSTheme;
 import org.fenixedu.bennu.cms.domain.Category;
+import org.fenixedu.bennu.cms.domain.Component;
 import org.fenixedu.bennu.cms.domain.ListCategoryPosts;
 import org.fenixedu.bennu.cms.domain.Menu;
 import org.fenixedu.bennu.cms.domain.MenuComponent;
@@ -49,8 +50,8 @@ public class CreateCMSSite extends CustomTask {
         deleteAllSites();
 
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612946319"));
-//        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612917134"));
-//        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612898443"));
+        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612917134"));
+        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612898443"));
 //        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612875684"));
 //        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612846760"));
 //        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612818202"));
@@ -153,7 +154,6 @@ public class CreateCMSSite extends CustomTask {
             Page page = createPage(site, menu, section);
             MenuItem menuItem = page != null ? createMenuItem(site, menu, page, section, menuItemParent) : null;
             if (!section.getChildrenSections().isEmpty()) {
-                log.info("has sub-sections ! " + section.getChildrenSections());
                 createPages(site, menu, menuItem, section.getChildrenSections());
             }
         }
@@ -203,133 +203,73 @@ public class CreateCMSSite extends CustomTask {
         case "/publico/executionCourse.do?method=firstPage":
             createFirstPage(site, menu, section);
             break;
+        case "/publico/executionCourse.do?method=schedule":
+            createSchedulePage(site, menu, section);
+            break;
         default:
             break;
         }
         return null;
     }
 
-    private void createFirstPage(Site site, Menu menu, TemplatedSection section) {
+    private void createPage(Site site, Menu menu, TemplatedSection section, Component component, String template) {
         Page page = new Page();
         page.setName(section.getName().toLocalizedString());
         page.setSite(site);
-        page.addComponents(new ExecutionCourseInitialPage());
-        page.setTemplate(site.getTheme().templateForType("firstPage"));
+        page.addComponents(component);
+        page.setTemplate(site.getTheme().templateForType(template));
+        page.setPublished(section.getEnabled());
 
         createMenuItem(site, menu, page, section, null);
         createMenuComponenet(menu, page);
+    }
+
+    private void createSchedulePage(Site site, Menu menu, TemplatedSection section) {
+        createPage(site, menu, section, new ExecutionCourseSchedule(), "schedule");
+    }
+
+    private void createFirstPage(Site site, Menu menu, TemplatedSection section) {
+        createPage(site, menu, section, new ExecutionCourseInitialPage(), "firstPage");
     }
 
     private void createInquiriesResultsPage(Site site, Menu menu, TemplatedSection section) {
-        Page page = new Page();
-        page.setName(section.getName().toLocalizedString());
-        page.setSite(site);
-        page.addComponents(new ExecutionCourseInquiriesResults());
-        page.setTemplate(site.getTheme().templateForType("inqueriesResults"));
-
-        createMenuItem(site, menu, page, section, null);
-        createMenuComponenet(menu, page);
+        createPage(site, menu, section, new ExecutionCourseInquiriesResults(), "inqueriesResults");
     }
 
     private void createShiftsPage(Site site, Menu menu, TemplatedSection section) {
-        Page page = new Page();
-        page.setName(section.getName().toLocalizedString());
-        page.setSite(site);
-        page.addComponents(new ExecutionCourseComponent());
-        page.setTemplate(site.getTheme().templateForType("shifts"));
-
-        createMenuItem(site, menu, page, section, null);
-        createMenuComponenet(menu, page);
+        createPage(site, menu, section, new ExecutionCourseComponent(), "shifts");
     }
 
     private void createGroupingsPage(Site site, Menu menu, TemplatedSection section) {
-        Page page = new Page();
-        page.setName(section.getName().toLocalizedString());
-        page.setSite(site);
-        page.addComponents(new ExecutionCourseGroups());
-        page.setTemplate(site.getTheme().templateForType("groupings"));
-
-        createMenuItem(site, menu, page, section, null);
-        createMenuComponenet(menu, page);
+        createPage(site, menu, section, new ExecutionCourseGroups(), "groupings");
     }
 
     private void createLessonPlaningsPage(Site site, Menu menu, TemplatedSection section) {
-        Page page = new Page();
-        page.setName(section.getName().toLocalizedString());
-        page.setSite(site);
-        page.addComponents(new ExecutionCourseLessonsPlanning());
-        page.setTemplate(site.getTheme().templateForType("lessonPlanings"));
-
-        createMenuItem(site, menu, page, section, null);
-        createMenuComponenet(menu, page);
+        createPage(site, menu, section, new ExecutionCourseLessonsPlanning(), "lessonPlanings");
     }
 
     private void createProgramPage(Site site, Menu menu, TemplatedSection section) {
-        Page page = new Page();
-        page.setName(section.getName().toLocalizedString());
-        page.setSite(site);
-        page.addComponents(new ExecutionCourseObjectives());
-        page.setTemplate(site.getTheme().templateForType("program"));
-
-        createMenuItem(site, menu, page, section, null);
-        createMenuComponenet(menu, page);
+        createPage(site, menu, section, new ExecutionCourseObjectives(), "program");
     }
 
     private void createMarksPage(Site site, Menu menu, TemplatedSection section) {
-        Page page = new Page();
-        LocalizedString name = makeLocalized("Evaluation Marks");
-        page.setName(name);
-        page.setName(name);
-        page.setSite(site);
-        page.addComponents(new ExecutionCourseMarks());
-        page.setTemplate(site.getTheme().templateForType("marks"));
-        
-        createMenuItem(site, menu, page, name, null);
-        createMenuComponenet(menu, page);
+        createPage(site, menu, section, new ExecutionCourseMarks(), "marks");
     }
 
     private void createEvaluationsPage(Site site, Menu menu, TemplatedSection section) {
-        Page page = new Page();
-        page.setName(section.getName().toLocalizedString());
-        page.setSite(site);
-        page.addComponents(new ExecutionCourseEvaluations());
-        page.setTemplate(site.getTheme().templateForType("evaluations"));
-
-        createMenuItem(site, menu, page, section, null);
-        createMenuComponenet(menu, page);
+        createPage(site, menu, section, new ExecutionCourseEvaluations(), "evaluations");
     }
 
     private void createBibliographicReferencePage(Site site, Menu menu, TemplatedSection section) {
-        Page page = new Page();
-        page.setName(section.getName().toLocalizedString());
-        page.setSite(site);
-        page.addComponents(new ExecutionCourseBibliographicReferences());
-        page.setTemplate(site.getTheme().templateForType("bibliographicReferences"));
-
-        createMenuItem(site, menu, page, section, null);
-        createMenuComponenet(menu, page);
+        createPage(site, menu, section, new ExecutionCourseBibliographicReferences(), "bibliographicReferences");
     }
 
     private void createEvaluationMethodPage(Site site, Menu menu, TemplatedSection section) {
-        Page page = new Page();
-        page.setName(section.getName().toLocalizedString());
-        page.setSite(site);
-        page.addComponents(new ExecutionCourseEvaluationMethods());
-        page.setTemplate(site.getTheme().templateForType("evaluationMethods"));
-
-        createMenuItem(site, menu, page, section, null);
-        createMenuComponenet(menu, page);
+        createPage(site, menu, section, new ExecutionCourseEvaluationMethods(), "evaluationMethods");
     }
 
     private void createObjectivesPage(Site site, Menu menu, TemplatedSection section) {
-        Page page = new Page();
-        page.setName(section.getName().toLocalizedString());
-        page.setSite(site);
-        page.addComponents(new ExecutionCourseObjectives());
-        page.setTemplate(site.getTheme().templateForType("objectives"));
-
-        createMenuItem(site, menu, page, section, null);
-        createMenuComponenet(menu, page);
+        createPage(site, menu, section, new ExecutionCourseObjectives(), "objectives");
     }
 
     private void createViewPostPage(Site site) {
@@ -385,16 +325,12 @@ public class CreateCMSSite extends CustomTask {
     }
 
     private void createStaticPost(Site site, Page page, Item item, Category category) {
-
         Post post = new Post();
         post.setSite(site);
         post.setName(localized(item.getName()));
         post.setBody(localized(item.getBody()));
         post.setCreationDate(new DateTime());
         post.addCategories(category);
-//        StaticPost staticPostComponent = new StaticPost();
-//        staticPostComponent.setPage(page);
-//        staticPostComponent.setPost(post);
     }
 
     private static LocalizedString makeLocalized(String value) {

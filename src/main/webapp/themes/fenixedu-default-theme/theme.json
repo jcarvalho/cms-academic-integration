@@ -102,6 +102,11 @@
 			"name": "Presentation",
 			"description": "Homepage owner's presentation.",
 			"file": "presentation.html"
+		},
+		"schedule":{
+			"name": "Schedule",
+			"description":"Schedule Execution Course Site",
+			"file":"schedule.html"
 		}
 	}
 }

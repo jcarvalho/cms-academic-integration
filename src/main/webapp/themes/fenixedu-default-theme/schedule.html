@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+
+{% block header %}
+
+	{% if hasPermissionToViewSchedule %}
+		<link href='{{staticDir}}/css/fullcalendar.css' rel='stylesheet' />
+		<link href='{{staticDir}}/css/fullcalendar.print.css' rel='stylesheet' media='print' />
+		<link href='{{staticDir}}/css/schedule.css' rel='stylesheet' rel='stylesheet' />
+
+		<script src='{{staticDir}}/js/moment.min.js'></script>
+		<script src='{{staticDir}}/js/jquery-ui.fullCalendar.custom.min.js'></script>
+		<script src='{{staticDir}}/js/fullcalendar.js'></script>
+		<script src="{{staticDir}}/js/bootstrap.min.js"></script>
+		<script type="text/javascript">{% include "schedule.js" %}</script>
+	{% endif %}
+{% endblock header %}
+
+
+
+{% block content %}
+	{% if hasPermissionToViewSchedule %}
+		<div id='calendar'></div>
+	{% else %}
+		<p>{{ i18n('resources.FenixEduCMSResources', 'executionCourse.schedule.accessDenied') }}</p>
+	{% endif %}
+
+{% endblock content %}

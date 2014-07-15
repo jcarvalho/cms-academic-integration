@@ -1,6 +1,8 @@
 package org.fenixedu.cms.domain;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -15,7 +17,6 @@ import net.sourceforge.fenixedu.util.PeriodState;
 
 import org.fenixedu.bennu.cms.domain.ComponentType;
 import org.fenixedu.bennu.cms.domain.Page;
-import org.fenixedu.bennu.cms.domain.Site;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.security.Authenticate;
@@ -27,20 +28,39 @@ public class ExecutionCourseSchedule extends ExecutionCourseSchedule_Base {
 
     @Override
     public void handle(Page page, HttpServletRequest req, TemplateContext componentContext, TemplateContext globalContext) {
-        ExecutionCourse executionCourse = executionCourse(page.getSite());
-        if (hasPermissionToViewSchedule(executionCourse)) {
-            componentContext.put("schedule", getInfoLessons(executionCourse));
+        ExecutionCourse executionCourse = ((ExecutionCourseSite) page.getSite()).getExecutionCourse();
+        boolean hasPermissionToViewSchedule = hasPermissionToViewSchedule(executionCourse);
+
+        globalContext.put("executionCourse", executionCourse);
+        globalContext.put("hasPermissionToViewSchedule", hasPermissionToViewSchedule);
+        if (hasPermissionToViewSchedule) {
+            List<LessonBean> lessons = getInfoLessons(executionCourse);
+
+            globalContext.put("minHour", minHour(lessons));
+            globalContext.put("maxHour", maxHour(lessons));
+
+            globalContext.put("schedule", lessons);
         }
     }
 
-    private List<InfoLessonInstanceAggregation> getInfoLessons(ExecutionCourse executionCourse) {
-        final List<InfoLessonInstanceAggregation> infoLessons = Lists.newArrayList();
+    private int minHour(List<LessonBean> lessonBeans) {
+        return lessonBeans.stream().map(LessonBean::getBeginHour).min(Comparator.naturalOrder()).orElse(8);
+    }
+
+    private int maxHour(List<LessonBean> lessonBeans) {
+        return lessonBeans.stream().map(LessonBean::getEndHour).max(Comparator.naturalOrder()).orElse(24);
+    }
+
+    private List<LessonBean> getInfoLessons(ExecutionCourse executionCourse) {
+        final List<LessonBean> lessons = Lists.newArrayList();
         for (final CourseLoad courseLoad : executionCourse.getCourseLoadsSet()) {
             for (final Shift shift : courseLoad.getShiftsSet()) {
-                infoLessons.addAll(InfoLessonInstanceAggregation.getAggregations(shift));
+                for (final InfoLessonInstanceAggregation infoLesson : InfoLessonInstanceAggregation.getAggregations(shift)) {
+                    lessons.add(new LessonBean(infoLesson));
+                }
             }
         }
-        return infoLessons;
+        return lessons.stream().sorted().collect(Collectors.toList());
     }
 
     private boolean hasPermissionToViewSchedule(ExecutionCourse executionCourse) {
@@ -65,10 +85,6 @@ public class ExecutionCourseSchedule extends ExecutionCourseSchedule_Base {
             }
         }
         return false;
-    }
-
-    public ExecutionCourse executionCourse(Site site) {
-        return site instanceof ExecutionCourseSite ? ((ExecutionCourseSite) site).getExecutionCourse() : null;
     }
 
 }
