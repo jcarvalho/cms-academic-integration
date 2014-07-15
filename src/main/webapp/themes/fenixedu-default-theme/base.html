@@ -1,20 +1,20 @@
 {% macro menuChildren(menuItems, currentPage) %}
   {% if menuItems.size != 0 %}
     {% for item in menuItems %}
-      {{menuItem(item, currentPage)}}
+      {{ menuItem(item, currentPage) }}
     {% endfor %}
   {% endif %}
 {% endmacro %}
 
 {% macro menuItem(item, currentPage) %}
-  {% set isSelected = item.page equals currentPage %}
-  <li><a class="{{ isSelected ? 'active' : ''}}" href="{{ item.address }}">{{ item.name.content }}</a></li>
-  {% if item.childrenSet.size != 0 and isSelected %}
+  <li><a class="{{ isOpen(item, currentPage) ? 'active' : ''}}" href="{{ item.address }}">{{ item.name.content }}</a></li>
+  {% if item.childrenSet.size != 0 and isOpen(item, currentPage) %}
     <ol style="padding-left: 5px;" class="list-unstyled">
       {{ menuChildren(item.childrenSorted) }}
     </ol>
   {% endif %}
 {% endmacro %}
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
