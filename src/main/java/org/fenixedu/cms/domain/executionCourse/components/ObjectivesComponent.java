@@ -1,4 +1,4 @@
-package org.fenixedu.cms.domain;
+package org.fenixedu.cms.domain.executionCourse.components;
 
 import java.util.Date;
 import java.util.Map;
@@ -14,10 +14,12 @@ import net.sourceforge.fenixedu.domain.ExecutionCourse;
 import org.fenixedu.bennu.cms.domain.ComponentType;
 import org.fenixedu.bennu.cms.domain.Page;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
+import org.fenixedu.cms.domain.executionCourse.CompetenceCourseBean;
+import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
 
 @ComponentType(type = "competenceCourse", name = "CompetenceCourse",
         description = "Competence Course information for an Execution Course")
-public class ExecutionCourseObjectives extends ExecutionCourseObjectives_Base {
+public class ObjectivesComponent extends ObjectivesComponent_Base {
     
     @Override
     public void handle(Page page, HttpServletRequest req, TemplateContext local, TemplateContext global) {

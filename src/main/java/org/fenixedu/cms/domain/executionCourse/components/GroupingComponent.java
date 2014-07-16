@@ -1,4 +1,4 @@
-package org.fenixedu.cms.domain;
+package org.fenixedu.cms.domain.executionCourse.components;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -9,11 +9,12 @@ import net.sourceforge.fenixedu.domain.StudentGroup;
 import org.fenixedu.bennu.cms.domain.ComponentType;
 import org.fenixedu.bennu.cms.domain.Page;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
+import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
 
 import pt.ist.fenixframework.FenixFramework;
 
 @ComponentType(type = "grouping", name = "grouping", description = "Specific grouping information")
-public class ExecutionCourseGrouping extends ExecutionCourseGrouping_Base {
+public class GroupingComponent extends GroupingComponent_Base {
 
     @Override
     public void handle(Page page, HttpServletRequest req, TemplateContext componentContext, TemplateContext globalContext) {

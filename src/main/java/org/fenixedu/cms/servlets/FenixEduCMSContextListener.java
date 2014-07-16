@@ -7,7 +7,7 @@ import javax.servlet.annotation.WebListener;
 import net.sourceforge.fenixedu.domain.Summary;
 
 import org.fenixedu.bennu.signals.Signal;
-import org.fenixedu.cms.domain.SummaryListener;
+import org.fenixedu.cms.domain.executionCourse.SummaryListener;
 
 @WebListener
 public class FenixEduCMSContextListener implements ServletContextListener {

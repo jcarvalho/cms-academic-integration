@@ -1,4 +1,4 @@
-package org.fenixedu.cms.domain;
+package org.fenixedu.cms.domain.executionCourse.components;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -13,9 +13,10 @@ import net.sourceforge.fenixedu.domain.Mark;
 import org.fenixedu.bennu.cms.domain.ComponentType;
 import org.fenixedu.bennu.cms.domain.Page;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
+import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
 
 @ComponentType(type = "marks", name = "Marks", description = "Marks for an Execution Course")
-public class ExecutionCourseMarks extends ExecutionCourseMarks_Base {
+public class MarksComponent extends MarksComponent_Base {
 
     @Override
     public void handle(Page page, HttpServletRequest req, TemplateContext componentContext, TemplateContext globalContext) {

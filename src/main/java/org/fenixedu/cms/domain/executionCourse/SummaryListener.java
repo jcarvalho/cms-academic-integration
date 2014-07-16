@@ -1,4 +1,4 @@
-package org.fenixedu.cms.domain;
+package org.fenixedu.cms.domain.executionCourse;
 
 import java.util.Locale;
 

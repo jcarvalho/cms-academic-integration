@@ -1,4 +1,4 @@
-package org.fenixedu.cms.domain;
+package org.fenixedu.cms.domain.executionCourse;
 
 import net.sourceforge.fenixedu.dataTransferObject.InfoLessonInstanceAggregation;
 
@@ -10,7 +10,7 @@ public class LessonBean implements Comparable<LessonBean> {
 
     private final InfoLessonInstanceAggregation info;
 
-    LessonBean(InfoLessonInstanceAggregation info) {
+    public LessonBean(InfoLessonInstanceAggregation info) {
         this.info = info;
     }
 

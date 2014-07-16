@@ -1,23 +1,23 @@
 package org.fenixedu.cms.domain;
 
-class ExecutionCourseSite extends .org.fenixedu.bennu.cms.domain.Site {}
+class executionCourse.ExecutionCourseSite extends .org.fenixedu.bennu.cms.domain.Site {}
 
-class ExecutionCourseBibliographicReferences extends .org.fenixedu.bennu.cms.domain.Component  {}
-class ExecutionCourseComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
-class ExecutionCourseSchedule extends .org.fenixedu.bennu.cms.domain.Component  {}
-class ExecutionCourseObjectives extends .org.fenixedu.bennu.cms.domain.Component  {}
-class ExecutionCourseEvaluationMethods extends .org.fenixedu.bennu.cms.domain.Component  {}
-class ExecutionCourseContentSearch extends .org.fenixedu.bennu.cms.domain.Component  {}
-class ExecutionCourseEvaluations extends .org.fenixedu.bennu.cms.domain.Component  {}
-class ExecutionCourseMarks extends .org.fenixedu.bennu.cms.domain.Component  {}
-class ExecutionCourseLessonsPlanning extends .org.fenixedu.bennu.cms.domain.Component  {}
-class ExecutionCourseGroups extends .org.fenixedu.bennu.cms.domain.Component  {}
-class ExecutionCourseGrouping extends .org.fenixedu.bennu.cms.domain.Component  {}
-class ExecutionCourseInquiriesResults extends .org.fenixedu.bennu.cms.domain.Component  {}
-class ExecutionCourseInitialPage extends .org.fenixedu.bennu.cms.domain.Component  {}
+class executionCourse.components.BibliographicReferencesComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
+class executionCourse.components.ExecutionCourseComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
+class executionCourse.components.ScheduleComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
+class executionCourse.components.ObjectivesComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
+class executionCourse.components.EvaluationMethodsComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
+class executionCourse.components.ContentSearchComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
+class executionCourse.components.EvaluationsComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
+class executionCourse.components.MarksComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
+class executionCourse.components.LessonsPlanningComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
+class executionCourse.components.GroupsComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
+class executionCourse.components.GroupingComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
+class executionCourse.components.InquiriesResultsComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
+class executionCourse.components.InitialPageComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
 
 relation ExecutionCourseFenixEduExecutionCourseSite {
-	ExecutionCourseSite playsRole cmsSite;
+	executionCourse.ExecutionCourseSite playsRole cmsSite;
 	.net.sourceforge.fenixedu.domain.ExecutionCourse playsRole executionCourse;
 }
 

@@ -1,4 +1,4 @@
-package org.fenixedu.cms.domain;
+package org.fenixedu.cms.domain.executionCourse.components;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,12 +12,13 @@ import net.sourceforge.fenixedu.domain.degreeStructure.CompetenceCourseInformati
 import org.fenixedu.bennu.cms.domain.ComponentType;
 import org.fenixedu.bennu.cms.domain.Page;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
+import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
 
 import com.google.common.collect.Lists;
 
 @ComponentType(type = "bibliographicReferences", name = "bibliographicReferences",
         description = "Bibliographic References for an Execution Course")
-public class ExecutionCourseBibliographicReferences extends ExecutionCourseBibliographicReferences_Base {
+public class BibliographicReferencesComponent extends BibliographicReferencesComponent_Base {
 
     @Override
     public void handle(Page page, HttpServletRequest req, TemplateContext componentContext, TemplateContext globalContext) {

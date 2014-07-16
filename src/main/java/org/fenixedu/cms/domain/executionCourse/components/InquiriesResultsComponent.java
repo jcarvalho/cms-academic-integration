@@ -1,4 +1,4 @@
-package org.fenixedu.cms.domain;
+package org.fenixedu.cms.domain.executionCourse.components;
 
 import java.util.Optional;
 
@@ -14,9 +14,10 @@ import org.fenixedu.bennu.cms.domain.Page;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
+import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
 
 @ComponentType(type = "inquiriesResults", name = "InquiriesResults", description = "Inquirires Results of an Execution Course")
-public class ExecutionCourseInquiriesResults extends ExecutionCourseInquiriesResults_Base {
+public class InquiriesResultsComponent extends InquiriesResultsComponent_Base {
 
     @Override
     public void handle(Page page, HttpServletRequest req, TemplateContext componentContext, TemplateContext globalContext) {

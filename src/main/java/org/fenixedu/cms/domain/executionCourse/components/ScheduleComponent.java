@@ -1,4 +1,4 @@
-package org.fenixedu.cms.domain;
+package org.fenixedu.cms.domain.executionCourse.components;
 
 import java.util.Comparator;
 import java.util.List;
@@ -20,11 +20,13 @@ import org.fenixedu.bennu.cms.domain.Page;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
+import org.fenixedu.cms.domain.executionCourse.LessonBean;
 
 import com.google.common.collect.Lists;
 
 @ComponentType(type = "schedule", name = "Schedule", description = "Schedule of an execution course")
-public class ExecutionCourseSchedule extends ExecutionCourseSchedule_Base {
+public class ScheduleComponent extends ScheduleComponent_Base {
 
     @Override
     public void handle(Page page, HttpServletRequest req, TemplateContext componentContext, TemplateContext globalContext) {

@@ -1,9 +1,7 @@
-package org.fenixedu.cms.domain;
+package org.fenixedu.cms.domain.executionCourse;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 
 import net.sourceforge.fenixedu.domain.ExecutionCourse;
 import net.sourceforge.fenixedu.domain.Item;
@@ -24,11 +22,22 @@ import org.fenixedu.bennu.cms.domain.Post;
 import org.fenixedu.bennu.cms.domain.Site;
 import org.fenixedu.bennu.cms.domain.ViewPost;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
 import org.fenixedu.bennu.signals.DomainObjectEvent;
 import org.fenixedu.bennu.signals.Signal;
+import org.fenixedu.cms.domain.executionCourse.components.BibliographicReferencesComponent;
+import org.fenixedu.cms.domain.executionCourse.components.EvaluationMethodsComponent;
+import org.fenixedu.cms.domain.executionCourse.components.EvaluationsComponent;
+import org.fenixedu.cms.domain.executionCourse.components.ExecutionCourseComponent;
+import org.fenixedu.cms.domain.executionCourse.components.GroupsComponent;
+import org.fenixedu.cms.domain.executionCourse.components.InitialPageComponent;
+import org.fenixedu.cms.domain.executionCourse.components.InquiriesResultsComponent;
+import org.fenixedu.cms.domain.executionCourse.components.LessonsPlanningComponent;
+import org.fenixedu.cms.domain.executionCourse.components.MarksComponent;
+import org.fenixedu.cms.domain.executionCourse.components.ObjectivesComponent;
+import org.fenixedu.cms.domain.executionCourse.components.ScheduleComponent;
 import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
@@ -38,15 +47,12 @@ import org.slf4j.LoggerFactory;
 import pt.ist.fenixframework.FenixFramework;
 import pt.utl.ist.fenix.tools.util.i18n.MultiLanguageString;
 
-import com.google.common.collect.Sets;
-
-public class CreateCMSSite extends CustomTask {
-    Logger log = LoggerFactory.getLogger(CreateCMSSite.class);
+public class CreateExecutionCourseSite extends CustomTask {
+    Logger log = LoggerFactory.getLogger(CreateExecutionCourseSite.class);
+    private static final String THEME = "fenixedu-default-theme";
 
     @Override
     public void runTask() throws Exception {
-//        createExecutionCourseSite(oldExecutionCourseSite("2293514188720"));
-        deleteAllMenuItems();
         deleteAllSites();
 
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612946319"));
@@ -59,16 +65,6 @@ public class CreateCMSSite extends CustomTask {
 
     }
 
-    private void deleteAllMenuItems() {
-        Set<MenuItem> items = Sets.newHashSet();
-        for (Site site : Bennu.getInstance().getSitesSet()) {
-            for (Menu menu : site.getMenusSet()) {
-                items.addAll(menu.getChildrenSorted());
-            }
-        }
-        items.forEach(i -> i.delete());
-    }
-
     private void deleteAllSites() {
         Bennu.getInstance().getSitesSet().forEach(site -> site.delete());
     }
@@ -78,30 +74,30 @@ public class CreateCMSSite extends CustomTask {
         return executionCourse.getSite();
     }
 
-    private net.sourceforge.fenixedu.domain.ExecutionCourseSite oldExecutionCourseSite(String siteOID) {
-        return net.sourceforge.fenixedu.domain.ExecutionCourseSite.readExecutionCourseSiteByOID(siteOID);
-    }
-
     private void createExecutionCourseSite(net.sourceforge.fenixedu.domain.ExecutionCourseSite oldSite) {
         Site newSite = createSiteInstance(oldSite);
 
         newSite.setBennu(Bennu.getInstance());
-        newSite.setTheme(CMSTheme.forType("fenixedu-default-theme"));
+        newSite.setTheme(CMSTheme.forType(THEME));
         newSite.setDescription(localized(oldSite.getDescription()));
         newSite.setAlternativeSite(oldSite.getAlternativeSite());
         newSite.setName(localized(oldSite.getExecutionCourse().getNameI18N()));
-        String slug = oldSite.getReversePath();
-        if (slug.startsWith("/")) {
-            slug = StringUtils.right(oldSite.getReversePath(), slug.length() - 1);
-        }
-        slug = StringUtils.replace(slug, "/", "-");
-        newSite.setSlug(slug);
+        newSite.setSlug(createSlug(oldSite));
         newSite.setStyle(oldSite.getStyle());
         newSite.setPublished(true);
 
         Menu menu = createMenu(newSite, oldSite.getOrderedSections());
         createViewPostPage(newSite);
         createPages(newSite, menu, null, oldSite.getOrderedSections());
+    }
+
+    private String createSlug(net.sourceforge.fenixedu.domain.ExecutionCourseSite oldSite) {
+        String slug = oldSite.getReversePath();
+        if (slug.startsWith("/")) {
+            slug = StringUtils.right(oldSite.getReversePath(), slug.length() - 1);
+        }
+        slug = StringUtils.replace(slug, "/", "-");
+        return slug;
     }
 
     private Site createSiteInstance(net.sourceforge.fenixedu.domain.Site oldSite) {
@@ -117,7 +113,7 @@ public class CreateCMSSite extends CustomTask {
 
     private Menu createMenu(Site site, List<Section> orderedSections) {
         Menu menu = new Menu();
-        menu.setName(makeLocalized("Menu"));
+        menu.setName(BundleUtil.getLocalizedString("resource.FenixEduCMSResources", "label.menu"));
         menu.setSite(site);
         return menu;
     }
@@ -173,38 +169,38 @@ public class CreateCMSSite extends CustomTask {
             createSummariesPage(site, menu, section);
             break;
         case "/publico/executionCourse.do?method=objectives":
-            createObjectivesPage(site, menu, section);
+            createPage(site, menu, section, new ObjectivesComponent(), "objectives");
             break;
         case "/publico/executionCourse.do?method=evaluationMethod":
-            createEvaluationMethodPage(site, menu, section);
+            createPage(site, menu, section, new EvaluationMethodsComponent(), "evaluationMethods");
             break;
         case "/publico/executionCourse.do?method=bibliographicReference":
-            createBibliographicReferencePage(site, menu, section);
+            createPage(site, menu, section, new BibliographicReferencesComponent(), "bibliographicReferences");
             break;
         case "/publico/executionCourse.do?method=evaluations":
-            createEvaluationsPage(site, menu, section);
-            createMarksPage(site, menu, section);
+            createPage(site, menu, section, new EvaluationsComponent(), "evaluations");
+            createPage(site, menu, section, new MarksComponent(), "marks");
             break;
         case "/publico/executionCourse.do?method=program":
-            createProgramPage(site, menu, section);
+            createPage(site, menu, section, new ObjectivesComponent(), "program");
             break;
         case "/publico/executionCourse.do?method=lessonPlannings":
-            createLessonPlaningsPage(site, menu, section);
+            createPage(site, menu, section, new LessonsPlanningComponent(), "lessonPlanings");
             break;
         case "/publico/executionCourse.do?method=groupings":
-            createGroupingsPage(site, menu, section);
+            createPage(site, menu, section, new GroupsComponent(), "groupings");
             break;
         case "/publico/executionCourse.do?method=shifts":
-            createShiftsPage(site, menu, section);
+            createPage(site, menu, section, new ExecutionCourseComponent(), "shifts");
             break;
         case "/publico/executionCourse.do?method=studentInquiriesResults":
-            createInquiriesResultsPage(site, menu, section);
+            createPage(site, menu, section, new InquiriesResultsComponent(), "inqueriesResults");
             break;
         case "/publico/executionCourse.do?method=firstPage":
-            createFirstPage(site, menu, section);
+            createPage(site, menu, section, new InitialPageComponent(), "firstPage");
             break;
         case "/publico/executionCourse.do?method=schedule":
-            createSchedulePage(site, menu, section);
+            createPage(site, menu, section, new ScheduleComponent(), "schedule");
             break;
         default:
             break;
@@ -214,7 +210,7 @@ public class CreateCMSSite extends CustomTask {
 
     private void createPage(Site site, Menu menu, TemplatedSection section, Component component, String template) {
         Page page = new Page();
-        page.setName(section.getName().toLocalizedString());
+        page.setName(localized(section.getName()));
         page.setSite(site);
         page.addComponents(component);
         page.setTemplate(site.getTheme().templateForType(template));
@@ -222,54 +218,6 @@ public class CreateCMSSite extends CustomTask {
 
         createMenuItem(site, menu, page, section, null);
         createMenuComponenet(menu, page);
-    }
-
-    private void createSchedulePage(Site site, Menu menu, TemplatedSection section) {
-        createPage(site, menu, section, new ExecutionCourseSchedule(), "schedule");
-    }
-
-    private void createFirstPage(Site site, Menu menu, TemplatedSection section) {
-        createPage(site, menu, section, new ExecutionCourseInitialPage(), "firstPage");
-    }
-
-    private void createInquiriesResultsPage(Site site, Menu menu, TemplatedSection section) {
-        createPage(site, menu, section, new ExecutionCourseInquiriesResults(), "inqueriesResults");
-    }
-
-    private void createShiftsPage(Site site, Menu menu, TemplatedSection section) {
-        createPage(site, menu, section, new ExecutionCourseComponent(), "shifts");
-    }
-
-    private void createGroupingsPage(Site site, Menu menu, TemplatedSection section) {
-        createPage(site, menu, section, new ExecutionCourseGroups(), "groupings");
-    }
-
-    private void createLessonPlaningsPage(Site site, Menu menu, TemplatedSection section) {
-        createPage(site, menu, section, new ExecutionCourseLessonsPlanning(), "lessonPlanings");
-    }
-
-    private void createProgramPage(Site site, Menu menu, TemplatedSection section) {
-        createPage(site, menu, section, new ExecutionCourseObjectives(), "program");
-    }
-
-    private void createMarksPage(Site site, Menu menu, TemplatedSection section) {
-        createPage(site, menu, section, new ExecutionCourseMarks(), "marks");
-    }
-
-    private void createEvaluationsPage(Site site, Menu menu, TemplatedSection section) {
-        createPage(site, menu, section, new ExecutionCourseEvaluations(), "evaluations");
-    }
-
-    private void createBibliographicReferencePage(Site site, Menu menu, TemplatedSection section) {
-        createPage(site, menu, section, new ExecutionCourseBibliographicReferences(), "bibliographicReferences");
-    }
-
-    private void createEvaluationMethodPage(Site site, Menu menu, TemplatedSection section) {
-        createPage(site, menu, section, new ExecutionCourseEvaluationMethods(), "evaluationMethods");
-    }
-
-    private void createObjectivesPage(Site site, Menu menu, TemplatedSection section) {
-        createPage(site, menu, section, new ExecutionCourseObjectives(), "objectives");
     }
 
     private void createViewPostPage(Site site) {
@@ -285,7 +233,7 @@ public class CreateCMSSite extends CustomTask {
         Page page = new Page();
 
         page.setCreationDate(site.getCreationDate());
-        page.setName(section.getName().toLocalizedString());
+        page.setName(localized(section.getName()));
         page.setPublished(section.getEnabled());
         page.setSite(site);
 
@@ -299,7 +247,7 @@ public class CreateCMSSite extends CustomTask {
     }
 
     private void migrateSummaries(ExecutionCourseSite site, Menu menu) {
-        site.categoryForSlug("summary", makeLocalized("Summary"));
+        site.categoryForSlug("summary", BundleUtil.getLocalizedString("resource.FenixEduCMSResources", "label.summaries"));
         site.getExecutionCourse().getAssociatedSummariesSet().forEach(summary -> {
             Signal.emit(Summary.CREATED_SIGNAL, new DomainObjectEvent<Summary>(summary));
         });
@@ -333,16 +281,8 @@ public class CreateCMSSite extends CustomTask {
         post.addCategories(category);
     }
 
-    private static LocalizedString makeLocalized(String value) {
-        LocalizedString.Builder builder = new LocalizedString.Builder();
-        for (Locale locale : CoreConfiguration.supportedLocales()) {
-            builder.with(locale, value);
-        }
-        return builder.build();
-    }
-
     private static LocalizedString localized(MultiLanguageString mls) {
-        return mls != null ? mls.toLocalizedString() : makeLocalized("");
+        return mls != null ? mls.toLocalizedString() : new LocalizedString();
     }
 
 }

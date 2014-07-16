@@ -1,4 +1,4 @@
-package org.fenixedu.cms.domain;
+package org.fenixedu.cms.domain.executionCourse;
 
 import net.sourceforge.fenixedu.domain.ExecutionCourse;
 import pt.ist.fenixframework.Atomic;
@@ -15,4 +15,5 @@ public class ExecutionCourseSite extends ExecutionCourseSite_Base {
         setExecutionCourse(null);
         super.delete();
     }
+
 }

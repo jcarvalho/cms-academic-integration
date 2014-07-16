@@ -1,4 +1,4 @@
-package org.fenixedu.cms.domain;
+package org.fenixedu.cms.domain.executionCourse.components;
 
 import java.util.List;
 import java.util.Map;
@@ -13,9 +13,10 @@ import net.sourceforge.fenixedu.domain.ShiftType;
 import org.fenixedu.bennu.cms.domain.ComponentType;
 import org.fenixedu.bennu.cms.domain.Page;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
+import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
 
 @ComponentType(type = "lessonsPlaning", name = "LessonsPlanning", description = "Lessons planing for an Execution Course")
-public class ExecutionCourseLessonsPlanning extends ExecutionCourseLessonsPlanning_Base {
+public class LessonsPlanningComponent extends LessonsPlanningComponent_Base {
 
     @Override
     public void handle(Page page, HttpServletRequest req, TemplateContext componentContext, TemplateContext globalContext) {
