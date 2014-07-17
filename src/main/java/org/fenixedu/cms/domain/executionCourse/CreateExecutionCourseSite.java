@@ -2,12 +2,14 @@ package org.fenixedu.cms.domain.executionCourse;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 import net.sourceforge.fenixedu.domain.ExecutionCourse;
 import net.sourceforge.fenixedu.domain.Item;
 import net.sourceforge.fenixedu.domain.Section;
 import net.sourceforge.fenixedu.domain.Summary;
 import net.sourceforge.fenixedu.domain.cms.TemplatedSection;
+import net.sourceforge.fenixedu.domain.messaging.Announcement;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.bennu.cms.domain.CMSTheme;
@@ -24,6 +26,7 @@ import org.fenixedu.bennu.cms.domain.ViewPost;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
 import org.fenixedu.bennu.signals.DomainObjectEvent;
 import org.fenixedu.bennu.signals.Signal;
@@ -48,8 +51,12 @@ import pt.ist.fenixframework.FenixFramework;
 import pt.utl.ist.fenix.tools.util.i18n.MultiLanguageString;
 
 public class CreateExecutionCourseSite extends CustomTask {
+    private static final LocalizedString SUMMARY = BundleUtil.getLocalizedString("resources.FenixEduCMSResources",
+            "label.summaries");
     Logger log = LoggerFactory.getLogger(CreateExecutionCourseSite.class);
     private static final String THEME = "fenixedu-default-theme";
+    private static final LocalizedString ANNOUNCEMENTS = BundleUtil.getLocalizedString("resources.FenixEduCMSResources",
+            "label.announcement");
 
     @Override
     public void runTask() throws Exception {
@@ -58,10 +65,10 @@ public class CreateExecutionCourseSite extends CustomTask {
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612946319"));
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612917134"));
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612898443"));
-//        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612875684"));
-//        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612846760"));
-//        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612818202"));
-//        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612802249"));
+        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612875684"));
+        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612846760"));
+        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612818202"));
+        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612802249"));
 
     }
 
@@ -113,7 +120,7 @@ public class CreateExecutionCourseSite extends CustomTask {
 
     private Menu createMenu(Site site, List<Section> orderedSections) {
         Menu menu = new Menu();
-        menu.setName(BundleUtil.getLocalizedString("resource.FenixEduCMSResources", "label.menu"));
+        menu.setName(BundleUtil.getLocalizedString("resources.FenixEduCMSResources", "label.menu"));
         menu.setSite(site);
         return menu;
     }
@@ -202,13 +209,16 @@ public class CreateExecutionCourseSite extends CustomTask {
         case "/publico/executionCourse.do?method=schedule":
             createPage(site, menu, section, new ScheduleComponent(), "schedule");
             break;
+        case "/publico/announcementManagement.do?method=start":
+            createAnnoucementsPage(site, menu, section);
+            break;
         default:
             break;
         }
         return null;
     }
 
-    private void createPage(Site site, Menu menu, TemplatedSection section, Component component, String template) {
+    private Page createPage(Site site, Menu menu, TemplatedSection section, Component component, String template) {
         Page page = new Page();
         page.setName(localized(section.getName()));
         page.setSite(site);
@@ -218,6 +228,7 @@ public class CreateExecutionCourseSite extends CustomTask {
 
         createMenuItem(site, menu, page, section, null);
         createMenuComponenet(menu, page);
+        return page;
     }
 
     private void createViewPostPage(Site site) {
@@ -228,26 +239,49 @@ public class CreateExecutionCourseSite extends CustomTask {
         page.setTemplate(site.getTheme().templateForType("view"));
     }
 
-    private void createSummariesPage(Site site, Menu menu, TemplatedSection section) {
+    private Page createSummariesPage(Site site, Menu menu, TemplatedSection section) {
         migrateSummaries((ExecutionCourseSite) site, menu);
-        Page page = new Page();
 
-        page.setCreationDate(site.getCreationDate());
-        page.setName(localized(section.getName()));
-        page.setPublished(section.getEnabled());
-        page.setSite(site);
+        ListCategoryPosts component = new ListCategoryPosts(site.categoryForSlug("summary"));
 
-        ListCategoryPosts component = new ListCategoryPosts();
-        component.setCategory(site.categoryForSlug("summary"));
-        component.setPage(page);
-        page.setTemplate(site.getTheme().templateForType("category"));
+        return createPage(site, menu, section, component, "category");
+    }
 
-        createMenuItem(site, menu, page, section, null);
-        createMenuComponenet(menu, page);
+    private Page createAnnoucementsPage(Site site, Menu menu, TemplatedSection section) {
+        migrateAnnouncements((ExecutionCourseSite) site, menu);
+
+        ListCategoryPosts component = new ListCategoryPosts(site.categoryForSlug("announcement"));
+
+        return createPage(site, menu, section, component, "category");
+    }
+
+    private void migrateAnnouncements(ExecutionCourseSite site, Menu menu) {
+        for(Announcement announcement : site.getExecutionCourse().getBoard().getAnnouncementSet()) {
+            Post post = new Post();
+            post.setSite(site);
+            post.setCreatedBy(announcement.getCreator().getUser());
+            post.setCreationDate(announcement.getCreationDate());
+            post.setBody(localized(announcement.getBody()));
+            post.setName(localized(announcement.getSubject()));
+            post.setActive(announcement.getVisible());
+            post.setLocation(localized(announcement.getPlace()));
+            post.setPublicationBegin(announcement.getPublicationBegin());
+            post.setPublicationEnd(announcement.getPublicationEnd());
+            
+            post.addCategories(site.categoryForSlug("announcement", ANNOUNCEMENTS));
+            
+            announcement.getCategoriesSet().stream().map(ac -> localized(ac.getName()))
+                    .map(name -> site.categoryForSlug(name.getContent(), name)).forEach(category -> post.addCategories(category));
+            
+            if (announcement.getCampus() != null) {
+                post.addCategories(site.categoryForSlug("campus-" + announcement.getCampus().getExternalId(),
+                        localized(announcement.getCampus().getPresentationName())));
+            }
+        }
     }
 
     private void migrateSummaries(ExecutionCourseSite site, Menu menu) {
-        site.categoryForSlug("summary", BundleUtil.getLocalizedString("resource.FenixEduCMSResources", "label.summaries"));
+        site.categoryForSlug("summary", SUMMARY);
         site.getExecutionCourse().getAssociatedSummariesSet().forEach(summary -> {
             Signal.emit(Summary.CREATED_SIGNAL, new DomainObjectEvent<Summary>(summary));
         });
@@ -279,6 +313,14 @@ public class CreateExecutionCourseSite extends CustomTask {
         post.setBody(localized(item.getBody()));
         post.setCreationDate(new DateTime());
         post.addCategories(category);
+    }
+
+    private static LocalizedString localized(String str) {
+        LocalizedString result = new LocalizedString();
+        for (Locale locale : CoreConfiguration.supportedLocales()) {
+            result.with(locale, str);
+        }
+        return result;
     }
 
     private static LocalizedString localized(MultiLanguageString mls) {
