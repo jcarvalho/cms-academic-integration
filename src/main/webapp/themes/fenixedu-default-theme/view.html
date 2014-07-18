@@ -6,7 +6,7 @@
   <h2 class="blog-post-title">{{ post.name.content }}</h2>
   <p class="small blog-post-meta">{{ post.creationDate|formatDate("MMMM d, Y, H:m") }} by <a href="#">{{post.createdBy.username}}</a></p>
   <p>
-    {{post.body.content | raw}}
+    {{ post.body.content | raw }}
   </p>
 </div><!-- /.blog-post -->
 

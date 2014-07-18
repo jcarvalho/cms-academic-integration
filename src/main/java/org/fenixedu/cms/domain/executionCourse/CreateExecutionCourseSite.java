@@ -51,12 +51,14 @@ import pt.ist.fenixframework.FenixFramework;
 import pt.utl.ist.fenix.tools.util.i18n.MultiLanguageString;
 
 public class CreateExecutionCourseSite extends CustomTask {
-    private static final LocalizedString SUMMARY = BundleUtil.getLocalizedString("resources.FenixEduCMSResources",
-            "label.summaries");
     Logger log = LoggerFactory.getLogger(CreateExecutionCourseSite.class);
+
     private static final String THEME = "fenixedu-default-theme";
-    private static final LocalizedString ANNOUNCEMENTS = BundleUtil.getLocalizedString("resources.FenixEduCMSResources",
-            "label.announcement");
+    private static final String BUNDLE = "resources.FenixEduCMSResources";
+
+    private static final LocalizedString ANNOUNCEMENTS = BundleUtil.getLocalizedString(BUNDLE, "label.announcement");
+    private static final LocalizedString SUMMARY = BundleUtil.getLocalizedString(BUNDLE, "label.summaries");
+    private static final LocalizedString MARKS = BundleUtil.getLocalizedString(BUNDLE, "label.marks");
 
     @Override
     public void runTask() throws Exception {
@@ -120,7 +122,7 @@ public class CreateExecutionCourseSite extends CustomTask {
 
     private Menu createMenu(Site site, List<Section> orderedSections) {
         Menu menu = new Menu();
-        menu.setName(BundleUtil.getLocalizedString("resources.FenixEduCMSResources", "label.menu"));
+        menu.setName(BundleUtil.getLocalizedString(BUNDLE, "label.menu"));
         menu.setSite(site);
         return menu;
     }
@@ -186,7 +188,7 @@ public class CreateExecutionCourseSite extends CustomTask {
             break;
         case "/publico/executionCourse.do?method=evaluations":
             createPage(site, menu, section, new EvaluationsComponent(), "evaluations");
-            createPage(site, menu, section, new MarksComponent(), "marks");
+            createPage(site, menu, MARKS, section.isAvailable(), new MarksComponent(), "marks");
             break;
         case "/publico/executionCourse.do?method=program":
             createPage(site, menu, section, new ObjectivesComponent(), "program");
@@ -218,15 +220,18 @@ public class CreateExecutionCourseSite extends CustomTask {
         return null;
     }
 
-    private Page createPage(Site site, Menu menu, TemplatedSection section, Component component, String template) {
+    private Page createPage(Site site, Menu menu, Section section, Component component, String template) {
+        return createPage(site, menu, localized(section.getName()), section.isAvailable(), component, template);
+    }
+
+    private Page createPage(Site site, Menu menu, LocalizedString name, boolean published, Component component, String template) {
         Page page = new Page();
-        page.setName(localized(section.getName()));
+        page.setName(name);
         page.setSite(site);
         page.addComponents(component);
         page.setTemplate(site.getTheme().templateForType(template));
-        page.setPublished(section.getEnabled());
-
-        createMenuItem(site, menu, page, section, null);
+        page.setPublished(published);
+        createMenuItem(site, menu, page, name, null);
         createMenuComponenet(menu, page);
         return page;
     }

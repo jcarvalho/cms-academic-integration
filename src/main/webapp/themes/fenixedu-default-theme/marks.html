@@ -27,11 +27,7 @@
 	<h2>{{ i18n('resources.ApplicationResources', 'title.evaluation') }}</h2>
 	<p>{{ i18n('resources.ApplicationResources', 'classification.nonOfficial.information') }}</p>
 
-
-{{menu.childrenSorted}}
-
-
-	<table cellspacing="1" cellpadding="2">
+	<table class="table">
 		<tr>
 			<th nowrap>{{ i18n('resources.ApplicationResources', 'label.number') }}</th>
 			<th nowrap>{{ i18n('resources.ApplicationResources', 'label.name') }}</th>
@@ -55,9 +51,4 @@
 		{% endfor %}
 	</table>
 
-	<style type="text/css" media="screen">
-		table { margin: 1em 0 1em 0;  border: 1px solid #ccc; padding: 1px; }
-		table th { background-color: #ccc; font-weight: bold; text-align: left; padding: 5px; }
-		table td { background-color: #eee; border: 1px dotted #ccc; text-align: left; padding: 5px;}
-	</style>
 {% endblock content %}

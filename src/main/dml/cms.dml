@@ -12,7 +12,6 @@ class executionCourse.components.EvaluationsComponent extends .org.fenixedu.benn
 class executionCourse.components.MarksComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
 class executionCourse.components.LessonsPlanningComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
 class executionCourse.components.GroupsComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
-class executionCourse.components.GroupingComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
 class executionCourse.components.InquiriesResultsComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
 class executionCourse.components.InitialPageComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
 

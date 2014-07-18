@@ -7,17 +7,18 @@
 	    	{% for curricularCourse in info.curricularCourses %}
 
 	    		{% set degree = curricularCourse.degreeCurricularPlan.degree %}
-		    	<p>{{ i18n('resources.EnumerationResources', degree.degreeType.name) }}
-		    			 {{ i18n('resources.ApplicationResources', 'label.in') }} {{ degree.nameI18N }}
+		    	<h4>
+		    		{{ i18n('resources.EnumerationResources', degree.degreeType.name) }}
+		    		{{ i18n('resources.ApplicationResources', 'label.in') }} {{ degree.nameI18N }}
+		    	</h4>
 			
 			{% endfor %}
 
-			<h4>{{ i18n('resources.ApplicationResources', 'link.objectives') }}</h4>
 			<p>{{ info.objectives.content }}</p>
 
 		{% endfor %}
 
-		{% for entry in curriculumByCurricularCourse.entrySet %}
+		{% for entry in entries(curriculumByCurricularCourse) %}
 			{% set curricularCourse = entry.key %}
 			{% set curriculum = entry.value %}
 			{% set degree = curricularCourse.degreeCurricularPlan.degree %}
