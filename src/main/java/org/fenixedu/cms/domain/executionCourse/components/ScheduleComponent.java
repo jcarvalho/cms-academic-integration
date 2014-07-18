@@ -1,5 +1,7 @@
 package org.fenixedu.cms.domain.executionCourse.components;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,6 +30,9 @@ import com.google.common.collect.Lists;
 @ComponentType(type = "schedule", name = "Schedule", description = "Schedule of an execution course")
 public class ScheduleComponent extends ScheduleComponent_Base {
 
+    private static final int MAX_HOUR = 23;
+    private static final int MIN_HOUR = 8;
+
     @Override
     public void handle(Page page, HttpServletRequest req, TemplateContext componentContext, TemplateContext globalContext) {
         ExecutionCourse executionCourse = ((ExecutionCourseSite) page.getSite()).getExecutionCourse();
@@ -38,19 +43,21 @@ public class ScheduleComponent extends ScheduleComponent_Base {
         if (hasPermissionToViewSchedule) {
             List<LessonBean> lessons = getInfoLessons(executionCourse);
 
-            globalContext.put("minHour", minHour(lessons));
-            globalContext.put("maxHour", maxHour(lessons));
+            globalContext.put("minHour", hourMinuteSecond(minHour(lessons), 0, 0));
+            globalContext.put("maxHour", hourMinuteSecond(maxHour(lessons), 0, 0));
 
             globalContext.put("schedule", lessons);
         }
     }
 
     private int minHour(List<LessonBean> lessonBeans) {
-        return lessonBeans.stream().map(LessonBean::getBeginHour).min(Comparator.naturalOrder()).orElse(8);
+        int min = lessonBeans.stream().map(LessonBean::getBeginHour).min(Comparator.naturalOrder()).orElse(MIN_HOUR);
+        return Math.max(min - 1, MIN_HOUR);
     }
 
     private int maxHour(List<LessonBean> lessonBeans) {
-        return lessonBeans.stream().map(LessonBean::getEndHour).max(Comparator.naturalOrder()).orElse(24);
+        int max = lessonBeans.stream().map(LessonBean::getEndHour).max(Comparator.naturalOrder()).orElse(MAX_HOUR);
+        return Math.min(max + 2, MAX_HOUR);
     }
 
     private List<LessonBean> getInfoLessons(ExecutionCourse executionCourse) {
@@ -58,7 +65,7 @@ public class ScheduleComponent extends ScheduleComponent_Base {
         for (final CourseLoad courseLoad : executionCourse.getCourseLoadsSet()) {
             for (final Shift shift : courseLoad.getShiftsSet()) {
                 for (final InfoLessonInstanceAggregation infoLesson : InfoLessonInstanceAggregation.getAggregations(shift)) {
-                    lessons.add(new LessonBean(infoLesson));
+                    lessons.add(new LessonBean(infoLesson, executionCourse));
                 }
             }
         }
@@ -89,4 +96,7 @@ public class ScheduleComponent extends ScheduleComponent_Base {
         return false;
     }
 
+    private String hourMinuteSecond(int hour, int minute, int seconds) {
+        return LocalTime.of(hour, minute, seconds).format(DateTimeFormatter.ISO_TIME);
+    }
 }

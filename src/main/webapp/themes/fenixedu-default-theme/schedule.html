@@ -2,7 +2,6 @@
 
 
 {% block header %}
-
 	{% if hasPermissionToViewSchedule %}
 		<link href='{{staticDir}}/css/fullcalendar.css' rel='stylesheet' />
 		<link href='{{staticDir}}/css/fullcalendar.print.css' rel='stylesheet' media='print' />
@@ -16,9 +15,8 @@
 	{% endif %}
 {% endblock header %}
 
-
-
 {% block content %}
+
 	{% if hasPermissionToViewSchedule %}
 		<div id='calendar'></div>
 	{% else %}
