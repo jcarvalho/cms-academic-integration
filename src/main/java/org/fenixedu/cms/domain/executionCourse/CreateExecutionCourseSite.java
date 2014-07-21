@@ -1,5 +1,7 @@
 package org.fenixedu.cms.domain.executionCourse;
 
+import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -55,22 +57,33 @@ public class CreateExecutionCourseSite extends CustomTask {
 
     private static final String THEME = "fenixedu-default-theme";
     private static final String BUNDLE = "resources.FenixEduCMSResources";
-
-    private static final LocalizedString ANNOUNCEMENTS = BundleUtil.getLocalizedString(BUNDLE, "label.announcement");
-    private static final LocalizedString SUMMARY = BundleUtil.getLocalizedString(BUNDLE, "label.summaries");
-    private static final LocalizedString MARKS = BundleUtil.getLocalizedString(BUNDLE, "label.marks");
+    private static final LocalizedString ANNOUNCEMENTS = getLocalizedString(BUNDLE, "label.announcement");
+    private static final LocalizedString SUMMARY = getLocalizedString(BUNDLE, "label.summaries");
+    private static final LocalizedString TITLE_MARKS = getLocalizedString(BUNDLE, "label.marks");
+    private static final LocalizedString TITLE_OBJECTIVES = getLocalizedString(BUNDLE, "label.objectives");
+    private static final LocalizedString TITLE_EVALUATION_METHODS = getLocalizedString(BUNDLE, "label.evaluationMethods");
+    private static final LocalizedString TITLE_BIBLIOGRAPHIC_REFS = getLocalizedString(BUNDLE, "label.bibliographicReferences");
+    private static final LocalizedString TITLE_EVALUATIONS = getLocalizedString(BUNDLE, "label.evaluations");
+    private static final LocalizedString TITLE_LESSONS_PLANINGS = getLocalizedString(BUNDLE, "label.lessonsPlanings");
+    private static final LocalizedString TITLE_GROUPS = getLocalizedString(BUNDLE, "label.groups");
+    private static final LocalizedString TITLE_PROGRAM = getLocalizedString(BUNDLE, "label.program");
+    private static final LocalizedString TITLE_SHIFTS = getLocalizedString(BUNDLE, "label.shifts");
+    private static final LocalizedString TITLE_INQUIRIES_RESULTS = getLocalizedString(BUNDLE, "label.inquiriesResults");
+    private static final LocalizedString TITLE_SCHEDULE = getLocalizedString(BUNDLE, "label.schedule");
+    private static final LocalizedString TITLE_ANNOUNCEMENTS = getLocalizedString(BUNDLE, "label.announcements");
+    private static final LocalizedString TITLE_INITIAL_PAGE = getLocalizedString(BUNDLE, "label.initialPage");
 
     @Override
     public void runTask() throws Exception {
         deleteAllSites();
-
+//        Bennu.getInstance().getExecutionCoursesSet().stream().forEach(e -> createExecutionCourseSite(e.getSite()));
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612946319"));
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612917134"));
-        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612898443"));
-        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612875684"));
-        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612846760"));
-        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612818202"));
-        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612802249"));
+//        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612898443"));
+//        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612875684"));
+//        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612846760"));
+//        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612818202"));
+//        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612802249"));
 
     }
 
@@ -84,7 +97,7 @@ public class CreateExecutionCourseSite extends CustomTask {
     }
 
     private void createExecutionCourseSite(net.sourceforge.fenixedu.domain.ExecutionCourseSite oldSite) {
-        Site newSite = createSiteInstance(oldSite);
+        ExecutionCourseSite newSite = createSiteInstance(oldSite);
 
         newSite.setBennu(Bennu.getInstance());
         newSite.setTheme(CMSTheme.forType(THEME));
@@ -97,7 +110,8 @@ public class CreateExecutionCourseSite extends CustomTask {
 
         Menu menu = createMenu(newSite, oldSite.getOrderedSections());
         createViewPostPage(newSite);
-        createPages(newSite, menu, null, oldSite.getOrderedSections());
+        createDynamicPages(newSite, menu);
+        createStaticPages(newSite, menu, null, oldSite.getOrderedSections());
     }
 
     private String createSlug(net.sourceforge.fenixedu.domain.ExecutionCourseSite oldSite) {
@@ -109,15 +123,11 @@ public class CreateExecutionCourseSite extends CustomTask {
         return slug;
     }
 
-    private Site createSiteInstance(net.sourceforge.fenixedu.domain.Site oldSite) {
+    private ExecutionCourseSite createSiteInstance(net.sourceforge.fenixedu.domain.Site oldSite) {
         if(oldSite instanceof net.sourceforge.fenixedu.domain.ExecutionCourseSite) {
-            return createSite((net.sourceforge.fenixedu.domain.ExecutionCourseSite) oldSite);
+            return new ExecutionCourseSite(((net.sourceforge.fenixedu.domain.ExecutionCourseSite) oldSite).getExecutionCourse());
         }
-        return new Site();
-    }
-
-    private Site createSite(net.sourceforge.fenixedu.domain.ExecutionCourseSite oldSite) {
-        return new ExecutionCourseSite(oldSite.getExecutionCourse());
+        return null;
     }
 
     private Menu createMenu(Site site, List<Section> orderedSections) {
@@ -154,74 +164,38 @@ public class CreateExecutionCourseSite extends CustomTask {
         return menuItem;
     }
 
-    private void createPages(Site site, Menu menu, MenuItem menuItemParent, Collection<Section> sections) {
-        for (Section section : sections) {
-            Page page = createPage(site, menu, section);
-            MenuItem menuItem = page != null ? createMenuItem(site, menu, page, section, menuItemParent) : null;
-            if (!section.getChildrenSections().isEmpty()) {
-                createPages(site, menu, menuItem, section.getChildrenSections());
-            }
-        }
+    private void createStaticPages(Site site, Menu menu, MenuItem menuItemParent, Collection<Section> sections) {
+        sections.stream().filter(section -> !(section instanceof TemplatedSection)).map(section -> section)
+                .forEach(section -> {
+                    Page page = createStaticPage(site, menu, section);
+                    MenuItem menuItem = page != null ? createMenuItem(site, menu, page, section, menuItemParent) : null;
+                    if (!section.getChildrenSections().isEmpty()) {
+                        createStaticPages(site, menu, menuItem, section.getChildrenSections());
+                    }
+                });
     }
 
-    private Page createPage(Site site, Menu menu, Section section) {
-        if (section instanceof TemplatedSection) {
-            return createDynamicPage(site, menu, (TemplatedSection) section);
-        } else {
-            return createStaticPage(site, menu, section);
-        }
-    }
+    private void createDynamicPages(ExecutionCourseSite site, Menu menu) {
+        migrateSummaries(site, menu);
+        migrateAnnouncements(site, menu);
 
-    private Page createDynamicPage(Site site, Menu menu, TemplatedSection section) {
-        switch (section.getCustomPath()) {
-        case "/publico/executionCourse.do?method=summaries":
-            createSummariesPage(site, menu, section);
-            break;
-        case "/publico/executionCourse.do?method=objectives":
-            createPage(site, menu, section, new ObjectivesComponent(), "objectives");
-            break;
-        case "/publico/executionCourse.do?method=evaluationMethod":
-            createPage(site, menu, section, new EvaluationMethodsComponent(), "evaluationMethods");
-            break;
-        case "/publico/executionCourse.do?method=bibliographicReference":
-            createPage(site, menu, section, new BibliographicReferencesComponent(), "bibliographicReferences");
-            break;
-        case "/publico/executionCourse.do?method=evaluations":
-            createPage(site, menu, section, new EvaluationsComponent(), "evaluations");
-            createPage(site, menu, MARKS, section.isAvailable(), new MarksComponent(), "marks");
-            break;
-        case "/publico/executionCourse.do?method=program":
-            createPage(site, menu, section, new ObjectivesComponent(), "program");
-            break;
-        case "/publico/executionCourse.do?method=lessonPlannings":
-            createPage(site, menu, section, new LessonsPlanningComponent(), "lessonPlanings");
-            break;
-        case "/publico/executionCourse.do?method=groupings":
-            createPage(site, menu, section, new GroupsComponent(), "groupings");
-            break;
-        case "/publico/executionCourse.do?method=shifts":
-            createPage(site, menu, section, new ExecutionCourseComponent(), "shifts");
-            break;
-        case "/publico/executionCourse.do?method=studentInquiriesResults":
-            createPage(site, menu, section, new InquiriesResultsComponent(), "inqueriesResults");
-            break;
-        case "/publico/executionCourse.do?method=firstPage":
-            createPage(site, menu, section, new InitialPageComponent(), "firstPage");
-            break;
-        case "/publico/executionCourse.do?method=schedule":
-            createPage(site, menu, section, new ScheduleComponent(), "schedule");
-            break;
-        case "/publico/announcementManagement.do?method=start":
-            createAnnoucementsPage(site, menu, section);
-            break;
-        default:
-            break;
-        }
-        return null;
-    }
+        Page initialPage = createPage(site, menu, TITLE_INITIAL_PAGE, true, new InitialPageComponent(), "firstPage");
+        initialPage.addComponents(new ListCategoryPosts(site.categoryForSlug("announcement")));
 
-    private Page createPage(Site site, Menu menu, Section section, Component component, String template) {
-        return createPage(site, menu, localized(section.getName()), section.isAvailable(), component, template);
+        createPage(site, menu, SUMMARY, true, new ListCategoryPosts(site.categoryForSlug("summary")), "category");
+        createPage(site, menu, TITLE_ANNOUNCEMENTS, true, new ListCategoryPosts(site.categoryForSlug("announcement")), "category");
+        createPage(site, menu, TITLE_OBJECTIVES, true, new ObjectivesComponent(), "objectives");
+        createPage(site, menu, TITLE_EVALUATION_METHODS, true, new EvaluationMethodsComponent(), "evaluationMethods");
+        createPage(site, menu, TITLE_BIBLIOGRAPHIC_REFS, true, new BibliographicReferencesComponent(), "bibliographicReferences");
+        createPage(site, menu, TITLE_EVALUATIONS, true, new EvaluationsComponent(), "evaluations");
+        createPage(site, menu, TITLE_MARKS, true, new MarksComponent(), "marks");
+        createPage(site, menu, TITLE_PROGRAM, true, new ObjectivesComponent(), "program");
+        createPage(site, menu, TITLE_LESSONS_PLANINGS, true, new LessonsPlanningComponent(), "lessonPlanings");
+        createPage(site, menu, TITLE_GROUPS, true, new GroupsComponent(), "groupings");
+        createPage(site, menu, TITLE_SHIFTS, true, new ExecutionCourseComponent(), "shifts");
+        createPage(site, menu, TITLE_INQUIRIES_RESULTS, true, new InquiriesResultsComponent(), "inqueriesResults");
+        createPage(site, menu, TITLE_SCHEDULE, true, new ScheduleComponent(), "schedule");
+
     }
 
     private Page createPage(Site site, Menu menu, LocalizedString name, boolean published, Component component, String template) {
@@ -236,28 +210,40 @@ public class CreateExecutionCourseSite extends CustomTask {
         return page;
     }
 
+    private Page createStaticPage(Site site, Menu menu, Section section) {
+        //create only if the page has static content
+        Page page = new Page();
+        page.setCreationDate(site.getCreationDate());
+        page.setName(localized(section.getName()));
+        page.setPublished(section.getEnabled());
+        page.setSite(site);
+        page.setTemplate(site.getTheme().templateForType("category"));
+        Category category = new Category();
+        category.setName(page.getName());
+        page.addComponents(new ListCategoryPosts(category));
+        for (Item item : section.getChildrenItems()) {
+            createStaticPost(site, page, item, category);
+        }
+        createMenuComponenet(menu, page);
+
+        return page;
+    }
+
+    private void createStaticPost(Site site, Page page, Item item, Category category) {
+        Post post = new Post();
+        post.setSite(site);
+        post.setName(localized(item.getName()));
+        post.setBody(localized(item.getBody()));
+        post.setCreationDate(new DateTime());
+        post.addCategories(category);
+    }
+
     private void createViewPostPage(Site site) {
         Page page = new Page();
         page.setName(new LocalizedString(I18N.getLocale(), "View"));
         page.setSite(site);
         page.addComponents(new ViewPost());
         page.setTemplate(site.getTheme().templateForType("view"));
-    }
-
-    private Page createSummariesPage(Site site, Menu menu, TemplatedSection section) {
-        migrateSummaries((ExecutionCourseSite) site, menu);
-
-        ListCategoryPosts component = new ListCategoryPosts(site.categoryForSlug("summary"));
-
-        return createPage(site, menu, section, component, "category");
-    }
-
-    private Page createAnnoucementsPage(Site site, Menu menu, TemplatedSection section) {
-        migrateAnnouncements((ExecutionCourseSite) site, menu);
-
-        ListCategoryPosts component = new ListCategoryPosts(site.categoryForSlug("announcement"));
-
-        return createPage(site, menu, section, component, "category");
     }
 
     private void migrateAnnouncements(ExecutionCourseSite site, Menu menu) {
@@ -290,34 +276,6 @@ public class CreateExecutionCourseSite extends CustomTask {
         site.getExecutionCourse().getAssociatedSummariesSet().forEach(summary -> {
             Signal.emit(Summary.CREATED_SIGNAL, new DomainObjectEvent<Summary>(summary));
         });
-    }
-
-    private Page createStaticPage(Site site, Menu menu, Section section) {
-        //create only if the page has static content
-        Page page = new Page();
-        page.setCreationDate(site.getCreationDate());
-        page.setName(localized(section.getName()));
-        page.setPublished(section.getEnabled());
-        page.setSite(site);
-        page.setTemplate(site.getTheme().templateForType("category"));
-        Category category = new Category();
-        category.setName(page.getName());
-        page.addComponents(new ListCategoryPosts(category));
-        for (Item item : section.getChildrenItems()) {
-            createStaticPost(site, page, item, category);
-        }
-        createMenuComponenet(menu, page);
-
-        return page;
-    }
-
-    private void createStaticPost(Site site, Page page, Item item, Category category) {
-        Post post = new Post();
-        post.setSite(site);
-        post.setName(localized(item.getName()));
-        post.setBody(localized(item.getBody()));
-        post.setCreationDate(new DateTime());
-        post.addCategories(category);
     }
 
     private static LocalizedString localized(String str) {
