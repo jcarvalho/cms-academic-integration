@@ -104,13 +104,15 @@ public class LessonBean implements Comparable<LessonBean> {
     }
 
     public String spaceUrl(InfoLessonInstanceAggregation info, ExecutionCourse executionCourse) {
-        final StringBuilder strBuffer = new StringBuilder();
+        final String executionPeriod = executionCourse.getExecutionPeriod().getExternalId();
         final String context = CoreConfiguration.getConfiguration().applicationUrl();
         final String roomName = info.getAllocatableSpace().getName();
-        final String executionPeriod = executionCourse.getExecutionPeriod().getExternalId();
+        StringBuilder strBuffer = new StringBuilder();
 
-        strBuffer.append(context).append("/publico/").append("siteViewer.do?method=roomViewer&amp;roomName=").append(roomName);
-        strBuffer.append("&amp;objectCode=").append(executionPeriod).append("&amp;executionPeriodOID=").append(executionPeriod);
+        strBuffer = strBuffer.append(context).append("/publico/").append("siteViewer.do").append("?method=roomViewer");
+        strBuffer = strBuffer.append("&roomName=").append(roomName);
+        strBuffer = strBuffer.append("&objectCode=").append(executionPeriod);
+        strBuffer = strBuffer.append("&executionPeriodOID=").append(executionPeriod);
 
         return strBuffer.toString();
     }

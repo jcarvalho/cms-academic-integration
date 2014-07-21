@@ -10,8 +10,7 @@ var scheduleEvents = [];
 		title: '{{ lesson.shiftTypeCode }} \n({{ lesson.shiftSpace }})',
 		start: '{{ lesson.start }}',
 		end: '{{ lesson.end }}',
-		url: '{{ lesson.spaceUrl }}',
-		color: '{{ lesson.color }}',
+		color: '#{{ lesson.color }}',
 		description: "<p>{{ lesson.shiftType }}</p><p>{{ i18n('resources.FenixEduCMSResources', 'label.weeks') }}</p><p>{{ lesson.shiftWeeks }}</p>",
 		textColor: '{{ lesson.textColor }}'
 	});

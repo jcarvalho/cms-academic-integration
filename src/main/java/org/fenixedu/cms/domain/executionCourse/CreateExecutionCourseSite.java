@@ -79,8 +79,8 @@ public class CreateExecutionCourseSite extends CustomTask {
 //        Bennu.getInstance().getExecutionCoursesSet().stream().forEach(e -> createExecutionCourseSite(e.getSite()));
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612946319"));
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612917134"));
-//        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612898443"));
-//        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612875684"));
+        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612898443"));
+        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612875684"));
 //        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612846760"));
 //        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612818202"));
 //        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612802249"));
