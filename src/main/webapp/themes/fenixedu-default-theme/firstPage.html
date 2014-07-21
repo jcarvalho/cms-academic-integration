@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% import "view.html" %}
 {% macro personName(person) %}
 	{% if person.homepage is not empty %}
 		{% if person.homepage.activated is not empty %}
@@ -15,10 +15,11 @@
 {% endmacro %}
 {% block content %}
 
+
 {% if executionCourse.executionPeriod.inquiryResponsePeriod is not empty
 	and executionCourse.availableForInquiries 
 	and executionCourse.executionPeriod.inquiryResponsePeriod.insideResponsePeriod %}
-	
+
 	<p>
 		<strong>{{ i18n('resources.ApplicationResources', 'message.inquiries.available.prefix') }}</strong>
 		{% if isStudent %}
@@ -32,8 +33,29 @@
 	</p>
 {% endif %}
 
+
+
+{% if pagination.posts is not empty %}
+	{% set announcement = pagination.posts | head %}
+	<blockquote>
+		{{ viewPost(announcement) }}
+		<footer>
+			<a href="announcements">Other Announcements</a>
+<!-- 			{% for p in pagination.posts | tail %}
+				<ul class="list-inline">
+					<li class="small blog-post-meta">
+						<a href="{{ p.address }}">{{ p.name.content }}</a>
+						({{ p.creationDate|formatDate("MMMM d") }})
+					</li>
+				</ul>
+			{% endfor %} -->
+		</footer>
+	</blockquote>
+{% endif %}
+
+
 {% if professorships is not empty %}
-	<h2>{{ i18n('resources.ApplicationResources', 'label.lecturingTeachers') }}</h2>
+	<h4>{{ i18n('resources.ApplicationResources', 'label.lecturingTeachers') }}</h4>
 
 	{% for professorship in professorships %}
 		{% if professorship.responsibleFor %}
