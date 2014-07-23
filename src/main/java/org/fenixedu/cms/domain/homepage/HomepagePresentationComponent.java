@@ -25,23 +25,26 @@ import org.fenixedu.bennu.cms.rendering.TemplateContext;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.security.Authenticate;
 
-@ComponentType(type = "presentation", name = "Presentation", description = "Homepage's owner presentation.")
-public class HomepagePresentation extends HomepagePresentation_Base {
+@ComponentType(type = "presentation", name = "Presentation Component",
+        description = "Provides homepage owner's presentation data.")
+public class HomepagePresentationComponent extends HomepagePresentationComponent_Base {
 
     @Override
     public void handle(Page page, HttpServletRequest req, TemplateContext local, TemplateContext global) {
         Homepage homepage = homepage(page.getSite());
         if (homepage == null || !homepage.isHomepageActivated()) {
-            return;
+            return; //TODO we might want 404 here
         }
+
+        global.put("homepage", homepage);
+        Person owner = homepage.getPerson();
+        global.put("owner", owner);
+
         if (homepage.getShowCurrentAttendingExecutionCourses()) {
             SortedSet<Attends> attendedCoursesByName = new TreeSet<Attends>(Attends.ATTENDS_COMPARATOR_BY_EXECUTION_COURSE_NAME);
             attendedCoursesByName.addAll(homepage.getPerson().getCurrentAttends());
             global.put("attendingCourses", attendedCoursesByName);
         }
-        global.put("homepage", homepage);
-        Person owner = homepage.getPerson();
-        global.put("owner", owner);
 
         List<? extends PartyContact> emails = owner.getEmailAddresses();
         global.put("visibleEmails", getSortedFilteredContacts(emails));

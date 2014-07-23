@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% import "sotisView.html" %}
+
+{% block content %}
+
+<h1>
+	{{ i18n('resources.ResearcherResources',titleKey) }}
+</h1>
+
+{{ sotisCall(sotisUrl,language,researcher,dataKey) }}
+
+{% endblock %}

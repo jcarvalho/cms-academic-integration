@@ -100,8 +100,13 @@
 		},
 		"presentation":{
 			"name": "Presentation",
-			"description": "Homepage owner's presentation.",
+			"description": "Homepage owner's presentation page.",
 			"file": "presentation.html"
+		},
+		"researcherSection":{
+			"name": "Researcher Data Section",
+			"description": "Page used for homepage owner's researcher data.",
+			"file": "researcherSection.html"
 		},
 		"schedule":{
 			"name": "Schedule",

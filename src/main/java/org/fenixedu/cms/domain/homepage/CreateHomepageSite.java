@@ -1,14 +1,17 @@
 package org.fenixedu.cms.domain.homepage;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import net.sourceforge.fenixedu.domain.Item;
 import net.sourceforge.fenixedu.domain.Section;
 import net.sourceforge.fenixedu.domain.cms.TemplatedSection;
+import net.sourceforge.fenixedu.domain.cms.TemplatedSectionInstance;
 import net.sourceforge.fenixedu.domain.homepage.Homepage;
 
 import org.fenixedu.bennu.cms.domain.CMSTheme;
+import org.fenixedu.bennu.cms.domain.Component;
 import org.fenixedu.bennu.cms.domain.Menu;
 import org.fenixedu.bennu.cms.domain.MenuComponent;
 import org.fenixedu.bennu.cms.domain.MenuItem;
@@ -45,7 +48,7 @@ public class CreateHomepageSite extends CustomTask {
         newSite.setTheme(CMSTheme.forType("fenixedu-default-theme"));
         newSite.setDescription(localized(hp.getDescription()));
         newSite.setAlternativeSite(hp.getAlternativeSite());
-        newSite.setName(localized(hp.getName()));
+        newSite.setName(localized(hp.getName())); // TODO set user friendly name
         newSite.setCreatedBy(hp.getPerson().getUser());
         newSite.setStyle(hp.getStyle());
         newSite.setPublished(true);
@@ -63,6 +66,7 @@ public class CreateHomepageSite extends CustomTask {
 
     private MenuComponent createMenuComponent(Menu menu, Page page) {
         MenuComponent menuComponent = new MenuComponent();
+        //TODO checkout the createdBy attributes of the site components
         menuComponent.setCreatedBy(Authenticate.getUser());
         menuComponent.setCreationDate(new DateTime());
         menuComponent.setMenu(menu);
@@ -99,32 +103,53 @@ public class CreateHomepageSite extends CustomTask {
     private Page createPage(Site site, Menu menu, Section section) {
         if (section instanceof TemplatedSection) {
             return createDynamicPage(site, menu, (TemplatedSection) section);
+        } else if (section instanceof TemplatedSectionInstance) {
+            return createDynamicPage(site, menu, ((TemplatedSectionInstance) section).getSectionTemplate());
         } else {
             return createStaticPage(site, menu, section);
         }
     }
 
     private Page createDynamicPage(Site site, Menu menu, TemplatedSection section) {
+        List<Component> components = new ArrayList<Component>();
+        String templateType = "researcherSection";
         switch (section.getCustomPath()) {
         case "/publico/viewHomepage.do?method=show":
-            createPresentationPage(site, menu, section);
+            templateType = "presentation";
+            components.add(new HomepagePresentationComponent());
+            break;
+        case "/publico/viewHomepageResearch.do?method=showInterests":
+            components.add(new HomepageResearcherComponent("researcher.interests.title.complete", "interests"));
+            break;
+        case "/publico/viewHomepageResearch.do?method=showPrizes":
+            components.add(new HomepageResearcherComponent("researcher.PrizeAssociation.title.label", "prizes"));
+            break;
+        case "/publico/viewHomepageResearch.do?method=showParticipations":
+            components.add(new HomepageResearcherComponent("link.activitiesManagement", "activities"));
+            break;
+        case "/publico/viewHomepageResearch.do?method=showPatents":
+            components.add(new HomepageResearcherComponent("link.patentsManagement", "patents"));
+            break;
+        case "/publico/viewHomepageResearch.do?method=showPublications":
+            components.add(new HomepageResearcherComponent("link.Publications", "publications"));
             break;
         default:
             break;
         }
+        if (templateType != null && !components.isEmpty()) {
+            Page page = new Page();
+            page.setName(section.getName().toLocalizedString());
+            page.setSite(site);
+            for (Component component : components) {
+                page.addComponents(component);
+            }
+            page.setTemplate(site.getTheme().templateForType(templateType));
+            page.setCreatedBy(site.getCreatedBy());
+
+            createMenuComponent(menu, page);
+            return page;
+        }
         return null;
-    }
-
-    private void createPresentationPage(Site site, Menu menu, TemplatedSection section) {
-        Page page = new Page();
-        page.setName(section.getName().toLocalizedString());
-        page.setSite(site);
-        page.addComponents(new HomepagePresentation());
-        page.setTemplate(site.getTheme().templateForType("presentation"));
-        page.setCreatedBy(site.getCreatedBy());
-
-        createMenuItem(site, menu, page, section, null);
-        createMenuComponent(menu, page);
     }
 
     private Page createStaticPage(Site site, Menu menu, Section section) {
