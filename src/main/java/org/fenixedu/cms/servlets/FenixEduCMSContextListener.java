@@ -4,9 +4,11 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
+import net.sourceforge.fenixedu.domain.ExecutionCourse;
 import net.sourceforge.fenixedu.domain.Summary;
 
 import org.fenixedu.bennu.signals.Signal;
+import org.fenixedu.cms.domain.executionCourse.ExecutionCourseListener;
 import org.fenixedu.cms.domain.executionCourse.SummaryListener;
 
 @WebListener
@@ -17,6 +19,7 @@ public class FenixEduCMSContextListener implements ServletContextListener {
         Signal.registerWithTransaction(Summary.DELETED_SIGNAL, new SummaryListener.Delete());
         Signal.registerWithTransaction(Summary.EDITED_SIGNAL, new SummaryListener.Edit());
 
+        Signal.registerWithTransaction(ExecutionCourse.CREATED_SIGNAL, new ExecutionCourseListener());
     }
 
     @Override

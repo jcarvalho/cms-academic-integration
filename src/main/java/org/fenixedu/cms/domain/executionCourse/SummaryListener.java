@@ -1,5 +1,7 @@
 package org.fenixedu.cms.domain.executionCourse;
 
+import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
+
 import java.util.Locale;
 
 import net.sourceforge.fenixedu.domain.Summary;
@@ -12,6 +14,7 @@ import org.fenixedu.commons.i18n.LocalizedString;
 import com.google.common.eventbus.Subscribe;
 
 public class SummaryListener {
+    private static final LocalizedString SUMMARY = getLocalizedString("resources.FenixEduCMSResources", "label.summaries");
 
     public static class Create {
         @Subscribe
@@ -47,7 +50,7 @@ public class SummaryListener {
         post.setBody(summary.getSummaryText().toLocalizedString());
         post.setCreationDate(summary.getSummaryDateTime());
         
-        post.addCategories(site.categoryForSlug("summary"));
+        post.addCategories(site.categoryForSlug("summary", SUMMARY));
         post.addCategories(site.categoryForSlug("summary-professor-" + summary.getProfessorship().getOid(), professorshipName));
         post.addCategories(site.categoryForSlug("summary-shift-" + summary.getShift().getOid(), summaryShiftName));
         
