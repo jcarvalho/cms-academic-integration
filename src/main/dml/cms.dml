@@ -15,6 +15,8 @@ class executionCourse.components.GroupsComponent extends .org.fenixedu.bennu.cms
 class executionCourse.components.InquiriesResultsComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
 class executionCourse.components.InitialPageComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
 
+class researchUnit.componenets.InitialPageComponenet extends .org.fenixedu.bennu.cms.domain.Component  {}
+
 relation ExecutionCourseFenixEduExecutionCourseSite {
 	executionCourse.ExecutionCourseSite playsRole cmsSite;
 	.net.sourceforge.fenixedu.domain.ExecutionCourse playsRole executionCourse;

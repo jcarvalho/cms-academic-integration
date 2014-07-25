@@ -82,13 +82,13 @@ public class CreateExecutionCourseSite extends CustomTask {
         return e.getSite();
     }
 
-    private void deleteAllSites() {
-        for(Site site : Bennu.getInstance().getSitesSet()) {
+    public static void deleteAllSites() {
+        for (Site site : Bennu.getInstance().getSitesSet()) {
             site.delete();
         }
     }
 
-    private void createExecutionCourseSite(net.sourceforge.fenixedu.domain.ExecutionCourseSite oldSite) {
+    public void createExecutionCourseSite(net.sourceforge.fenixedu.domain.ExecutionCourseSite oldSite) {
 
         ExecutionCourse executionCourse = oldSite.getExecutionCourse();
         ExecutionCourseSite newSite = ExecutionCourseListener.create(executionCourse);
@@ -104,7 +104,7 @@ public class CreateExecutionCourseSite extends CustomTask {
         createStaticPages(newSite, menu, null, oldSite.getOrderedSections());
     }
 
-    private void createStaticPages(Site site, Menu menu, MenuItem menuItemParent, Collection<Section> sections) {
+    public static void createStaticPages(Site site, Menu menu, MenuItem menuItemParent, Collection<Section> sections) {
         sections.stream().filter(section -> !(section instanceof TemplatedSection)).map(section -> section).forEach(section -> {
             Page page = createStaticPage(site, menu, section);
             MenuItem menuItem = null;
@@ -123,7 +123,7 @@ public class CreateExecutionCourseSite extends CustomTask {
         migrateAnnouncements(site, menu);
     }
 
-    private Page createStaticPage(Site site, Menu menu, Section section) {
+    public static Page createStaticPage(Site site, Menu menu, Section section) {
         Page page = new Page();
         page.setCreationDate(site.getCreationDate());
         page.setName(localized(section.getName()));
@@ -137,7 +137,8 @@ public class CreateExecutionCourseSite extends CustomTask {
         Predicate<Item> hasName = i -> i.getName() != null && !i.getName().isEmpty();
         Predicate<Item> hasBody = i -> i.getBody() != null && !i.getBody().isEmpty();
         section.getChildrenItems().stream().filter(hasName.and(hasBody)).forEach(item -> {
-            Post.create(site, page, localized(item.getName()), localized(item.getBody()), category);
+            Boolean isEnabled = Optional.ofNullable(item.getEnabled()).orElse(true);
+            Post.create(site, page, localized(item.getName()), localized(item.getBody()), category, isEnabled);
         });
 
         MenuComponent.create(menu, page);
@@ -145,10 +146,9 @@ public class CreateExecutionCourseSite extends CustomTask {
         return page;
     }
 
-
     private void migrateAnnouncements(ExecutionCourseSite site, Menu menu) {
-        for(Announcement announcement : site.getExecutionCourse().getBoard().getAnnouncementSet()) {
-            boolean hasSubject =announcement.getSubject() != null && !announcement.getSubject().isEmpty();
+        for (Announcement announcement : site.getExecutionCourse().getBoard().getAnnouncementSet()) {
+            boolean hasSubject = announcement.getSubject() != null && !announcement.getSubject().isEmpty();
             boolean hasBody = announcement.getBody() != null && !announcement.getBody().isEmpty();
             if (hasSubject && hasBody) {
                 Post post = new Post();
@@ -186,7 +186,7 @@ public class CreateExecutionCourseSite extends CustomTask {
         });
     }
 
-    private static LocalizedString localizedStr(String str) {
+    public static LocalizedString localizedStr(String str) {
         LocalizedString result = new LocalizedString();
         if (!Strings.isNullOrEmpty(str)) {
             for (Locale locale : CoreConfiguration.supportedLocales()) {
@@ -196,9 +196,8 @@ public class CreateExecutionCourseSite extends CustomTask {
         return result;
     }
 
-    private static LocalizedString localized(MultiLanguageString mls) {
+    public static LocalizedString localized(MultiLanguageString mls) {
         return mls != null ? mls.toLocalizedString() : new LocalizedString();
     }
-    
 
 }
