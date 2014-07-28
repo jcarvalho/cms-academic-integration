@@ -3,12 +3,11 @@ package org.fenixedu.cms.domain.executionCourse;
 import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import net.sourceforge.fenixedu.domain.ExecutionCourse;
 import net.sourceforge.fenixedu.domain.Item;
@@ -48,19 +47,18 @@ public class CreateExecutionCourseSite extends CustomTask {
     Logger log = LoggerFactory.getLogger(CreateExecutionCourseSite.class);
     private static final LocalizedString ANNOUNCEMENTS = getLocalizedString("resources.FenixEduCMSResources",
             "label.announcement");
+    private static Integer numSites = 1;
 
     @Override
     public void runTask() throws Exception {
         DateTime start = new DateTime();
         deleteAllSites();
         Set<ExecutionCourse> executionCourses = Bennu.getInstance().getExecutionCoursesSet();
-        List<net.sourceforge.fenixedu.domain.ExecutionCourseSite> sites =
-                executionCourses.stream().map(e -> e.getSite()).filter(s -> s != null).distinct().collect(Collectors.toList());
-        int numSites = 1;
-        for (net.sourceforge.fenixedu.domain.ExecutionCourseSite site : sites) {
-            log.info("{ number: " + numSites++ + " of " + sites.size() + ", oldPath: " + site.getReversePath() + " }");
+        executionCourses.stream().map(e -> e.getSite()).filter(Objects::nonNull).forEach(site -> {
+            log.info("{ number: " + numSites++ + ", oldPath: " + site.getReversePath() + " }");
             createExecutionCourseSite(site);
-        }
+        });
+
         DateTime end = new DateTime();
 
         log.info("[ duration: " + Hours.hoursBetween(start, end) + "hours, " + Minutes.minutesBetween(start, end) + "minutes, "
@@ -97,7 +95,6 @@ public class CreateExecutionCourseSite extends CustomTask {
         newSite.setDescription(localized(oldSite.getDescription()));
         newSite.setAlternativeSite(oldSite.getAlternativeSite());
         newSite.setStyle(oldSite.getStyle());
-        newSite.setSlug(Site.slugify(oldSite.getReversePath().replace('/', '-')));
 
         dataMigration(newSite, menu);
 
