@@ -112,6 +112,11 @@
 			"name": "Schedule",
 			"description":"Schedule Execution Course Site",
 			"file":"schedule.html"
+		},
+		"members":{
+			"name": "Members",
+			"description":"Members of the Research Unit",
+			"file":"members.html"
 		}
 	}
 }

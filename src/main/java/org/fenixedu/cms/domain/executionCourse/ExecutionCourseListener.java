@@ -45,7 +45,7 @@ public class ExecutionCourseListener {
     private static final LocalizedString TITLE_SHIFTS = getLocalizedString(BUNDLE, "label.shifts");
     private static final LocalizedString TITLE_MARKS = getLocalizedString(BUNDLE, "label.marks");
     private static final LocalizedString SUMMARY = getLocalizedString(BUNDLE, "label.summaries");
-    private static final LocalizedString MENU = getLocalizedString(BUNDLE, "label.menu");
+    public static final LocalizedString MENU = getLocalizedString(BUNDLE, "label.menu");
 
     @Subscribe
     public void doIt(DomainObjectEvent<ExecutionCourse> event) {
@@ -62,7 +62,7 @@ public class ExecutionCourseListener {
         createDynamicPages(newSite, menu);
         return newSite;
     }
-    
+
     private static void createDynamicPages(ExecutionCourseSite site, Menu menu) {
         ListCategoryPosts summaryCategory = new ListCategoryPosts(site.categoryForSlug("summary", SUMMARY));
         ListCategoryPosts announcementCategory = new ListCategoryPosts(site.categoryForSlug("announcement", ANNOUNCEMENTS));

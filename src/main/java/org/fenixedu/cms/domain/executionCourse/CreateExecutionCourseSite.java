@@ -45,6 +45,8 @@ import com.google.common.base.Strings;
 
 public class CreateExecutionCourseSite extends CustomTask {
     Logger log = LoggerFactory.getLogger(CreateExecutionCourseSite.class);
+
+    private static final LocalizedString TOP_MENU = getLocalizedString("resources.FenixEduCMSResources", "label.topMenu");
     private static final LocalizedString ANNOUNCEMENTS = getLocalizedString("resources.FenixEduCMSResources",
             "label.announcement");
     private static Integer numSites = 1;
@@ -63,10 +65,10 @@ public class CreateExecutionCourseSite extends CustomTask {
 
         log.info("[ duration: " + Hours.hoursBetween(start, end) + "hours, " + Minutes.minutesBetween(start, end) + "minutes, "
                 + Seconds.secondsBetween(start, end) + " ]");
-        /*
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612946319"));
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612917134"));
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612898443"));
+        /*
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612875684"));
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612846760"));
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612818202"));
@@ -90,29 +92,46 @@ public class CreateExecutionCourseSite extends CustomTask {
 
         ExecutionCourse executionCourse = oldSite.getExecutionCourse();
         ExecutionCourseSite newSite = ExecutionCourseListener.create(executionCourse);
-        Menu menu = newSite.getMenusSet().stream().findFirst().orElse(null);
+        Menu sideMenu = sideMenu(newSite);
+        Menu topMenu = sideMenu(newSite);
 
         newSite.setDescription(localized(oldSite.getDescription()));
         newSite.setAlternativeSite(oldSite.getAlternativeSite());
         newSite.setStyle(oldSite.getStyle());
 
-        dataMigration(newSite, menu);
+        dataMigration(newSite, sideMenu);
 
-        createStaticPages(newSite, menu, null, oldSite.getOrderedSections());
+        oldSite.getOrderedSections().stream().filter(s -> TOP_MENU.equals(s.getName().toLocalizedString()))
+                .forEach(s -> createStaticPages(newSite, topMenu, null, s.getChildrenSections()));
+
+        oldSite.getOrderedSections().stream().filter(s -> !TOP_MENU.equals(s.getName().toLocalizedString()))
+                .forEach(s -> createStaticPages(newSite, sideMenu, null, s.getChildrenSections()));
+
     }
 
     public static void createStaticPages(Site site, Menu menu, MenuItem menuItemParent, Collection<Section> sections) {
-        sections.stream().filter(section -> !(section instanceof TemplatedSection)).map(section -> section).forEach(section -> {
-            Page page = createStaticPage(site, menu, section);
-            MenuItem menuItem = null;
-            if (page != null) {
-                menuItem = MenuItem.create(site, menu, page, localized(section.getName()), menuItemParent);
-                menuItem.setPosition(section.getOrder());
-            }
-            if (!section.getChildrenSections().isEmpty()) {
-                createStaticPages(site, menu, menuItem, section.getChildrenSections());
-            }
-        });
+        sections.stream().filter(section -> !(section instanceof TemplatedSection)).map(section -> (TemplatedSection) section)
+                .forEach(section -> {
+                    Page page = createStaticPage(site, menu, section);
+                    MenuItem menuItem = null;
+                    if (page != null) {
+                        menuItem = MenuItem.create(site, menu, page, localized(section.getName()), menuItemParent);
+                        menuItem.setPosition(section.getOrder());
+                    }
+                    if (!section.getChildrenSections().isEmpty()) {
+                        createStaticPages(site, menu, menuItem, section.getChildrenSections());
+                    }
+                });
+    }
+
+    private static Menu sideMenu(Site site) {
+        return site.getMenusSet().stream().filter(m -> m.getName().equals(ExecutionCourseListener.MENU)).findFirst()
+                .orElseGet(() -> new Menu(site, ExecutionCourseListener.MENU));
+    }
+
+    private static Menu topMenu(Site site) {
+        return site.getMenusSet().stream().filter(m -> m.getName().equals(TOP_MENU)).findFirst()
+                .orElseGet(() -> new Menu(site, TOP_MENU));
     }
 
     private void dataMigration(ExecutionCourseSite site, Menu menu) {

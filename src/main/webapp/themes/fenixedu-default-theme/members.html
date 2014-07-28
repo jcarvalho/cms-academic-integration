@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% macro personsCards(persons, title) %}
+
+	{% if persons is not empty %}
+		<p><strong>{{ title }}</strong></p>
+		{% for person in persons %}
+			<li>
+				{{ personCard(person) }}
+				<hr>
+			</li>
+		{% endfor %}
+	{% endif %}
+
+{% endmacro %}
+
+{% macro personCard(person) %}
+	{% if person.isPhotoPubliclyAvailable() %}
+		{% set imageUrl = "/images/photo_placer01_pt.gif" %}
+	{% else %}
+		{% set imageUrl = "/publico/retrievePersonalPhoto.do?method=retrievePhotographOnPublicSpace&amp;personId={{ person.externalId }}" %}
+	{% endif %}
+	<div class="person">
+		<a href="{{ person.homepageWebAddress }}"><img src="{{ imageUrl }}"></a>
+		<p>{{ person.presentationName }}</p>
+	</div>
+{% endmacro %}
+
+{% macro researchUnitMembers(unit) %}
+	{{ personsCards(unit.researcherContracts, i18n('resources.SiteResources', 'label.researchers')) }}
+
+	{{ personsCards(unit.technicalStaff, i18n('resources.SiteResources', 'label.technicalStaff')) }}
+
+	{{ personsCards(unit.internships, i18n('resources.SiteResources', 'label.internship')) }}
+
+	{{ personsCards(unit.scholarships, i18n('resources.SiteResources', 'label.scholarship')) }}
+{% endmacro %}
+
+{% block content %}
+<h1>{{ researchUnit.nameWithAcronym }}</h1>
+
+<p><a href="organization">{{ i18n('resources.SiteResources', 'label.members') }}</a></p>
+
+<h2>{{ i18n('resources.SiteResources', 'label.members') }}</h2>
+
+<div>{{ researchUnitMembers(researchUnit) }}</div>
+{{ researchUnit }}
+{% if researchUnit.allCurrentActiveSubUnits is not empty %}
+	{% for unit in researchUnit.allCurrentActiveSubUnits %}
+		{% if unit.researchUnit %}
+			{% set unitUrl = unit.cmsSite.initialPage is not empty ? 'unit.cmsSite.initialPage.pageAddress' : '#'%}
+			<a href="{{ unitUrl }}">{{ unit }}</a>
+			
+			{% if unit.siteAvailable %}
+				{{ researchUnitMembers(unit) }}		
+			{% else %}
+				<p><em>{{ i18n('resources.SiteResources', 'label.noMembersDefined') }}</em></p>
+			{% endif %}
+		{% endif %}
+	{% endfor %}
+{% endif %}
+
+{% endblock content %}
