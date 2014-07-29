@@ -138,8 +138,8 @@ public class CreateHomepageSite extends CustomTask {
         }
         if (templateType != null && !components.isEmpty()) {
             Page page = new Page();
-            page.setName(section.getName().toLocalizedString());
             page.setSite(site);
+            page.setName(section.getName().toLocalizedString());
             for (Component component : components) {
                 page.addComponents(component);
             }
@@ -157,9 +157,9 @@ public class CreateHomepageSite extends CustomTask {
         Page page = new Page();
         page.setCreationDate(site.getCreationDate());
         page.setCreatedBy(site.getCreatedBy());
+        page.setSite(site);
         page.setName(localized(section.getName()));
         page.setPublished(section.getEnabled());
-        page.setSite(site);
         page.setTemplate(site.getTheme().templateForType("view"));
         for (Item item : section.getChildrenItems()) {
             createStaticPost(site, page, item);

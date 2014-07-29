@@ -1,63 +1,94 @@
 {% extends "base.html" %}
 
-{% macro personsCards(persons, title) %}
+{% block content %}
+	{% macro personsCards(persons, title, staticDir) %}
 
-	{% if persons is not empty %}
-		<p><strong>{{ title }}</strong></p>
-		{% for person in persons %}
-			<li>
-				{{ personCard(person) }}
-				<hr>
-			</li>
+		{% if persons is not empty %}
+			<h4>{{ title }}</h4>
+			{% for person in persons %}
+				<li>
+					{{ personCard(person, staticDir) }}
+					<hr>
+				</li>
+			{% endfor %}
+		{% endif %}
+
+	{% endmacro %}
+
+	{% macro personCard(person, staticDir) %}
+	<div class="person-card">
+		<div class="col-md-2 person-photo">
+				{% if person is not empty and person.photoPubliclyAvailable %}
+					{% set url = "/publico/retrievePersonalPhoto.do?method=retrievePhotographOnPublicSpace&personId="%}
+					<img class="img-thumbnail" alt="{{ person.presentationName }}" src="{{ url + person.externalId}}">
+				{% else %}
+					<img class="img-thumbnail" alt="No Photo Available" src="{{ staticDir }}/images/noPhotoAvailable.gif">
+				{% endif %}
+		</div>
+		<div class="col-md-10 person-details">
+			<a href="{{ person.homepageWebAddress }}">
+				<p>{{ person.presentationName }}</p>
+			</a>
+			{% if person.getDefaultEmailAddressValue is not empty %}
+				<a href="mailto:{{ person.getDefaultEmailAddressValue }}">
+					<p>{{ person.getDefaultEmailAddressValue }}
+				</a>
+			{% endif %}
+		</div>
+	</div>
+	{% endmacro %}
+
+	{% macro researchUnitMembers(unit, staticDir) %}
+		{{ personsCards(unit.researchers, i18n('resources.SiteResources', 'label.researchers'), staticDir) }}
+
+		{{ personsCards(unit.technicalStaff, i18n('resources.SiteResources', 'label.technicalStaff'), staticDir) }}
+
+		{{ personsCards(unit.internships, i18n('resources.SiteResources', 'label.internship'), staticDir) }}
+
+		{{ personsCards(unit.scholarships, i18n('resources.SiteResources', 'label.scholarship'), staticDir) }}
+	{% endmacro %}
+
+	<h1>{{ researchUnit.nameWithAcronym }}</h1>
+
+	<div>{{ researchUnitMembers(researchUnit, staticDir) }}</div>
+
+	{% if researchUnit.allCurrentActiveSubUnits is not empty %}
+		{% for unit in researchUnit.allCurrentActiveSubUnits %}
+			{% if unit.researchUnit %}
+				{% set unitUrl = unit.cmsSite.initialPage is not empty ? 'unit.cmsSite.initialPage.pageAddress' : '#'%}
+				<a href="{{ unitUrl }}">{{ unit }}</a>
+				
+				{% if unit.siteAvailable %}
+					{{ researchUnitMembers(unit, staticDir) }}		
+				{% else %}
+					<p>{{ i18n('resources.SiteResources', 'label.noMembersDefined') }}</p>
+				{% endif %}
+			{% endif %}
 		{% endfor %}
 	{% endif %}
 
-{% endmacro %}
+	<script type="text/javascript">
+		/**
+		 * When an image fails to load, a default error image is presented.
+		**/
+		$("img").error(function () {
+		  $(this).unbind("error").attr("src", "{{ staticDir }}/images/noPhotoAvailable.gif");
+		});
+	</script>
 
-{% macro personCard(person) %}
-	{% if person.isPhotoPubliclyAvailable() %}
-		{% set imageUrl = "/images/photo_placer01_pt.gif" %}
-	{% else %}
-		{% set imageUrl = "/publico/retrievePersonalPhoto.do?method=retrievePhotographOnPublicSpace&amp;personId={{ person.externalId }}" %}
-	{% endif %}
-	<div class="person">
-		<a href="{{ person.homepageWebAddress }}"><img src="{{ imageUrl }}"></a>
-		<p>{{ person.presentationName }}</p>
-	</div>
-{% endmacro %}
-
-{% macro researchUnitMembers(unit) %}
-	{{ personsCards(unit.researcherContracts, i18n('resources.SiteResources', 'label.researchers')) }}
-
-	{{ personsCards(unit.technicalStaff, i18n('resources.SiteResources', 'label.technicalStaff')) }}
-
-	{{ personsCards(unit.internships, i18n('resources.SiteResources', 'label.internship')) }}
-
-	{{ personsCards(unit.scholarships, i18n('resources.SiteResources', 'label.scholarship')) }}
-{% endmacro %}
-
-{% block content %}
-<h1>{{ researchUnit.nameWithAcronym }}</h1>
-
-<p><a href="organization">{{ i18n('resources.SiteResources', 'label.members') }}</a></p>
-
-<h2>{{ i18n('resources.SiteResources', 'label.members') }}</h2>
-
-<div>{{ researchUnitMembers(researchUnit) }}</div>
-{{ researchUnit }}
-{% if researchUnit.allCurrentActiveSubUnits is not empty %}
-	{% for unit in researchUnit.allCurrentActiveSubUnits %}
-		{% if unit.researchUnit %}
-			{% set unitUrl = unit.cmsSite.initialPage is not empty ? 'unit.cmsSite.initialPage.pageAddress' : '#'%}
-			<a href="{{ unitUrl }}">{{ unit }}</a>
-			
-			{% if unit.siteAvailable %}
-				{{ researchUnitMembers(unit) }}		
-			{% else %}
-				<p><em>{{ i18n('resources.SiteResources', 'label.noMembersDefined') }}</em></p>
-			{% endif %}
-		{% endif %}
-	{% endfor %}
-{% endif %}
+	<style type="text/css">
+		li {
+			list-style-type: none;
+		}
+		h4 {
+			padding-top: 7px;
+			padding-bottom: 10px;
+		}
+		.person-card {
+			height: 100px;
+			margin: 15px;
+		}
+	</style>
 
 {% endblock content %}
+

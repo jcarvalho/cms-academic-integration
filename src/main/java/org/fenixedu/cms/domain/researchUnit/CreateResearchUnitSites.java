@@ -1,4 +1,4 @@
-package org.fenixedu.cms.domain.researchUnit.componenets;
+package org.fenixedu.cms.domain.researchUnit;
 
 import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
 
@@ -12,7 +12,7 @@ import org.fenixedu.bennu.cms.domain.ViewPost;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
 import org.fenixedu.cms.domain.executionCourse.CreateExecutionCourseSite;
-import org.fenixedu.cms.domain.researchUnit.ResearchUnitSite;
+import org.fenixedu.cms.domain.researchUnit.componenets.ResearchUnitComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +22,7 @@ import com.google.common.collect.Lists;
 public class CreateResearchUnitSites extends CustomTask {
     private static final String THEME = "fenixedu-default-theme";
     private static final String BUNDLE = "resources.FenixEduCMSResources";
-    Logger log = LoggerFactory.getLogger(CreateExecutionCourseSite.class);
+    Logger log = LoggerFactory.getLogger(CreateResearchUnitSites.class);
 
     @Override
     public void runTask() throws Exception {
@@ -54,7 +54,7 @@ public class CreateResearchUnitSites extends CustomTask {
         Page.create(newSite, null, getLocalizedString(BUNDLE, "label.viewPost"), true, "view", new ViewPost());
         CreateExecutionCourseSite.createStaticPages(newSite, menu, null, oldSite.getOrderedSections());
         createDynamicPages(newSite, menu);
-
+        log.info("[ New Site: " + newSite.getName().getContent() + " at " + newSite.getInitialPage().getAddress());
         return newSite;
     }
 

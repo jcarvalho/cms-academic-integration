@@ -110,7 +110,7 @@ public class CreateExecutionCourseSite extends CustomTask {
     }
 
     public static void createStaticPages(Site site, Menu menu, MenuItem menuItemParent, Collection<Section> sections) {
-        sections.stream().filter(section -> !(section instanceof TemplatedSection)).map(section -> (TemplatedSection) section)
+        sections.stream().filter(section -> section instanceof TemplatedSection).map(section -> (TemplatedSection) section)
                 .forEach(section -> {
                     Page page = createStaticPage(site, menu, section);
                     MenuItem menuItem = null;
@@ -142,9 +142,9 @@ public class CreateExecutionCourseSite extends CustomTask {
     public static Page createStaticPage(Site site, Menu menu, Section section) {
         Page page = new Page();
         page.setCreationDate(site.getCreationDate());
+        page.setSite(site);
         page.setName(localized(section.getName()));
         page.setPublished(section.getEnabled());
-        page.setSite(site);
         page.setTemplate(site.getTheme().templateForType("category"));
         Category category = new Category();
         category.setName(page.getName());
