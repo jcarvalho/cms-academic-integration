@@ -20,9 +20,9 @@
 		<div class="col-md-2 person-photo">
 				{% if person is not empty and person.photoPubliclyAvailable %}
 					{% set url = "/publico/retrievePersonalPhoto.do?method=retrievePhotographOnPublicSpace&personId="%}
-					<img class="img-thumbnail" alt="{{ person.presentationName }}" src="{{ url + person.externalId}}">
+					<img class="img-circle" alt="{{ person.presentationName }}" src="{{ url + person.externalId}}">
 				{% else %}
-					<img class="img-thumbnail" alt="No Photo Available" src="{{ staticDir }}/images/noPhotoAvailable.gif">
+					<img class="img-circle" alt="No Photo Available" src="{{ staticDir }}/images/noPhotoAvailable.gif">
 				{% endif %}
 		</div>
 		<div class="col-md-10 person-details">
@@ -87,6 +87,9 @@
 		.person-card {
 			height: 100px;
 			margin: 15px;
+		}
+		.person-details {
+			margin-top: 10px;
 		}
 	</style>
 

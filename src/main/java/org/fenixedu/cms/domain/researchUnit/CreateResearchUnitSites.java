@@ -36,12 +36,15 @@ public class CreateResearchUnitSites extends CustomTask {
         log.info(" [ creating research unit sites (existing " + researchUnitSites.size() + ") ]");
 
         for (net.sourceforge.fenixedu.domain.ResearchUnitSite oldSite : researchUnitSites) {
-            log.info("[ old site: " + oldSite.getExternalId() + ", path: " + oldSite.getReversePath() + " ]");
-            create(oldSite);
+            if (oldSite.getName().toLocalizedString().getContent().equals("INESC-ID/ESW")) {
+                log.info("[ old site: " + oldSite.getExternalId() + ", path: " + oldSite.getReversePath() + " ]");
+                create(oldSite);
+            }
         }
     }
 
     private Site create(net.sourceforge.fenixedu.domain.ResearchUnitSite oldSite) {
+        log.info("migrating old site '" + oldSite.getReversePath() + "'");
         ResearchUnitSite newSite = new ResearchUnitSite(oldSite.getUnit());
 
         newSite.setPublished(true);
@@ -51,15 +54,18 @@ public class CreateResearchUnitSites extends CustomTask {
         newSite.setBennu(Bennu.getInstance());
         newSite.setTheme(CMSTheme.forType(THEME));
         Menu menu = new Menu(newSite, getLocalizedString(BUNDLE, "label.menu"));
-        Page.create(newSite, null, getLocalizedString(BUNDLE, "label.viewPost"), true, "view", new ViewPost());
-        CreateExecutionCourseSite.createStaticPages(newSite, menu, null, oldSite.getOrderedSections());
+        Page.create(newSite, null, null, getLocalizedString(BUNDLE, "label.viewPost"), true, "view", new ViewPost());
+        CreateExecutionCourseSite.createStaticPages(newSite, null, oldSite);
+
         createDynamicPages(newSite, menu);
         log.info("[ New Site: " + newSite.getName().getContent() + " at " + newSite.getInitialPage().getAddress());
         return newSite;
     }
 
     private void createDynamicPages(Site site, Menu menu) {
-        Page.create(site, menu, getLocalizedString(BUNDLE, "label.researchers"), true, "members", new ResearchUnitComponent());
+        log.info("creating dynamic pages for site " + site.getSlug());
+        Page.create(site, menu, null, getLocalizedString(BUNDLE, "label.researchers"), true, "members",
+                new ResearchUnitComponent());
     }
 
     private String createSlug(net.sourceforge.fenixedu.domain.ResearchUnitSite oldSite) {

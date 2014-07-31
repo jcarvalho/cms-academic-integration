@@ -17,6 +17,7 @@
 {% endmacro %}
 
 <div class="col-sm-3 col-sm-offset-1 blog-sidebar">
+  {{ menus }}
   {% for menu in menus %}
     <div class="sidebar-module">
       <h4>{{ menu.name.content }}</h4>

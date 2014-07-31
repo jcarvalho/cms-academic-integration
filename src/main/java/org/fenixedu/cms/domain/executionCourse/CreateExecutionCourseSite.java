@@ -2,28 +2,31 @@ package org.fenixedu.cms.domain.executionCourse;
 
 import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import net.sourceforge.fenixedu.domain.ExecutionCourse;
 import net.sourceforge.fenixedu.domain.Item;
 import net.sourceforge.fenixedu.domain.Section;
 import net.sourceforge.fenixedu.domain.Summary;
+import net.sourceforge.fenixedu.domain.cms.CmsContent;
 import net.sourceforge.fenixedu.domain.cms.TemplatedSection;
 import net.sourceforge.fenixedu.domain.messaging.Announcement;
 
 import org.fenixedu.bennu.cms.domain.Category;
+import org.fenixedu.bennu.cms.domain.Component;
 import org.fenixedu.bennu.cms.domain.ListCategoryPosts;
 import org.fenixedu.bennu.cms.domain.Menu;
-import org.fenixedu.bennu.cms.domain.MenuComponent;
 import org.fenixedu.bennu.cms.domain.MenuItem;
 import org.fenixedu.bennu.cms.domain.Page;
 import org.fenixedu.bennu.cms.domain.Post;
 import org.fenixedu.bennu.cms.domain.Site;
+import org.fenixedu.bennu.cms.domain.StaticPost;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
@@ -44,12 +47,15 @@ import pt.utl.ist.fenix.tools.util.i18n.MultiLanguageString;
 import com.google.common.base.Strings;
 
 public class CreateExecutionCourseSite extends CustomTask {
-    Logger log = LoggerFactory.getLogger(CreateExecutionCourseSite.class);
+    private static final Logger log = LoggerFactory.getLogger(CreateExecutionCourseSite.class);
 
     private static final LocalizedString TOP_MENU = getLocalizedString("resources.FenixEduCMSResources", "label.topMenu");
+    private static final LocalizedString SIDE_MENU = getLocalizedString("resources.FenixEduCMSResources", "label.sideMenu");
     private static final LocalizedString ANNOUNCEMENTS = getLocalizedString("resources.FenixEduCMSResources",
             "label.announcement");
     private static Integer numSites = 1;
+    private static Predicate<Item> hasName = i -> i.getName() != null && !i.getName().isEmpty();
+    private static Predicate<Item> hasBody = i -> i.getBody() != null && !i.getBody().isEmpty();
 
     @Override
     public void runTask() throws Exception {
@@ -65,10 +71,10 @@ public class CreateExecutionCourseSite extends CustomTask {
 
         log.info("[ duration: " + Hours.hoursBetween(start, end) + "hours, " + Minutes.minutesBetween(start, end) + "minutes, "
                 + Seconds.secondsBetween(start, end) + " ]");
+        /*
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612946319"));
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612917134"));
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612898443"));
-        /*
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612875684"));
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612846760"));
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612818202"));
@@ -83,6 +89,7 @@ public class CreateExecutionCourseSite extends CustomTask {
     }
 
     public static void deleteAllSites() {
+        log.info("removing all sites..");
         for (Site site : Bennu.getInstance().getSitesSet()) {
             site.delete();
         }
@@ -92,45 +99,59 @@ public class CreateExecutionCourseSite extends CustomTask {
 
         ExecutionCourse executionCourse = oldSite.getExecutionCourse();
         ExecutionCourseSite newSite = ExecutionCourseListener.create(executionCourse);
-        Menu sideMenu = sideMenu(newSite);
-        Menu topMenu = sideMenu(newSite);
 
         newSite.setDescription(localized(oldSite.getDescription()));
         newSite.setAlternativeSite(oldSite.getAlternativeSite());
         newSite.setStyle(oldSite.getStyle());
 
-        dataMigration(newSite, sideMenu);
+        dataMigration(newSite, sideMenu(newSite));
 
-        oldSite.getOrderedSections().stream().filter(s -> TOP_MENU.equals(s.getName().toLocalizedString()))
-                .forEach(s -> createStaticPages(newSite, topMenu, null, s.getChildrenSections()));
+        createStaticPages(newSite, null, oldSite);
 
-        oldSite.getOrderedSections().stream().filter(s -> !TOP_MENU.equals(s.getName().toLocalizedString()))
-                .forEach(s -> createStaticPages(newSite, sideMenu, null, s.getChildrenSections()));
+        log.info("[ created at " + newSite.getSlug() + " ]");
 
     }
 
-    public static void createStaticPages(Site site, Menu menu, MenuItem menuItemParent, Collection<Section> sections) {
-        sections.stream().filter(section -> section instanceof TemplatedSection).map(section -> (TemplatedSection) section)
-                .forEach(section -> {
-                    Page page = createStaticPage(site, menu, section);
-                    MenuItem menuItem = null;
-                    if (page != null) {
-                        menuItem = MenuItem.create(site, menu, page, localized(section.getName()), menuItemParent);
-                        menuItem.setPosition(section.getOrder());
-                    }
-                    if (!section.getChildrenSections().isEmpty()) {
-                        createStaticPages(site, menu, menuItem, section.getChildrenSections());
-                    }
-                });
+    public static void createStaticPages(Site newSite, MenuItem menuItemParent, net.sourceforge.fenixedu.domain.Site oldSite) {
+        log.info("creating static pages for site " + newSite.getSlug());
+
+        List<Section> topMenuSections = topMenuSections(oldSite.getOrderedSections());
+        if (!topMenuSections.isEmpty()) {
+            topMenuSections.forEach(s -> createStaticPage(newSite, topMenu(newSite), menuItemParent, s));
+        }
+
+        List<Section> sideMenuSections = sideMenuSections(oldSite.getOrderedSections());
+        if (!sideMenuSections.isEmpty()) {
+            sideMenuSections.forEach(s -> createStaticPage(newSite, sideMenu(newSite), menuItemParent, s));
+        }
     }
 
-    private static Menu sideMenu(Site site) {
-        return site.getMenusSet().stream().filter(m -> m.getName().equals(ExecutionCourseListener.MENU)).findFirst()
+    private static List<Section> sideMenuSections(List<Section> sections) {
+        return sections.stream().filter(s -> !equalContent(TOP_MENU, s.getName().toLocalizedString()))
+                .collect(Collectors.toList());
+    }
+
+    private static List<Section> topMenuSections(List<Section> sections) {
+        return sections.stream().filter(s -> equalContent(TOP_MENU, s.getName().toLocalizedString()))
+                .collect(Collectors.toList());
+    }
+
+    private static boolean equalContent(LocalizedString str1, LocalizedString str2) {
+        return str1.getContent().equalsIgnoreCase(str2.getContent());
+    }
+
+    private static boolean isIgnoredSection(CmsContent cmsContent) {
+        LocalizedString sectionName = cmsContent.getName().toLocalizedString();
+        return equalContent(TOP_MENU, sectionName) || equalContent(SIDE_MENU, sectionName);
+    }
+
+    public static Menu sideMenu(Site site) {
+        return site.getMenusSet().stream().filter(m -> equalContent(m.getName(), ExecutionCourseListener.MENU)).findFirst()
                 .orElseGet(() -> new Menu(site, ExecutionCourseListener.MENU));
     }
 
-    private static Menu topMenu(Site site) {
-        return site.getMenusSet().stream().filter(m -> m.getName().equals(TOP_MENU)).findFirst()
+    public static Menu topMenu(Site site) {
+        return site.getMenusSet().stream().filter(m -> equalContent(m.getName(), TOP_MENU)).findFirst()
                 .orElseGet(() -> new Menu(site, TOP_MENU));
     }
 
@@ -139,30 +160,53 @@ public class CreateExecutionCourseSite extends CustomTask {
         migrateAnnouncements(site, menu);
     }
 
-    public static Page createStaticPage(Site site, Menu menu, Section section) {
-        Page page = new Page();
-        page.setCreationDate(site.getCreationDate());
-        page.setSite(site);
-        page.setName(localized(section.getName()));
-        page.setPublished(section.getEnabled());
-        page.setTemplate(site.getTheme().templateForType("category"));
-        Category category = new Category();
-        category.setName(page.getName());
-        page.addComponents(new ListCategoryPosts(category));
+    public static Page createStaticPage(Site site, Menu menu, MenuItem menuItemParent, Item item) {
+        log.info("migrating item " + item.getName().getContent());
 
-        Predicate<Item> hasName = i -> i.getName() != null && !i.getName().isEmpty();
-        Predicate<Item> hasBody = i -> i.getBody() != null && !i.getBody().isEmpty();
-        section.getChildrenItems().stream().filter(hasName.and(hasBody)).forEach(item -> {
+        LocalizedString name = localized(item.getName());
+        final Page page = Page.create(site, menu, menuItemParent, name, item.getEnabled(), "view", new Component[] {});
+        page.setCreationDate(site.getCreationDate());
+
+        Boolean isEnabled = Optional.ofNullable(item.getEnabled()).orElse(true);
+        Post post = Post.create(site, page, name, localized(item.getBody()), null, isEnabled);
+
+        StaticPost component = new StaticPost();
+        component.setPost(post);
+        page.addComponents(component);
+
+        return page;
+    }
+
+    public static Page createStaticPage(Site site, Menu menu, MenuItem menuItemParent, Section section) {
+        if (section instanceof TemplatedSection || isIgnoredSection(section)) {
+            section.getOrderedSubSections().forEach(subsection -> createStaticPage(site, menu, menuItemParent, subsection));
+            section.getOrderedChildItems().forEach(item -> createStaticPage(site, menu, menuItemParent, item));
+            return null;
+        }
+        LocalizedString name = localized(section.getName());
+
+        log.info("migrating section " + name.getContent());
+
+        Category category = new Category();
+        category.setName(name);
+        ListCategoryPosts pageCategory = new ListCategoryPosts(category);
+
+        Boolean isPublished = Optional.ofNullable(section.getEnabled()).orElse(true);
+        final Page page = Page.create(site, menu, menuItemParent, name, isPublished, "category", pageCategory);
+        page.setCreationDate(site.getCreationDate());
+
+        section.getOrderedChildItems().stream().filter(hasName.and(hasBody)).forEach(item -> {
             Boolean isEnabled = Optional.ofNullable(item.getEnabled()).orElse(true);
             Post.create(site, page, localized(item.getName()), localized(item.getBody()), category, isEnabled);
         });
 
-        MenuComponent.create(menu, page);
+        section.getOrderedSubSections().forEach(s -> createStaticPage(site, menu, menuItemParent, s));
 
         return page;
     }
 
     private void migrateAnnouncements(ExecutionCourseSite site, Menu menu) {
+        log.info("migrating announcements for site " + site.getSlug());
         for (Announcement announcement : site.getExecutionCourse().getBoard().getAnnouncementSet()) {
             boolean hasSubject = announcement.getSubject() != null && !announcement.getSubject().isEmpty();
             boolean hasBody = announcement.getBody() != null && !announcement.getBody().isEmpty();
@@ -197,6 +241,7 @@ public class CreateExecutionCourseSite extends CustomTask {
     }
 
     private void migrateSummaries(ExecutionCourseSite site, Menu menu) {
+        log.info("migrating summaries for site " + site.getSlug());
         site.getExecutionCourse().getAssociatedSummariesSet().forEach(summary -> {
             Signal.emit(Summary.CREATED_SIGNAL, new DomainObjectEvent<Summary>(summary));
         });
