@@ -11,7 +11,7 @@ import org.fenixedu.bennu.cms.domain.Site;
 import org.fenixedu.bennu.cms.domain.ViewPost;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
-import org.fenixedu.cms.domain.executionCourse.CreateExecutionCourseSite;
+import org.fenixedu.cms.domain.MigrationUtils;
 import org.fenixedu.cms.domain.researchUnit.componenets.ResearchUnitComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +27,7 @@ public class CreateResearchUnitSites extends CustomTask {
     @Override
     public void runTask() throws Exception {
 
-        CreateExecutionCourseSite.deleteAllSites();
+        MigrationUtils.deleteAllSites();
 
         List<net.sourceforge.fenixedu.domain.ResearchUnitSite> researchUnitSites =
                 Lists.newArrayList(Iterables.filter(Bennu.getInstance().getSiteSet(),
@@ -48,14 +48,14 @@ public class CreateResearchUnitSites extends CustomTask {
         ResearchUnitSite newSite = new ResearchUnitSite(oldSite.getUnit());
 
         newSite.setPublished(true);
-        newSite.setDescription(CreateExecutionCourseSite.localized(oldSite.getUnit().getNameI18n()));
-        newSite.setName(CreateExecutionCourseSite.localized(oldSite.getName()));
+        newSite.setDescription(MigrationUtils.localized(oldSite.getUnit().getNameI18n()));
+        newSite.setName(MigrationUtils.localized(oldSite.getName()));
         newSite.setSlug(createSlug(oldSite));
         newSite.setBennu(Bennu.getInstance());
         newSite.setTheme(CMSTheme.forType(THEME));
         Menu menu = new Menu(newSite, getLocalizedString(BUNDLE, "label.menu"));
         Page.create(newSite, null, null, getLocalizedString(BUNDLE, "label.viewPost"), true, "view", new ViewPost());
-        CreateExecutionCourseSite.createStaticPages(newSite, null, oldSite);
+        MigrationUtils.createStaticPages(newSite, null, oldSite);
 
         createDynamicPages(newSite, menu);
         log.info("[ New Site: " + newSite.getName().getContent() + " at " + newSite.getInitialPage().getAddress());
