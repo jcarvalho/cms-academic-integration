@@ -1,27 +1,62 @@
 {% macro menuChildren(menuItems) %}
-  {% if menuItems.size != 0 %}
-    {% for item in menuItems %}
-      {{ menuItem(item) }}
-    {% endfor %}
+  {% if menuItems is not empty %}
+    <ol class="list-unstyled children">
+      {% for item in menuItems %}
+        {% if item.isFolder %}
+          {{ menuFolder(item) }}
+        {% else %}
+          {{ menuItem(item) }}
+        {% endif %}
+      {% endfor %}
+    </ol>
   {% endif %}
 {% endmacro %}
 
 {% macro menuItem(item) %}
-<li>
-  <a href="{{ item.address }}">{{ item.name.content }}</a>
-  <ol isOpen={{ item.isOpen }} style="padding-left: 5px;" class="list-unstyled">
+  <li class="menuItem {{ item.isActive equals true ? 'active' : '' }} {{ item.isOpen equals true ? 'open' : '' }}">
+    <a href="{{ item.address }}">
+      {{ item.name.content }}
+    </a>
     {{ menuChildren(item.children) }}
-  </ol>
-</li>
+  </li>
+{% endmacro %}
+
+{% macro menuFolder(folder) %}
+  {% if folder.children is not empty %}
+    <li class="menuFolder {{ folder.isOpen equals true ? 'open' : '' }}">
+      <p>{{ folder.name.content }}</p>
+      {{ menuChildren(folder.children)}}
+    </li>
+  {% endif %}
 {% endmacro %}
 
 <div class="col-sm-3 col-sm-offset-1 blog-sidebar">
   {% for menu in menus %}
     <div class="sidebar-module">
       <h4>{{ menu.name.content }}</h4>
-      <ol class="list-unstyled">
       {{ menuChildren(menu.children) }}
-      </ol>
     </div>
   {% endfor %}
-</div><!-- /.blog-sidebar -->
+</div>
+
+<script type="text/javascript">
+  $('.menuFolder').click(function(event){
+    $(this).toggleClass('open');
+    $(this).children('.children').slideToggle();
+  });
+</script>
+
+<style type="text/css">
+  .list-unstyled {
+    padding-left: 5px;
+  }
+
+  .open {
+    /*TODO - when a folder or item is open*/  
+  }
+
+  .active {
+    /*TODO - when an item is active*/
+  }
+
+</style>
