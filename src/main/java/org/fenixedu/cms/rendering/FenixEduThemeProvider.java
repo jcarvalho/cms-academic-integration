@@ -3,25 +3,26 @@ package org.fenixedu.cms.rendering;
 import java.io.InputStream;
 import java.util.zip.ZipInputStream;
 
+import javax.servlet.ServletContext;
+
 import org.fenixedu.bennu.cms.domain.CMSThemeLoader;
-import org.fenixedu.bennu.cms.rendering.ProvidesThemes;
 import org.fenixedu.bennu.cms.rendering.ThemeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ThemeProvider
-public class FenixEduThemeProvider implements ProvidesThemes {
+public class FenixEduThemeProvider implements ThemeProvider {
 
-    public Logger LOGGER = LoggerFactory.getLogger(FenixEduThemeProvider.class);
+    public Logger logger = LoggerFactory.getLogger(FenixEduThemeProvider.class);
 
     @Override
-    public void loadThemes() {
-        InputStream in = CMSThemeLoader.class.getResourceAsStream("/META-INF/resources/WEB-INF/fenixedu-default-theme.zip");
+    public void registerThemes(ServletContext context) {
+        InputStream in = context.getResourceAsStream("/META-INF/resources/WEB-INF/fenixedu-default-theme.zip");
         ZipInputStream zin = new ZipInputStream(in);
         try {
             CMSThemeLoader.createFromZipStream(zin);
         } catch (RuntimeException e) {
-            LOGGER.error(e.getMessage());
+            logger.error(e.getMessage());
+            logger.error("Could not load fenixedu theme - sites may not work!", e);
         }
     }
 
