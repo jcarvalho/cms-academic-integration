@@ -16,9 +16,9 @@ public class FenixEduThemeProvider implements ThemeProvider {
 
     @Override
     public void registerThemes(ServletContext context) {
-        InputStream in = context.getResourceAsStream("/META-INF/resources/WEB-INF/fenixedu-default-theme.zip");
-        ZipInputStream zin = new ZipInputStream(in);
         try {
+            InputStream in = context.getResourceAsStream("/WEB-INF/fenixedu-default-theme.zip");
+            ZipInputStream zin = new ZipInputStream(in);
             CMSThemeLoader.createFromZipStream(zin);
         } catch (RuntimeException e) {
             logger.error(e.getMessage());
