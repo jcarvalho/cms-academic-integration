@@ -10,7 +10,6 @@ import net.sourceforge.fenixedu.domain.ExecutionCourse;
 import net.sourceforge.fenixedu.domain.Summary;
 import net.sourceforge.fenixedu.domain.messaging.Announcement;
 
-import org.fenixedu.bennu.cms.domain.Menu;
 import org.fenixedu.bennu.cms.domain.Post;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
@@ -77,14 +76,14 @@ public class CreateExecutionCourseSite extends CustomTask {
         newSite.setAlternativeSite(oldSite.getAlternativeSite());
         newSite.setStyle(oldSite.getStyle());
 
-        migrateSummaries(newSite, MigrationUtils.sideMenu(newSite));
-        migrateAnnouncements(newSite, MigrationUtils.sideMenu(newSite));
+        migrateSummaries(newSite);
+        migrateAnnouncements(newSite);
 
         MigrationUtils.createStaticPages(newSite, null, oldSite);
 
     }
 
-    private void migrateAnnouncements(ExecutionCourseSite site, Menu menu) {
+    private void migrateAnnouncements(ExecutionCourseSite site) {
         log.info("migrating announcements for site " + site.getSlug());
         for (Announcement announcement : site.getExecutionCourse().getBoard().getAnnouncementSet()) {
             boolean hasSubject = announcement.getSubject() != null && !announcement.getSubject().isEmpty();
@@ -120,7 +119,7 @@ public class CreateExecutionCourseSite extends CustomTask {
         }
     }
 
-    private void migrateSummaries(ExecutionCourseSite site, Menu menu) {
+    private void migrateSummaries(ExecutionCourseSite site) {
         log.info("migrating summaries for site " + site.getSlug());
         site.getExecutionCourse().getAssociatedSummariesSet().forEach(summary -> {
             Signal.emit(Summary.CREATED_SIGNAL, new DomainObjectEvent<Summary>(summary));

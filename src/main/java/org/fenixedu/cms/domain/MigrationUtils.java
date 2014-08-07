@@ -15,13 +15,15 @@ import net.sourceforge.fenixedu.domain.cms.TemplatedSection;
 import org.fenixedu.bennu.cms.domain.Category;
 import org.fenixedu.bennu.cms.domain.ListCategoryPosts;
 import org.fenixedu.bennu.cms.domain.Menu;
+import org.fenixedu.bennu.cms.domain.MenuComponent;
 import org.fenixedu.bennu.cms.domain.MenuItem;
 import org.fenixedu.bennu.cms.domain.Page;
 import org.fenixedu.bennu.cms.domain.Post;
+import org.fenixedu.bennu.cms.domain.SideMenuComponent;
 import org.fenixedu.bennu.cms.domain.Site;
+import org.fenixedu.bennu.cms.domain.TopMenuComponent;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
-import org.fenixedu.cms.domain.executionCourse.ExecutionCourseListener;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +38,8 @@ public class MigrationUtils {
     private static final Logger log = LoggerFactory.getLogger(MigrationUtils.class);
 
     private static final LocalizedString TOP_MENU = getLocalizedString("resources.FenixEduCMSResources", "label.topMenu");
-    private static final LocalizedString SIDE_MENU = getLocalizedString("resources.FenixEduCMSResources", "label.sideMenu");
+    public static final LocalizedString MENU = getLocalizedString("resources.FenixEduCMSResources", "label.menu");
+
     private static Predicate<Item> hasName = i -> i.getName() != null && !i.getName().isEmpty();
     private static Predicate<Item> hasBody = i -> i.getBody() != null && !i.getBody().isEmpty();
 
@@ -44,24 +47,43 @@ public class MigrationUtils {
         log.info("creating static pages for site " + newSite.getSlug());
 
         List<Section> topMenuSections = topMenuSections(oldSite.getOrderedSections());
-        if (!topMenuSections.isEmpty()) {
-            topMenuSections.forEach(s -> createStaticPage(newSite, topMenu(newSite), menuItemParent, s));
+        List<Section> sideMenuSections = sideMenuSections(oldSite.getOrderedSections());
+
+        Menu topMenu = new Menu(newSite, TOP_MENU);
+        Menu sideMenu = new Menu(newSite, MENU);
+
+        topMenuSections.forEach(s -> createStaticPage(newSite, topMenu, menuItemParent, s));
+        sideMenuSections.forEach(s -> createStaticPage(newSite, sideMenu, menuItemParent, s));
+
+        //assign top and side menu components to all pages5
+        for (Page page : newSite.getPagesSet()) {
+            if (!topMenuSections.isEmpty() && !hasMenu(page, topMenu)) {
+                new TopMenuComponent(topMenu, page);
+            }
+            if (!sideMenuSections.isEmpty() && !hasMenu(page, sideMenu)) {
+                new SideMenuComponent(sideMenu, page);
+            }
         }
 
-        List<Section> sideMenuSections = sideMenuSections(oldSite.getOrderedSections());
-        if (!sideMenuSections.isEmpty()) {
-            sideMenuSections.forEach(s -> createStaticPage(newSite, sideMenu(newSite), menuItemParent, s));
+        if (topMenu.getComponentSet().isEmpty()) {
+            topMenu.delete();
         }
+        if (sideMenu.getComponentSet().isEmpty()) {
+            sideMenu.delete();
+        }
+    }
+
+    private static boolean hasMenu(Page page, Menu menu) {
+        return menu.getComponentsOfClass(MenuComponent.class).stream().filter(m -> m.getPage().equals(page)).findAny()
+                .isPresent();
     }
 
     private static List<Section> sideMenuSections(List<Section> sections) {
         List<Section> sideMenuSections = Lists.newArrayList();
         for (Section section : sections) {
-            boolean isTopMenu = equalContent(TOP_MENU, section.getName().toLocalizedString());
-            boolean isSideMenu = equalContent(SIDE_MENU, section.getName().toLocalizedString());
-            if (isSideMenu) {
+            if (isSideSection(section)) {
                 sideMenuSections.addAll(section.getChildrenSections());
-            } else if (!isTopMenu) {
+            } else if (!isTopSection(section)) {
                 sideMenuSections.add(section);
             }
         }
@@ -71,11 +93,21 @@ public class MigrationUtils {
     private static List<Section> topMenuSections(List<Section> sections) {
         List<Section> sideMenuSections = Lists.newArrayList();
         for (Section section : sections) {
-            if (equalContent(TOP_MENU, section.getName().toLocalizedString())) {
+            if (isTopSection(section)) {
                 sideMenuSections.addAll(section.getChildrenSections());
             }
         }
         return sideMenuSections;
+    }
+
+    private static boolean isTopSection(Section section) {
+        Predicate<String> predicate = name -> "top".equalsIgnoreCase(name) || "topo".equalsIgnoreCase(name);
+        return section.getName().getAllContents().stream().anyMatch(predicate);
+    }
+
+    private static boolean isSideSection(Section section) {
+        Predicate<String> predicate = name -> "side".equalsIgnoreCase(name) || "lateral".equalsIgnoreCase(name);
+        return section.getName().getAllContents().stream().anyMatch(predicate);
     }
 
     private static boolean equalContent(LocalizedString str1, LocalizedString str2) {
@@ -84,18 +116,8 @@ public class MigrationUtils {
 
     private static boolean isIgnoredSection(CmsContent cmsContent) {
         LocalizedString sectionName = cmsContent.getName().toLocalizedString();
-        return cmsContent instanceof TemplatedSection || equalContent(TOP_MENU, sectionName)
-                || equalContent(SIDE_MENU, sectionName);
-    }
-
-    public static Menu sideMenu(Site site) {
-        return site.getMenusSet().stream().filter(m -> equalContent(m.getName(), ExecutionCourseListener.MENU)).findFirst()
-                .orElseGet(() -> new Menu(site, ExecutionCourseListener.MENU));
-    }
-
-    public static Menu topMenu(Site site) {
-        return site.getMenusSet().stream().filter(m -> equalContent(m.getName(), TOP_MENU)).findFirst()
-                .orElseGet(() -> new Menu(site, TOP_MENU));
+        return cmsContent instanceof TemplatedSection || isTopSection((Section) cmsContent)
+                || isSideSection((Section) cmsContent);
     }
 
     public static void createStaticPage(Site site, Menu menu, MenuItem menuItemParent, Section section) {

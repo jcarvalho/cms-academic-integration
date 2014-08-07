@@ -36,10 +36,10 @@ public class CreateResearchUnitSites extends CustomTask {
         log.info(" [ creating research unit sites (existing " + researchUnitSites.size() + ") ]");
 
         for (net.sourceforge.fenixedu.domain.ResearchUnitSite oldSite : researchUnitSites) {
-            if (oldSite.getName().toLocalizedString().getContent().equals("INESC-ID/ESW")) {
-                log.info("[ old site: " + oldSite.getExternalId() + ", path: " + oldSite.getReversePath() + " ]");
-                create(oldSite);
-            }
+//            if (oldSite.getName().toLocalizedString().getContent().equals("INESC-ID/ESW")) {
+            log.info("[ old site: " + oldSite.getExternalId() + ", path: " + oldSite.getReversePath() + " ]");
+            create(oldSite);
+//            }
         }
     }
 
@@ -53,11 +53,10 @@ public class CreateResearchUnitSites extends CustomTask {
         newSite.setSlug(createSlug(oldSite));
         newSite.setBennu(Bennu.getInstance());
         newSite.setTheme(CMSTheme.forType(THEME));
-        Menu menu = new Menu(newSite, getLocalizedString(BUNDLE, "label.menu"));
         Page.create(newSite, null, null, getLocalizedString(BUNDLE, "label.viewPost"), true, "view", new ViewPost());
-        MigrationUtils.createStaticPages(newSite, null, oldSite);
+        createDynamicPages(newSite, newSite.getSideMenus().stream().findFirst().orElse(null));
 
-        createDynamicPages(newSite, menu);
+        MigrationUtils.createStaticPages(newSite, null, oldSite);
         log.info("[ New Site: " + newSite.getName().getContent() + " at " + newSite.getInitialPage().getAddress());
         return newSite;
     }

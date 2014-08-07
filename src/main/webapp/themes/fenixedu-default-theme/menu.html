@@ -1,6 +1,6 @@
 {% macro menuChildren(menuItems) %}
   {% if menuItems is not empty %}
-    <ol class="list-unstyled children">
+    <ul class="list-unstyled children">
       {% for item in menuItems %}
         {% if item.isFolder %}
           {{ menuFolder(item) }}
@@ -8,7 +8,7 @@
           {{ menuItem(item) }}
         {% endif %}
       {% endfor %}
-    </ol>
+    </ul>
   {% endif %}
 {% endmacro %}
 
@@ -22,27 +22,40 @@
 {% endmacro %}
 
 {% macro menuFolder(folder) %}
-  {% if folder.children is not empty %}
+    {% if folder.children is not empty %}
     <li class="menuFolder {{ folder.isOpen equals true ? 'open' : '' }}">
       <p>{{ folder.name.content }}</p>
       {{ menuChildren(folder.children)}}
     </li>
-  {% endif %}
+    {% endif %}
 {% endmacro %}
 
 <div class="col-sm-3 col-sm-offset-1 blog-sidebar">
-  {% for menu in menus %}
+  <!-- TOP MENU -->
+  {% for menu in topMenus %}
     <div class="sidebar-module">
       <h4>{{ menu.name.content }}</h4>
       {{ menuChildren(menu.children) }}
     </div>
+    <hr>
+  {% endfor %}
+  
+  <!-- SIDE MENU -->
+  {% for menu in sideMenus %}
+    <div class="sidebar-module">
+      <h4>{{ menu.name.content }}</h4>
+      {{ menuChildren(menu.children) }}
+    </div>
+    <hr>
   {% endfor %}
 </div>
 
 <script type="text/javascript">
-  $('.menuFolder').click(function(event){
-    $(this).toggleClass('open');
-    $(this).children('.children').slideToggle();
+  $('.menuFolder:not(.open)>.children').hide();
+  $('.menuFolder>p').click(function(event){
+    $(this).parent().toggleClass('open');
+    $(this).parent().children('.children').slideToggle();
+    event.preventDefault();
   });
 </script>
 
@@ -51,12 +64,21 @@
     padding-left: 5px;
   }
 
+  .menuItem:not(.open) {
+    /* TODO - menu items that are not open*/
+  }
+
+  .menuFolder:not(.open) {
+    /* TODO - menu items that are not open*/
+  }
+
   .open {
     /*TODO - when a folder or item is open*/  
   }
 
   .active {
     /*TODO - when an item is active*/
+    font-weight: bold;
   }
 
 </style>
