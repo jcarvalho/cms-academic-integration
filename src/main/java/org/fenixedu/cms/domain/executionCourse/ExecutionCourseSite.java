@@ -17,12 +17,16 @@ import pt.utl.ist.fenix.tools.util.i18n.MultiLanguageString;
 
 public class ExecutionCourseSite extends ExecutionCourseSite_Base {
 
+    public ExecutionCourseSite() {
+    }
+
     public ExecutionCourseSite(ExecutionCourse executionCourse) {
         setExecutionCourse(executionCourse);
         setPublished(true);
         setDescription(createDescription(executionCourse));
         setName(executionCourse.getNameI18N().toLocalizedString());
         setSlug(createSlug(executionCourse));
+        updateMenuFunctionality();
         setBennu(Bennu.getInstance());
     }
 
@@ -32,8 +36,8 @@ public class ExecutionCourseSite extends ExecutionCourseSite_Base {
 
         Stream<LocalizedString> objectives =
                 courses.stream().map(CurricularCourse::getCompetenceCourse).filter(Objects::nonNull)
-                        .map(c -> c.getObjectivesI18N(period))
-                        .filter(Objects::nonNull).map(MultiLanguageString::toLocalizedString);
+                        .map(c -> c.getObjectivesI18N(period)).filter(Objects::nonNull)
+                        .map(MultiLanguageString::toLocalizedString);
 
         return objectives.findAny().orElse(new LocalizedString());
     }

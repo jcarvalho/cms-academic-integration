@@ -3,23 +3,31 @@ package org.fenixedu.cms.domain.researchUnit;
 import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
 
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 import org.fenixedu.bennu.cms.domain.CMSTheme;
 import org.fenixedu.bennu.cms.domain.Menu;
 import org.fenixedu.bennu.cms.domain.Page;
 import org.fenixedu.bennu.cms.domain.Site;
 import org.fenixedu.bennu.cms.domain.ViewPost;
+import org.fenixedu.bennu.cms.routing.CMSBackend;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.bennu.scheduler.custom.CustomTask;
-import org.fenixedu.cms.domain.MigrationUtils;
+import org.fenixedu.bennu.portal.domain.MenuFunctionality;
+import org.fenixedu.bennu.portal.domain.PortalConfiguration;
+import org.fenixedu.cms.domain.MigrationTask;
 import org.fenixedu.cms.domain.researchUnit.componenets.ResearchUnitComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
-public class CreateResearchUnitSites extends CustomTask {
+public class CreateResearchUnitSites extends MigrationTask {
+    private static final Set<String> siteSlugs = Sets.newHashSet();
+
     private static final String THEME = "fenixedu-default-theme";
     private static final String BUNDLE = "resources.FenixEduCMSResources";
     Logger log = LoggerFactory.getLogger(CreateResearchUnitSites.class);
@@ -27,7 +35,7 @@ public class CreateResearchUnitSites extends CustomTask {
     @Override
     public void runTask() throws Exception {
 
-        MigrationUtils.deleteAllSites();
+        deleteAllSites();
 
         List<net.sourceforge.fenixedu.domain.ResearchUnitSite> researchUnitSites =
                 Lists.newArrayList(Iterables.filter(Bennu.getInstance().getSiteSet(),
@@ -48,15 +56,18 @@ public class CreateResearchUnitSites extends CustomTask {
         ResearchUnitSite newSite = new ResearchUnitSite(oldSite.getUnit());
 
         newSite.setPublished(true);
-        newSite.setDescription(MigrationUtils.localized(oldSite.getUnit().getNameI18n()));
-        newSite.setName(MigrationUtils.localized(oldSite.getName()));
-        newSite.setSlug(createSlug(oldSite));
+        newSite.setDescription(localized(oldSite.getUnit().getNameI18n()));
+        newSite.setName(localized(oldSite.getName()));
+        newSite.setSlug(createSlug(oldSite.getReversePath()));
         newSite.setBennu(Bennu.getInstance());
         newSite.setTheme(CMSTheme.forType(THEME));
+        newSite.setFunctionality(new MenuFunctionality(PortalConfiguration.getInstance().getMenu(), false, newSite.getSlug(),
+                CMSBackend.BACKEND_KEY, "anyone", newSite.getDescription(), newSite.getName(), newSite.getSlug()));
         Page.create(newSite, null, null, getLocalizedString(BUNDLE, "label.viewPost"), true, "view", new ViewPost());
-        createDynamicPages(newSite, newSite.getSideMenus().stream().findFirst().orElse(null));
 
-        MigrationUtils.createStaticPages(newSite, null, oldSite);
+        createStaticPages(newSite, null, oldSite);
+        createDynamicPages(newSite, sideMenu);
+        createMenuComponents(newSite);
         log.info("[ New Site: " + newSite.getName().getContent() + " at " + newSite.getInitialPage().getAddress());
         return newSite;
     }
@@ -67,7 +78,13 @@ public class CreateResearchUnitSites extends CustomTask {
                 new ResearchUnitComponent());
     }
 
-    private String createSlug(net.sourceforge.fenixedu.domain.ResearchUnitSite oldSite) {
-        return Site.slugify(oldSite.getReversePath().substring(1).replace('/', '-'));
+    private String createSlug(String oldPath) {
+        String newSlug = oldPath.substring(1).replace("/", "-");
+        while (siteSlugs.contains(newSlug)) {
+            String randomSlug = UUID.randomUUID().toString().substring(0, 3);
+            newSlug = Joiner.on("-").join(newSlug, randomSlug);
+        }
+        siteSlugs.add(newSlug);
+        return newSlug;
     }
 }

@@ -58,15 +58,15 @@ public class ExecutionCourseListener {
         newSite.setTheme(CMSTheme.forType(THEME));
 
         Menu menu = new Menu(newSite, MENU);
-        Page.create(newSite, null, null, VIEW_POST, true, "view", new ViewPost());
         createDynamicPages(newSite, menu);
         return newSite;
     }
 
-    private static void createDynamicPages(ExecutionCourseSite site, Menu menu) {
+    public static void createDynamicPages(ExecutionCourseSite site, Menu menu) {
         ListCategoryPosts summaryCategory = new ListCategoryPosts(site.categoryForSlug("summary", SUMMARY));
         ListCategoryPosts announcementCategory = new ListCategoryPosts(site.categoryForSlug("announcement", ANNOUNCEMENTS));
 
+        Page.create(site, null, null, VIEW_POST, true, "view", new ViewPost());
         Page.create(site, menu, null, TITLE_INITIAL_PAGE, true, "firstPage", new InitialPageComponent(), announcementCategory);
         Page.create(site, menu, null, TITLE_BIBLIOGRAPHIC_REFS, true, "bibliographicReferences",
                 new BibliographicReferencesComponent());

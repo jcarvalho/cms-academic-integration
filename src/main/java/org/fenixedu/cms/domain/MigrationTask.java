@@ -24,6 +24,7 @@ import org.fenixedu.bennu.cms.domain.Site;
 import org.fenixedu.bennu.cms.domain.TopMenuComponent;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
+import org.fenixedu.bennu.scheduler.custom.CustomTask;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,9 +34,9 @@ import pt.utl.ist.fenix.tools.util.i18n.MultiLanguageString;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
-public class MigrationUtils {
+public abstract class MigrationTask extends CustomTask {
 
-    private static final Logger log = LoggerFactory.getLogger(MigrationUtils.class);
+    private static final Logger log = LoggerFactory.getLogger(MigrationTask.class);
 
     private static final LocalizedString TOP_MENU = getLocalizedString("resources.FenixEduCMSResources", "label.topMenu");
     public static final LocalizedString MENU = getLocalizedString("resources.FenixEduCMSResources", "label.menu");
@@ -43,28 +44,30 @@ public class MigrationUtils {
     private static Predicate<Item> hasName = i -> i.getName() != null && !i.getName().isEmpty();
     private static Predicate<Item> hasBody = i -> i.getBody() != null && !i.getBody().isEmpty();
 
-    public static void createStaticPages(Site newSite, MenuItem menuItemParent, net.sourceforge.fenixedu.domain.Site oldSite) {
+    public Menu topMenu;
+    public Menu sideMenu;
+
+    public void createStaticPages(Site newSite, MenuItem menuItemParent, net.sourceforge.fenixedu.domain.Site oldSite) {
         log.info("creating static pages for site " + newSite.getSlug());
 
         List<Section> topMenuSections = topMenuSections(oldSite.getOrderedSections());
         List<Section> sideMenuSections = sideMenuSections(oldSite.getOrderedSections());
 
-        Menu topMenu = new Menu(newSite, TOP_MENU);
-        Menu sideMenu = new Menu(newSite, MENU);
+        topMenu = new Menu(newSite, TOP_MENU);
+        sideMenu = new Menu(newSite, MENU);
 
         topMenuSections.forEach(s -> createStaticPage(newSite, topMenu, menuItemParent, s));
         sideMenuSections.forEach(s -> createStaticPage(newSite, sideMenu, menuItemParent, s));
+    }
 
-        //assign top and side menu components to all pages5
+    public void createMenuComponents(Site newSite) {
+        //assign top and side menu components to all pages
         for (Page page : newSite.getPagesSet()) {
-            if (!topMenuSections.isEmpty() && !hasMenu(page, topMenu)) {
-                new TopMenuComponent(topMenu, page);
-            }
-            if (!sideMenuSections.isEmpty() && !hasMenu(page, sideMenu)) {
-                new SideMenuComponent(sideMenu, page);
-            }
+            new TopMenuComponent(topMenu, page);
+            new SideMenuComponent(sideMenu, page);
         }
 
+        //remove unused menus
         if (topMenu.getComponentSet().isEmpty()) {
             topMenu.delete();
         }
@@ -73,12 +76,12 @@ public class MigrationUtils {
         }
     }
 
-    private static boolean hasMenu(Page page, Menu menu) {
+    private boolean hasMenu(Page page, Menu menu) {
         return menu.getComponentsOfClass(MenuComponent.class).stream().filter(m -> m.getPage().equals(page)).findAny()
                 .isPresent();
     }
 
-    private static List<Section> sideMenuSections(List<Section> sections) {
+    private List<Section> sideMenuSections(List<Section> sections) {
         List<Section> sideMenuSections = Lists.newArrayList();
         for (Section section : sections) {
             if (isSideSection(section)) {
@@ -90,7 +93,7 @@ public class MigrationUtils {
         return sideMenuSections;
     }
 
-    private static List<Section> topMenuSections(List<Section> sections) {
+    private List<Section> topMenuSections(List<Section> sections) {
         List<Section> sideMenuSections = Lists.newArrayList();
         for (Section section : sections) {
             if (isTopSection(section)) {
@@ -100,27 +103,27 @@ public class MigrationUtils {
         return sideMenuSections;
     }
 
-    private static boolean isTopSection(Section section) {
+    private boolean isTopSection(Section section) {
         Predicate<String> predicate = name -> "top".equalsIgnoreCase(name) || "topo".equalsIgnoreCase(name);
         return section.getName().getAllContents().stream().anyMatch(predicate);
     }
 
-    private static boolean isSideSection(Section section) {
+    private boolean isSideSection(Section section) {
         Predicate<String> predicate = name -> "side".equalsIgnoreCase(name) || "lateral".equalsIgnoreCase(name);
         return section.getName().getAllContents().stream().anyMatch(predicate);
     }
 
-    private static boolean equalContent(LocalizedString str1, LocalizedString str2) {
+    private boolean equalContent(LocalizedString str1, LocalizedString str2) {
         return str1.getContent().equalsIgnoreCase(str2.getContent());
     }
 
-    private static boolean isIgnoredSection(CmsContent cmsContent) {
+    private boolean isIgnoredSection(CmsContent cmsContent) {
         LocalizedString sectionName = cmsContent.getName().toLocalizedString();
         return cmsContent instanceof TemplatedSection || isTopSection((Section) cmsContent)
                 || isSideSection((Section) cmsContent);
     }
 
-    public static void createStaticPage(Site site, Menu menu, MenuItem menuItemParent, Section section) {
+    public void createStaticPage(Site site, Menu menu, MenuItem menuItemParent, Section section) {
         List<Section> subsections = section.getOrderedSubSections();
         LocalizedString name = localized(section.getName());
         log.info("migrating section " + name.getContent());
@@ -149,14 +152,14 @@ public class MigrationUtils {
         subsections.forEach(subsection -> createStaticPage(site, menu, menuItemParent, subsection));
     }
 
-    public static void deleteAllSites() {
+    public void deleteAllSites() {
         log.info("removing all sites..");
         for (Site site : Bennu.getInstance().getSitesSet()) {
             site.delete();
         }
     }
 
-    public static LocalizedString localizedStr(String str) {
+    public LocalizedString localizedStr(String str) {
         LocalizedString result = new LocalizedString();
         if (!Strings.isNullOrEmpty(str)) {
             for (Locale locale : CoreConfiguration.supportedLocales()) {
@@ -166,7 +169,7 @@ public class MigrationUtils {
         return result;
     }
 
-    public static LocalizedString localized(MultiLanguageString mls) {
+    public LocalizedString localized(MultiLanguageString mls) {
         return mls != null ? mls.toLocalizedString() : new LocalizedString();
     }
 }
