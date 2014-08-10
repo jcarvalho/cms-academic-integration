@@ -3,23 +3,23 @@
 {% block content %}
 	{% if inquiriesResultsBean.isNewQuc %}
 		{% if inquiriesResultsBean.isNewQucAvailable %}
-			{% include "inquiriesCurricularResults.html" %}
+			{% include "fenixedu-default-theme/inquiriesCurricularResults.html" %}
 		 {% else %}
-			{% include "inquiriesResultsNotAvailable.html" %}
+			{% include "fenixedu-default-theme/inquiriesResultsNotAvailable.html" %}
 		{% endif %}
 	{% else %}
 		{% if inquiriesResultsBean.isOldQucAvailable %}
 			{% if inquiriesResultsBean.isOldQucStudentCourseResultsAvailable %}
-				{% include "inquiriesStudentResults.html" %}
+				{% include "fenixedu-default-theme/inquiriesStudentResults.html" %}
 			{% else %}
 				{% if inquiriesResultsBean.isOldQucStudentCourseFullResultsAvailable %}
-					{% include "inquiriesStudentFullResults.html" %}
+					{% include "fenixedu-default-theme/inquiriesStudentFullResults.html" %}
 				{% else %}
-					{% include "inquiriesResultsNotAvailable.html" %}
+					{% include "fenixedu-default-theme/inquiriesResultsNotAvailable.html" %}
 				{% endif %}
 			{% endif %}
 		{% else %}
-			{% include "inquiriesResultsNotAvailable.html" %}
+			{% include "fenixedu-default-theme/inquiriesResultsNotAvailable.html" %}
 		{% endif %}
 	{% endif %}
 {% endblock content %}
