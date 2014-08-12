@@ -126,7 +126,6 @@ public abstract class MigrationTask extends CustomTask {
     public void createStaticPage(Site site, Menu menu, MenuItem menuItemParent, Section section) {
         List<Section> subsections = section.getOrderedSubSections();
         LocalizedString name = localized(section.getName());
-        log.info("migrating section " + name.getContent());
         if (!isIgnoredSection(section)) {
             //it means that the folder has no content and just acts like a folder on the menu
             boolean isFolderSection = section.getOrderedChildItems().isEmpty() && section.getFileContentSet().isEmpty();

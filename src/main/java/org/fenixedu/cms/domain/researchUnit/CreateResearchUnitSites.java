@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import net.sourceforge.fenixedu.domain.organizationalStructure.ResearchUnit;
 import org.fenixedu.bennu.cms.domain.CMSTheme;
 import org.fenixedu.bennu.cms.domain.Menu;
 import org.fenixedu.bennu.cms.domain.Page;
@@ -17,6 +18,7 @@ import org.fenixedu.bennu.portal.domain.MenuFunctionality;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.cms.domain.MigrationTask;
 import org.fenixedu.cms.domain.researchUnit.componenets.ResearchUnitComponent;
+import org.fenixedu.cms.domain.researchUnit.componenets.SubUnits;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,20 +36,19 @@ public class CreateResearchUnitSites extends MigrationTask {
 
     @Override
     public void runTask() throws Exception {
-
-        deleteAllSites();
-
         List<net.sourceforge.fenixedu.domain.ResearchUnitSite> researchUnitSites =
                 Lists.newArrayList(Iterables.filter(Bennu.getInstance().getSiteSet(),
                         net.sourceforge.fenixedu.domain.ResearchUnitSite.class));
 
+        deleteAllSites();
+
         log.info(" [ creating research unit sites (existing " + researchUnitSites.size() + ") ]");
 
         for (net.sourceforge.fenixedu.domain.ResearchUnitSite oldSite : researchUnitSites) {
-//            if (oldSite.getName().toLocalizedString().getContent().equals("INESC-ID/ESW")) {
-            log.info("[ old site: " + oldSite.getExternalId() + ", path: " + oldSite.getReversePath() + " ]");
-            create(oldSite);
-//            }
+            if (oldSite.getName().toLocalizedString().getContent().equals("INESC-ID/ESW")) {
+                log.info("[ old site: " + oldSite.getExternalId() + ", path: " + oldSite.getReversePath() + " ]");
+                create(oldSite);
+            }
         }
     }
 
@@ -76,6 +77,7 @@ public class CreateResearchUnitSites extends MigrationTask {
         log.info("creating dynamic pages for site " + site.getSlug());
         Page.create(site, menu, null, getLocalizedString(BUNDLE, "label.researchers"), true, "members",
                 new ResearchUnitComponent());
+        Page.create(site, menu, null, getLocalizedString(BUNDLE, "reseachUnit.subunits"), true, "subunits", new SubUnits());
     }
 
     private String createSlug(String oldPath) {

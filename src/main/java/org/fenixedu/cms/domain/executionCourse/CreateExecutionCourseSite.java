@@ -1,7 +1,9 @@
 package org.fenixedu.cms.domain.executionCourse;
 
+import static java.util.stream.Collectors.toSet;
 import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -22,6 +24,9 @@ import org.fenixedu.cms.domain.MigrationTask;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.spaces.domain.Space;
 import org.joda.time.DateTime;
+import org.joda.time.Hours;
+import org.joda.time.Minutes;
+import org.joda.time.Seconds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +34,7 @@ import pt.ist.fenixframework.FenixFramework;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
 public class CreateExecutionCourseSite extends MigrationTask {
@@ -45,16 +51,17 @@ public class CreateExecutionCourseSite extends MigrationTask {
         DateTime start = new DateTime();
         deleteAllSites();
         Set<ExecutionCourse> executionCourses = Bennu.getInstance().getExecutionCoursesSet();
-        executionCourses.stream().map(e -> e.getSite()).filter(Objects::nonNull).forEach(site -> {
-            log.info("{ number: " + numSites++ + ", oldPath: " + site.getReversePath() + " }");
-            createExecutionCourseSite(site);
-        });
+        Set<net.sourceforge.fenixedu.domain.ExecutionCourseSite> oldSites =
+                executionCourses.stream().map(e -> e.getSite()).filter(s -> s != null).collect(toSet());
 
+        Iterable<List<net.sourceforge.fenixedu.domain.ExecutionCourseSite>> partitions = Iterables.partition(oldSites, 5000);
+
+        partitions.iterator().next().stream().forEach(s -> createExecutionCourseSite(s));
         DateTime end = new DateTime();
 
-        /*
         log.info("[ duration: " + Hours.hoursBetween(start, end) + "hours, " + Minutes.minutesBetween(start, end) + "minutes, "
                 + Seconds.secondsBetween(start, end) + " ]");
+        /*
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612946319"));
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612917134"));
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612898443"));
@@ -72,6 +79,7 @@ public class CreateExecutionCourseSite extends MigrationTask {
     }
 
     public void createExecutionCourseSite(net.sourceforge.fenixedu.domain.ExecutionCourseSite oldSite) {
+        log.info("{ number: " + siteSlugs.size() + ", oldPath: " + oldSite.getReversePath() + " }");
 
         ExecutionCourse executionCourse = oldSite.getExecutionCourse();
 
@@ -108,7 +116,6 @@ public class CreateExecutionCourseSite extends MigrationTask {
     }
 
     private void migrateAnnouncements(ExecutionCourseSite site) {
-        log.info("migrating announcements for site " + site.getSlug());
         for (Announcement announcement : site.getExecutionCourse().getBoard().getAnnouncementSet()) {
             boolean hasSubject = announcement.getSubject() != null && !announcement.getSubject().isEmpty();
             boolean hasBody = announcement.getBody() != null && !announcement.getBody().isEmpty();
@@ -143,7 +150,6 @@ public class CreateExecutionCourseSite extends MigrationTask {
     }
 
     private void migrateSummaries(ExecutionCourseSite site) {
-        log.info("migrating summaries for site " + site.getSlug());
         site.getExecutionCourse().getAssociatedSummariesSet().forEach(summary -> {
             Signal.emit(Summary.CREATED_SIGNAL, new DomainObjectEvent<Summary>(summary));
         });
