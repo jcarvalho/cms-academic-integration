@@ -1,0 +1,47 @@
+{% macro personsCards(persons, title, staticDir) %}
+
+	{% if persons is not empty %}
+		<h4 class="persons-title">{{ title }}</h4>
+		{% for person in persons %}
+			<li class="person-card-item">
+				{{ personCard(person, staticDir) }}
+				<hr>
+			</li>
+		{% endfor %}
+	{% endif %}
+
+{% endmacro %}
+
+{% macro personCard(person, staticDir) %}
+	{% if person is not empty %}
+		{% set showPhoto = 
+			(person.isPhotoPubliclyAvailable is not empty and person.isPhotoPubliclyAvailable)
+			or
+			(person.isPhotoAvailableToCurrentUser is not empty and person.isPhotoAvailableToCurrentUser)
+		 %}
+		<div class="person-card">
+
+			<div class="col-md-2 person-photo">
+				{% if showPhoto %}
+					{% set url = "/publico/retrievePersonalPhoto.do?method=retrievePhotographOnPublicSpace&personId="%}
+					<img class="img-circle" alt="{{ person.presentationName }}" src="{{ url + person.externalId}}">
+				{% else %}
+					<img class="img-circle" alt="No Photo Available" src="{{ staticDir }}/images/noPhotoAvailable.gif">
+				{% endif %}
+			</div>
+
+			<div class="col-md-10 person-details">
+				<a href="{{ person.homepageWebAddress }}">
+					<p>{{ person.presentationName }}</p>
+				</a>
+				{% if person.getDefaultEmailAddressValue is not empty %}
+					<a href="mailto:{{ person.getDefaultEmailAddressValue }}">
+						<p>{{ person.getDefaultEmailAddressValue }}
+					</a>
+				{% endif %}
+			</div>
+
+		</div>
+	{% endif %}
+{% endmacro %}
+

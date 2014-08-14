@@ -1,42 +1,8 @@
 {% extends "fenixedu-default-theme/base.html" %}
 
+{% import "fenixedu-default-theme/personCard.html" %}
+
 {% block content %}
-	{% macro personsCards(persons, title, staticDir) %}
-
-		{% if persons is not empty %}
-			<h4>{{ title }}</h4>
-			{% for person in persons %}
-				<li>
-					{{ personCard(person, staticDir) }}
-					<hr>
-				</li>
-			{% endfor %}
-		{% endif %}
-
-	{% endmacro %}
-
-	{% macro personCard(person, staticDir) %}
-	<div class="person-card">
-		<div class="col-md-2 person-photo">
-				{% if person is not empty and person.photoPubliclyAvailable %}
-					{% set url = "/publico/retrievePersonalPhoto.do?method=retrievePhotographOnPublicSpace&personId="%}
-					<img class="img-circle" alt="{{ person.presentationName }}" src="{{ url + person.externalId}}">
-				{% else %}
-					<img class="img-circle" alt="No Photo Available" src="{{ staticDir }}/images/noPhotoAvailable.gif">
-				{% endif %}
-		</div>
-		<div class="col-md-10 person-details">
-			<a href="{{ person.homepageWebAddress }}">
-				<p>{{ person.presentationName }}</p>
-			</a>
-			{% if person.getDefaultEmailAddressValue is not empty %}
-				<a href="mailto:{{ person.getDefaultEmailAddressValue }}">
-					<p>{{ person.getDefaultEmailAddressValue }}
-				</a>
-			{% endif %}
-		</div>
-	</div>
-	{% endmacro %}
 
 	{% macro researchUnitMembers(unit, staticDir) %}
 		{{ personsCards(unit.researchers, i18n('resources.SiteResources', 'label.researchers'), staticDir) }}
@@ -48,7 +14,7 @@
 		{{ personsCards(unit.scholarships, i18n('resources.SiteResources', 'label.scholarship'), staticDir) }}
 	{% endmacro %}
 
-	<h1>{{ researchUnit.nameWithAcronym }}</h1>
+	<h3>{{ researchUnit.nameWithAcronym }}</h3>
 
 	<div>{{ researchUnitMembers(researchUnit, staticDir) }}</div>
 
@@ -77,10 +43,10 @@
 	</script>
 
 	<style type="text/css">
-		li {
+		.person-card-item {
 			list-style-type: none;
 		}
-		h4 {
+		.persons-title {
 			padding-top: 7px;
 			padding-bottom: 10px;
 		}

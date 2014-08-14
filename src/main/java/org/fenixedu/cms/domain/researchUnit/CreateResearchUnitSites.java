@@ -17,6 +17,7 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.portal.domain.MenuFunctionality;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.cms.domain.MigrationTask;
+import org.fenixedu.cms.domain.researchUnit.componenets.Organization;
 import org.fenixedu.cms.domain.researchUnit.componenets.ResearchUnitComponent;
 import org.fenixedu.cms.domain.researchUnit.componenets.SubUnits;
 import org.slf4j.Logger;
@@ -45,10 +46,10 @@ public class CreateResearchUnitSites extends MigrationTask {
         log.info(" [ creating research unit sites (existing " + researchUnitSites.size() + ") ]");
 
         for (net.sourceforge.fenixedu.domain.ResearchUnitSite oldSite : researchUnitSites) {
-            if (oldSite.getName().toLocalizedString().getContent().equals("INESC-ID/ESW")) {
+            //if (oldSite.getName().toLocalizedString().getContent().equals("INESC-ID/ESW")) {
                 log.info("[ old site: " + oldSite.getExternalId() + ", path: " + oldSite.getReversePath() + " ]");
                 create(oldSite);
-            }
+            //}
         }
     }
 
@@ -78,6 +79,8 @@ public class CreateResearchUnitSites extends MigrationTask {
         Page.create(site, menu, null, getLocalizedString(BUNDLE, "label.researchers"), true, "members",
                 new ResearchUnitComponent());
         Page.create(site, menu, null, getLocalizedString(BUNDLE, "reseachUnit.subunits"), true, "subunits", new SubUnits());
+
+        Page.create(site, menu, null, getLocalizedString(BUNDLE, "reseachUnit.organization"), true, "unitOrganization", new Organization());
     }
 
     private String createSlug(String oldPath) {
