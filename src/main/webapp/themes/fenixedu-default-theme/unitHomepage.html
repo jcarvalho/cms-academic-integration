@@ -1,0 +1,27 @@
+{% extends "fenixedu-default-theme/base.html" %}
+{% import "fenixedu-default-theme/view.html" %}
+
+{% block content %}
+
+	{% if site.description is not empty %}
+		{{ site.description.content | raw }}
+	{% else %}
+		<h2>{{ site.name.content }}</h2>
+	{% endif %}
+
+	<br />
+
+	<blockquote>
+		{% for event in events %}
+			{{ viewPost(event) }}
+			<hr>
+		{% endfor %}
+
+		{% for announcement in announcements %}
+			<p>{{ viewPost(announcement) }}</p>
+			<hr>
+		{% endfor %}
+	</blockquote>
+
+
+{% endblock content %}

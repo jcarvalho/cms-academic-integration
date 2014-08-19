@@ -4,6 +4,7 @@ class researchUnit.ResearchUnitSite extends .org.fenixedu.bennu.cms.domain.Site 
 class researchUnit.componenets.ResearchUnitComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
 class researchUnit.componenets.SubUnits extends .org.fenixedu.bennu.cms.domain.Component  {}
 class researchUnit.componenets.Organization extends .org.fenixedu.bennu.cms.domain.Component  {}
+class researchUnit.componenets.HomeComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
 
 class executionCourse.ExecutionCourseSite extends .org.fenixedu.bennu.cms.domain.Site {}
 

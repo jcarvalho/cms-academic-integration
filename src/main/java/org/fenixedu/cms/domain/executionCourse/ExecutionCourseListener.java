@@ -67,7 +67,7 @@ public class ExecutionCourseListener {
         ListCategoryPosts announcementCategory = new ListCategoryPosts(site.categoryForSlug("announcement", ANNOUNCEMENTS));
 
         Page.create(site, null, null, VIEW_POST, true, "view", new ViewPost());
-        Page.create(site, menu, null, TITLE_INITIAL_PAGE, true, "firstPage", new InitialPageComponent(), announcementCategory);
+        site.setInitialPage(Page.create(site, menu, null, TITLE_INITIAL_PAGE, true, "firstPage", new InitialPageComponent(), announcementCategory));
         Page.create(site, menu, null, TITLE_BIBLIOGRAPHIC_REFS, true, "bibliographicReferences",
                 new BibliographicReferencesComponent());
         Page.create(site, menu, null, TITLE_EVALUATION_METHODS, true, "evaluationMethods", new EvaluationMethodsComponent());

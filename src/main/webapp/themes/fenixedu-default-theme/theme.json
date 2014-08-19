@@ -123,6 +123,11 @@
 			"description":"Subunits of a Research Unit",
 			"file":"subunits.html"
 		},
+		"unitHomepage":{
+			"name": "Unit Homepage",
+			"description":"Homepage for a unit site",  
+			"file":"unitHomepage.html"
+		},
 		"unitOrganization":{
 			"name": "Unit Organization",
 			"description":"Organization of a Research Unit",
