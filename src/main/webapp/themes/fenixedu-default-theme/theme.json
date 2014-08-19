@@ -15,7 +15,7 @@
 		},
 		"categories":{
 			"name": "Categories",
-			"description": "List of Categoryories",
+			"description": "List of Categories",
 			"file":"categories.html"
 		},
 		"category":{

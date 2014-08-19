@@ -36,7 +36,10 @@ relation SummaryPost {
 class homepage.HomepageSite extends .org.fenixedu.bennu.cms.domain.Site {}
 
 class homepage.HomepagePresentationComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
-class homepage.HomepageResearcherComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
+class homepage.HomepageResearcherComponent extends .org.fenixedu.bennu.cms.domain.Component  {
+	String titleKey;
+	String dataKey;
+}
 
 relation HomepageFenixEduHomepageSite {
 	homepage.HomepageSite playsRole cmsSite;

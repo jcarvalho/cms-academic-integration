@@ -53,7 +53,7 @@ public class CreateResearchUnitSites extends CustomTask {
         newSite.setSlug(createSlug(oldSite));
         newSite.setBennu(Bennu.getInstance());
         newSite.setTheme(CMSTheme.forType(THEME));
-        Page.create(newSite, null, null, getLocalizedString(BUNDLE, "label.viewPost"), true, "view", new ViewPost());
+        Page.create(newSite, null, null, getLocalizedString(BUNDLE, "label.viewPost"), true, "view", null, new ViewPost());
         createDynamicPages(newSite, newSite.getSideMenus().stream().findFirst().orElse(null));
 
         MigrationUtils.createStaticPages(newSite, null, oldSite);
@@ -63,7 +63,7 @@ public class CreateResearchUnitSites extends CustomTask {
 
     private void createDynamicPages(Site site, Menu menu) {
         log.info("creating dynamic pages for site " + site.getSlug());
-        Page.create(site, menu, null, getLocalizedString(BUNDLE, "label.researchers"), true, "members",
+        Page.create(site, menu, null, getLocalizedString(BUNDLE, "label.researchers"), true, "members", null,
                 new ResearchUnitComponent());
     }
 

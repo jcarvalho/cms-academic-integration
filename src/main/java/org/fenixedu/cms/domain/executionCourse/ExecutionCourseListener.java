@@ -58,7 +58,7 @@ public class ExecutionCourseListener {
         newSite.setTheme(CMSTheme.forType(THEME));
 
         Menu menu = new Menu(newSite, MENU);
-        Page.create(newSite, null, null, VIEW_POST, true, "view", new ViewPost());
+        Page.create(newSite, null, null, VIEW_POST, true, "view", null, new ViewPost());
         createDynamicPages(newSite, menu);
         return newSite;
     }
@@ -67,21 +67,22 @@ public class ExecutionCourseListener {
         ListCategoryPosts summaryCategory = new ListCategoryPosts(site.categoryForSlug("summary", SUMMARY));
         ListCategoryPosts announcementCategory = new ListCategoryPosts(site.categoryForSlug("announcement", ANNOUNCEMENTS));
 
-        Page.create(site, menu, null, TITLE_INITIAL_PAGE, true, "firstPage", new InitialPageComponent(), announcementCategory);
-        Page.create(site, menu, null, TITLE_BIBLIOGRAPHIC_REFS, true, "bibliographicReferences",
+        Page.create(site, menu, null, TITLE_INITIAL_PAGE, true, "firstPage", null, new InitialPageComponent(),
+                announcementCategory);
+        Page.create(site, menu, null, TITLE_BIBLIOGRAPHIC_REFS, true, "bibliographicReferences", null,
                 new BibliographicReferencesComponent());
-        Page.create(site, menu, null, TITLE_EVALUATION_METHODS, true, "evaluationMethods", new EvaluationMethodsComponent());
-        Page.create(site, menu, null, TITLE_INQUIRIES_RESULTS, true, "inqueriesResults", new InquiriesResultsComponent());
-        Page.create(site, menu, null, TITLE_LESSONS_PLANINGS, true, "lessonPlanings", new LessonsPlanningComponent());
-        Page.create(site, menu, null, TITLE_EVALUATIONS, true, "evaluations", new EvaluationsComponent());
-        Page.create(site, menu, null, TITLE_OBJECTIVES, true, "objectives", new ObjectivesComponent());
-        Page.create(site, menu, null, TITLE_SHIFTS, true, "shifts", new ExecutionCourseComponent());
-        Page.create(site, menu, null, TITLE_ANNOUNCEMENTS, true, "category", announcementCategory);
-        Page.create(site, menu, null, TITLE_PROGRAM, true, "program", new ObjectivesComponent());
-        Page.create(site, menu, null, TITLE_SCHEDULE, true, "schedule", new ScheduleComponent());
-        Page.create(site, menu, null, TITLE_GROUPS, true, "groupings", new GroupsComponent());
-        Page.create(site, menu, null, TITLE_MARKS, true, "marks", new MarksComponent());
-        Page.create(site, menu, null, SUMMARY, true, "category", summaryCategory);
+        Page.create(site, menu, null, TITLE_EVALUATION_METHODS, true, "evaluationMethods", null, new EvaluationMethodsComponent());
+        Page.create(site, menu, null, TITLE_INQUIRIES_RESULTS, true, "inqueriesResults", null, new InquiriesResultsComponent());
+        Page.create(site, menu, null, TITLE_LESSONS_PLANINGS, true, "lessonPlanings", null, new LessonsPlanningComponent());
+        Page.create(site, menu, null, TITLE_EVALUATIONS, true, "evaluations", null, new EvaluationsComponent());
+        Page.create(site, menu, null, TITLE_OBJECTIVES, true, "objectives", null, new ObjectivesComponent());
+        Page.create(site, menu, null, TITLE_SHIFTS, true, "shifts", null, new ExecutionCourseComponent());
+        Page.create(site, menu, null, TITLE_ANNOUNCEMENTS, true, "category", null, announcementCategory);
+        Page.create(site, menu, null, TITLE_PROGRAM, true, "program", null, new ObjectivesComponent());
+        Page.create(site, menu, null, TITLE_SCHEDULE, true, "schedule", null, new ScheduleComponent());
+        Page.create(site, menu, null, TITLE_GROUPS, true, "groupings", null, new GroupsComponent());
+        Page.create(site, menu, null, TITLE_MARKS, true, "marks", null, new MarksComponent());
+        Page.create(site, menu, null, SUMMARY, true, "category", null, summaryCategory);
     }
 
 }

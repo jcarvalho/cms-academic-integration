@@ -4,6 +4,7 @@ import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -11,6 +12,7 @@ import net.sourceforge.fenixedu.domain.Item;
 import net.sourceforge.fenixedu.domain.Section;
 import net.sourceforge.fenixedu.domain.cms.CmsContent;
 import net.sourceforge.fenixedu.domain.cms.TemplatedSection;
+import net.sourceforge.fenixedu.domain.cms.TemplatedSectionInstance;
 
 import org.fenixedu.bennu.cms.domain.Category;
 import org.fenixedu.bennu.cms.domain.ListCategoryPosts;
@@ -45,6 +47,32 @@ public class MigrationUtils {
 
     public static void createStaticPages(Site newSite, MenuItem menuItemParent, net.sourceforge.fenixedu.domain.Site oldSite) {
         log.info("creating static pages for site " + newSite.getSlug());
+        List<Section> topMenuSections = topMenuSections(oldSite.getOrderedSections());
+        List<Section> sideMenuSections = sideMenuSections(oldSite.getOrderedSections());
+        Menu topMenu = new Menu(newSite, TOP_MENU);
+        Menu sideMenu = new Menu(newSite, MENU);
+        topMenuSections.forEach(s -> createStaticPage(newSite, topMenu, menuItemParent, s));
+        sideMenuSections.forEach(s -> createStaticPage(newSite, sideMenu, menuItemParent, s));
+        //assign top and side menu components to all pages5
+        for (Page page : newSite.getPagesSet()) {
+            if (!topMenuSections.isEmpty() && !hasMenu(page, topMenu)) {
+                new TopMenuComponent(topMenu, page);
+            }
+            if (!sideMenuSections.isEmpty() && !hasMenu(page, sideMenu)) {
+                new SideMenuComponent(sideMenu, page);
+            }
+        }
+        if (topMenu.getComponentSet().isEmpty()) {
+            topMenu.delete();
+        }
+        if (sideMenu.getComponentSet().isEmpty()) {
+            sideMenu.delete();
+        }
+    }
+
+    public static void createPages(Site newSite, MenuItem menuItemParent, net.sourceforge.fenixedu.domain.Site oldSite,
+            Map<String, DynamicPageContent> dynamicPagesContent) {
+        log.info("creating pages for site " + newSite.getSlug());
 
         List<Section> topMenuSections = topMenuSections(oldSite.getOrderedSections());
         List<Section> sideMenuSections = sideMenuSections(oldSite.getOrderedSections());
@@ -52,10 +80,10 @@ public class MigrationUtils {
         Menu topMenu = new Menu(newSite, TOP_MENU);
         Menu sideMenu = new Menu(newSite, MENU);
 
-        topMenuSections.forEach(s -> createStaticPage(newSite, topMenu, menuItemParent, s));
-        sideMenuSections.forEach(s -> createStaticPage(newSite, sideMenu, menuItemParent, s));
+        topMenuSections.forEach(s -> createPage(newSite, topMenu, menuItemParent, dynamicPagesContent, s));
+        sideMenuSections.forEach(s -> createPage(newSite, sideMenu, menuItemParent, dynamicPagesContent, s));
 
-        //assign top and side menu components to all pages5
+        //assign top and side menu components to all pages
         for (Page page : newSite.getPagesSet()) {
             if (!topMenuSections.isEmpty() && !hasMenu(page, topMenu)) {
                 new TopMenuComponent(topMenu, page);
@@ -71,6 +99,98 @@ public class MigrationUtils {
         if (sideMenu.getComponentSet().isEmpty()) {
             sideMenu.delete();
         }
+    }
+
+    public static void createPage(Site site, Menu menu, MenuItem menuItemParent,
+            Map<String, DynamicPageContent> dynamicPagesContent, Section section) {
+        if (isTemplatedSection(section)) {
+            createDynamicPage(site, menu, menuItemParent, dynamicPagesContent, section);
+        } else {
+            createStaticPage(site, menu, menuItemParent, dynamicPagesContent, section);
+        }
+    }
+
+    private static void createDynamicPage(Site site, Menu menu, MenuItem menuItemParent,
+            Map<String, DynamicPageContent> dynamicPagesContent, Section section) {
+        log.info("creating dynamic page for section " + section.getName().getContent());
+
+        boolean isPublished = Optional.ofNullable(section.getEnabled()).orElse(true);
+        TemplatedSection ts = getTemplatedSection(section);
+        DynamicPageContent content = dynamicPagesContent.get(ts.getCustomPath());
+        if (content != null) {
+            Page.create(site, menu, menuItemParent, content.getName() != null ? content.getName() : localized(section.getName()),
+                    isPublished, content.getTemplateType(), null, content.getComponents());
+        } else {
+
+        }
+    }
+
+    public static void createStaticPage(Site site, Menu menu, MenuItem menuItemParent,
+            Map<String, DynamicPageContent> dynamicPagesContent, Section section) {
+        List<Section> subsections = section.getOrderedSubSections();
+        if (!isIgnoredSection(section)) {
+            LocalizedString name = localized(section.getName());
+            log.info("migrating section " + name.getContent());
+            //it means that the folder has no content and just acts like a folder on the menu
+            boolean isFolderSection = section.getOrderedChildItems().isEmpty() && section.getFileContentSet().isEmpty();
+            if (isFolderSection) {
+                MenuItem parent = MenuItem.create(menu, null, name, menuItemParent);
+                subsections.forEach(subsection -> createPage(site, menu, parent, dynamicPagesContent, subsection));
+                return;
+            } else {
+                Category category = new Category();
+                category.setName(name);
+                ListCategoryPosts pageCategory = new ListCategoryPosts(category);
+
+                boolean isPublished = Optional.ofNullable(section.getEnabled()).orElse(true);
+                final Page page = Page.create(site, menu, menuItemParent, name, isPublished, "category", null, pageCategory);
+                page.setCreationDate(site.getCreationDate());
+
+                section.getOrderedChildItems().stream().filter(hasName.and(hasBody)).forEach(item -> {
+                    boolean isEnabled = Optional.ofNullable(item.getEnabled()).orElse(true);
+                    Post.create(site, page, localized(item.getName()), localized(item.getBody()), category, isEnabled, null);
+                });
+            }
+        }
+        subsections.forEach(subsection -> createPage(site, menu, menuItemParent, dynamicPagesContent, subsection));
+    }
+
+    public static void createStaticPage(Site site, Menu menu, MenuItem menuItemParent, Section section) {
+        List<Section> subsections = section.getOrderedSubSections();
+        if (!isIgnoredSection(section)) {
+            LocalizedString name = localized(section.getName());
+            log.info("migrating section " + name.getContent());
+            //it means that the folder has no content and just acts like a folder on the menu
+            boolean isFolderSection = section.getOrderedChildItems().isEmpty() && section.getFileContentSet().isEmpty();
+            if (isFolderSection) {
+                MenuItem parent = MenuItem.create(menu, null, name, menuItemParent);
+                subsections.forEach(subsection -> createStaticPage(site, menu, parent, subsection));
+                return;
+            } else {
+                Category category = new Category();
+                category.setName(name);
+                ListCategoryPosts pageCategory = new ListCategoryPosts(category);
+
+                boolean isPublished = Optional.ofNullable(section.getEnabled()).orElse(true);
+                final Page page = Page.create(site, menu, menuItemParent, name, isPublished, "category", null, pageCategory);
+                page.setCreationDate(site.getCreationDate());
+
+                section.getOrderedChildItems().stream().filter(hasName.and(hasBody)).forEach(item -> {
+                    boolean isEnabled = Optional.ofNullable(item.getEnabled()).orElse(true);
+                    Post.create(site, page, localized(item.getName()), localized(item.getBody()), category, isEnabled, null);
+                });
+            }
+        }
+        subsections.forEach(subsection -> createStaticPage(site, menu, menuItemParent, subsection));
+    }
+
+    private static TemplatedSection getTemplatedSection(Section section) {
+        if (section instanceof TemplatedSection) {
+            return (TemplatedSection) section;
+        } else if (section instanceof TemplatedSectionInstance) {
+            return ((TemplatedSectionInstance) section).getSectionTemplate();
+        }
+        return null;
     }
 
     private static boolean hasMenu(Page page, Menu menu) {
@@ -115,38 +235,12 @@ public class MigrationUtils {
     }
 
     private static boolean isIgnoredSection(CmsContent cmsContent) {
-        LocalizedString sectionName = cmsContent.getName().toLocalizedString();
         return cmsContent instanceof TemplatedSection || isTopSection((Section) cmsContent)
                 || isSideSection((Section) cmsContent);
     }
 
-    public static void createStaticPage(Site site, Menu menu, MenuItem menuItemParent, Section section) {
-        List<Section> subsections = section.getOrderedSubSections();
-        LocalizedString name = localized(section.getName());
-        log.info("migrating section " + name.getContent());
-        if (!isIgnoredSection(section)) {
-            //it means that the folder has no content and just acts like a folder on the menu
-            boolean isFolderSection = section.getOrderedChildItems().isEmpty() && section.getFileContentSet().isEmpty();
-            if (isFolderSection) {
-                MenuItem parent = MenuItem.create(site, menu, null, name, menuItemParent);
-                subsections.forEach(subsection -> createStaticPage(site, menu, parent, subsection));
-                return;
-            } else {
-                Category category = new Category();
-                category.setName(name);
-                ListCategoryPosts pageCategory = new ListCategoryPosts(category);
-
-                boolean isPublished = Optional.ofNullable(section.getEnabled()).orElse(true);
-                final Page page = Page.create(site, menu, menuItemParent, name, isPublished, "category", pageCategory);
-                page.setCreationDate(site.getCreationDate());
-
-                section.getOrderedChildItems().stream().filter(hasName.and(hasBody)).forEach(item -> {
-                    boolean isEnabled = Optional.ofNullable(item.getEnabled()).orElse(true);
-                    Post.create(site, page, localized(item.getName()), localized(item.getBody()), category, isEnabled);
-                });
-            }
-        }
-        subsections.forEach(subsection -> createStaticPage(site, menu, menuItemParent, subsection));
+    private static boolean isTemplatedSection(CmsContent cmsContent) {
+        return cmsContent instanceof TemplatedSection || cmsContent instanceof TemplatedSectionInstance;
     }
 
     public static void deleteAllSites() {
