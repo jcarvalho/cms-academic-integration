@@ -2,6 +2,7 @@ package org.fenixedu.cms.domain;
 
 import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -14,6 +15,7 @@ import net.sourceforge.fenixedu.domain.cms.TemplatedSection;
 import net.sourceforge.fenixedu.domain.cms.TemplatedSectionInstance;
 
 import org.fenixedu.bennu.cms.domain.Category;
+import org.fenixedu.bennu.cms.domain.Component;
 import org.fenixedu.bennu.cms.domain.ListCategoryPosts;
 import org.fenixedu.bennu.cms.domain.Menu;
 import org.fenixedu.bennu.cms.domain.MenuItem;
@@ -51,13 +53,9 @@ public abstract class MigrationTask extends CustomTask {
     private static Predicate<String> matchesTop = name -> "top".equalsIgnoreCase(name) || "topo".equalsIgnoreCase(name);
     private static Predicate<String> matchesSide = name -> "side".equalsIgnoreCase(name) || "lateral".equalsIgnoreCase(name);
 
-    //Migrated Site Parameters
-    private Menu topMenu;
-    private Menu sideMenu;
+    protected final Map<String, PageTemplate> EXCEPTIONAL_PAGES = new HashMap<String, PageTemplate>();
+
     private Site newSite;
-    private net.sourceforge.fenixedu.domain.Site oldSite;
-    private Map<String, Page> exceptionalPages;
-    private boolean duplicateExceptionalPages;
 
     public void deleteAllSites() {
         log.info("Removing all sites..");
@@ -66,18 +64,130 @@ public abstract class MigrationTask extends CustomTask {
         }
     }
 
-    protected void migrateSite(Site newSite, net.sourceforge.fenixedu.domain.Site oldSite, Map<String, Page> exceptionalPages,
-            boolean duplicateExceptionalPages) {
+    protected static class PageTemplate {
+
+        public static final PageTemplate staticPage = new PageTemplate();
+
+        private final LocalizedString name;
+        private final String slug;
+        private final User creator;
+        private final DateTime creationDate;
+        private final Boolean published;
+        private final String template;
+        private final Component[] components;
+
+        private String path;
+        private Page page;
+
+        public PageTemplate(LocalizedString name, String slug, User creator, DateTime creationDate, Boolean published,
+                String template, Component... components) {
+            this.creator = creator;
+            this.name = name;
+            this.creationDate = creationDate;
+            this.published = published;
+            this.template = template;
+            this.slug = slug;
+            this.components = components;
+        }
+
+        public PageTemplate(LocalizedString name, String slug, String template, Component... components) {
+            this.name = name;
+            this.template = template;
+            this.slug = slug;
+            this.components = components;
+            this.creationDate = null;
+            this.creator = null;
+            this.published = null;
+        }
+
+        public PageTemplate(String template, Component... components) {
+            this.template = template;
+            this.components = components;
+            this.slug = null;
+            this.name = null;
+            this.creationDate = null;
+            this.creator = null;
+            this.published = null;
+        }
+
+        private PageTemplate() {
+            this.template = null;
+            this.components = null;
+            this.slug = null;
+            this.name = null;
+            this.creationDate = null;
+            this.creator = null;
+            this.published = null;
+        }
+
+        public Page buildPage(Section section, Site site) {
+            Preconditions.checkArgument(section != null, "Trying to build a page based of a null section.");
+
+            String sectionPath = getSectionPath(section);
+            if (page == null || path == null || !sectionPath.equals(path)) {
+                Page newPage = new Page();
+                newPage.setSite(site);
+                newPage.setName(name != null ? name : localized(section.getName()));
+                if (slug != null) {
+                    newPage.setSlug(slug);
+                };
+                newPage.setCreatedBy(creator != null ? creator : site.getCreatedBy());
+                newPage.setCreationDate(creationDate != null ? creationDate : section.getCreationDate() != null ? section
+                        .getCreationDate() : site.getCreationDate());
+                newPage.setPublished(published != null ? published : Optional.ofNullable(section.getEnabled()).orElse(true)
+                        && section.getVisible()); //enabled is generally not used
+                newPage.setTemplate(template != null ? site.getTheme().templateForType(template) : site.getTheme()
+                        .templateForType("category"));
+
+                Category category =
+                        site.getCategoriesSet().stream().filter(c -> c.getName().equals(newPage.getName())).findAny()
+                                .orElse(null);
+                if (category == null && (components == null || !section.getOrderedChildItems().isEmpty())) {
+                    category = new Category();
+                    category.setCreatedBy(newPage.getCreatedBy());
+                    category.setCreationDate(newPage.getCreationDate());
+                    category.setName(newPage.getName());
+                    category.setSite(site);
+                }
+
+                if (components == null) {
+                    newPage.addComponents(new ListCategoryPosts(category));
+                } else {
+                    for (Component component : components) {
+                        newPage.addComponents(component);
+                    }
+                }
+
+                User pageCreator = newPage.getCreatedBy();
+                final Category postCategory = category;
+                section.getOrderedChildItems().stream().filter(hasName.and(hasBody)).forEach(item -> {
+                    Post post = new Post();
+                    post.setSite(site);
+                    post.setName(localized(item.getName()));
+                    post.setBody(localized(item.getBody()));
+                    post.setCreatedBy(pageCreator);
+                    post.setCreationDate(section.getCreationDate() != null ? section.getCreationDate() : new DateTime());
+                    post.addCategories(postCategory);
+                    post.setActive(Optional.ofNullable(item.getEnabled()).orElse(true) && item.getVisible()); //enabled is generally not used
+                    });
+
+                path = sectionPath;
+                this.page = newPage;
+
+                log.info("Page { name: " + page.getName().getContent() + ", address: " + page.getAddress()
+                        + " } created from section at " + sectionPath);
+            }
+            return page;
+        }
+    }
+
+    protected void migrateSite(Site newSite, net.sourceforge.fenixedu.domain.Site oldSite) {
         Preconditions.checkArgument(oldSite != null, "Trying to migrate from a null site.");
         Preconditions.checkArgument(newSite != null, "Trying to migrate to a null site.");
 
         log.info("Creating pages for site " + newSite.getSlug());
 
         this.newSite = newSite;
-        this.oldSite = oldSite;
-
-        this.exceptionalPages = exceptionalPages;
-        this.duplicateExceptionalPages = duplicateExceptionalPages;
 
         Menu sideMenu = migrateMenuSections(MENU, selectSideMenuSections(oldSite));
         Menu topMenu = migrateMenuSections(TOP_MENU, selectTopMenuSections(oldSite));
@@ -94,17 +204,15 @@ public abstract class MigrationTask extends CustomTask {
             }
         }
 
-        this.newSite = null;
-        this.oldSite = null;
-        this.exceptionalPages = null;
-        this.duplicateExceptionalPages = false;
+        newSite.setCreatedBy(Authenticate.getUser()); //sites do not have a creator. This could have been set to another value before so that pages and posts inherit it though.
     }
 
     private Menu migrateMenuSections(LocalizedString name, List<Section> sections) {
-        if (!sections.isEmpty()) {
+        if (sections.size() > 1) {
             Menu menu = new Menu(newSite, name);
             menu.setCreatedBy(newSite.getCreatedBy());
-            menu.setCreationDate(sections.get(0) != null ? sections.get(0).getCreationDate() : newSite.getCreationDate());
+            menu.setCreationDate(sections.get(0) != null && sections.get(0).getCreationDate() != null ? sections.get(0)
+                    .getCreationDate() : newSite.getCreationDate());
             sections.stream().skip(1).forEach(section -> migrateSection(section, menu, null));
             return menu;
         }
@@ -115,108 +223,29 @@ public abstract class MigrationTask extends CustomTask {
         boolean isTemplatedSection = isTemplatedSection(section);
         boolean isStaticFolderSection =
                 !isTemplatedSection && section.getOrderedChildItems().isEmpty() && section.getFileContentSet().isEmpty();
+        Page page = null;
+        final MenuItem newParent;
         if (!isStaticFolderSection) {
-            Page page = null;
-            if (isTemplatedSection) {
-                TemplatedSection templatedSection = getTemplatedSection(section);
-                page = exceptionalPages.get(templatedSection.getCustomPath());
-            } else {
-                page = exceptionalPages.get(section.getFullPath());
-            }
-
-            if (page == null && isTemplatedSection) {
-                //missing, possibly to delete, page
+            PageTemplate pageTemplate = EXCEPTIONAL_PAGES.get(getSectionPath(section));
+            if (pageTemplate == null && isTemplatedSection) {
+                //missing page, possibly to delete on migration
                 log.warn("Couldn't find matching page for TemplatedSection " + section.getFullPath());
+            } else if (pageTemplate == null) {
+                page = PageTemplate.staticPage.buildPage(section, newSite);
             } else {
-                //exceptional or new static page
-                Category category = new Category();
-                if (page == null) {
-                    //new static page
-                    page = new Page();
-                    page.setSite(newSite); //FIXME need this before setName or NPE occurs
-                    page.setName(localized(section.getName()));
-                    page.setCreatedBy(newSite.getCreatedBy());  //FIXME more proper behavior would be to set the creator to the real section creator but so far i don't know how to get that info.
-                    page.setTemplate(newSite.getTheme().templateForType("category"));
-                    ListCategoryPosts pageCategory = new ListCategoryPosts(category);
-                    page.addComponents(pageCategory);
-                } else {
-                    //exceptional
-
-//                    if (!page.getMenuItemsSet().isEmpty() && duplicateExceptionalPages) {
-//                        Page copy = new Page();
-//                        //TODO copy page
-//                        page = copy;
-//                    }
-
-                    page.setSite(newSite); //FIXME need this before setName or NPE occurs
-
-                    //attempt to preserve name, slug and createdBy for exceptional page cases
-                    if (page.getName() == null) {
-                        String slug = page.getSlug();
-                        page.setName(localized(section.getName()));
-                        if (slug != null && !slug.isEmpty()) { //preserve set slug
-                            page.setSlug(slug);
-                        }
-                    }
-                    //FIXME hmmmm this isn't very right... what if the migration is ran by the proper creator of the page that is different from the site creator?
-                    //maybe it's safer to presume that if not null, then it is to be maintained?
-                    //FIXME more proper behavior would be to set the creator to the real section creator but so far i don't know how to get that info.
-                    if (page.getCreatedBy() == null
-                            || (page.getCreatedBy() == Authenticate.getUser() && newSite.getCreatedBy() != Authenticate.getUser())) {
-                        page.setCreatedBy(newSite.getCreatedBy());
-                    }
-
-                }
-
-                //set category according to the page
-                category.setCreatedBy(page.getCreatedBy());
-                category.setCreationDate(page.getCreationDate());
-                category.setName(page.getName());
-                category.setSite(newSite);
-
-                //override site, creationDate and published
-                page.setSite(newSite);
-                page.setCreationDate(section.getCreationDate());
-                page.setPublished(Optional.ofNullable(section.getEnabled()).orElse(true) && section.isVisible()); //FIXME enabled is generally not used, remove?
-
-                //translate any items the page has into posts:
-
-                final User pageCreator = page.getCreatedBy();
-                section.getOrderedChildItems().stream().filter(hasName.and(hasBody)).forEach(item -> {
-                    Post post = new Post();
-
-                    post.setSite(newSite);
-                    post.setName(localized(item.getName()));
-                    post.setBody(localized(item.getBody()));
-                    //FIXME could item.getGroup().getMembers(section.getCreationDate()).iterator().next() work in some cases? Should i use it with pages and sections?
-                    post.setCreatedBy(pageCreator);
-                    post.setCreationDate(section.getCreationDate() != null ? section.getCreationDate() : new DateTime()); //FIXME section.getCreationDate() may be null!
-                    post.addCategories(category);
-                    post.setActive(Optional.ofNullable(item.getEnabled()).orElse(true) && item.getVisible()); //FIXME enabled is generally not used, remove?
-                });
-                parent = MenuItem.create(menu, page, localized(section.getName()), parent);
+                page = pageTemplate.buildPage(section, newSite);
             }
-        } else {
-            parent = MenuItem.create(menu, null, localized(section.getName()), parent);
         }
-        final MenuItem newParent = parent;
+        if (menu != null) {
+            newParent = MenuItem.create(menu, page, localized(section.getName()), parent);
+        } else {
+            newParent = parent;
+        }
         section.getOrderedSubSections().forEach(subsection -> migrateSection(subsection, menu, newParent));
 
-        /* important section stuff to migrate
-            section.getOrderedChildItems();
-            section.getOrderedSubSections();            // check
-            section.getName();                          // check
-            section.getVisible();                       // check
-            section.getCreationDate();                  // check
-            // ????? //section.getEnabled();            // check - see fixme
-            // later //section.getSortedFiles();
-            // ????? //section.getModificationDate();
-            // ????? //section.getGroup();
-            // ????? //section.getPermittedGroup();
-         */
     }
 
-    private List<Section> selectSideMenuSections(net.sourceforge.fenixedu.domain.Site site) {
+    private static List<Section> selectSideMenuSections(net.sourceforge.fenixedu.domain.Site site) {
         //children of top level Side Menu sections and top level sections that are neither Top nor Side Menu sections. The original Side Menu section is in first place.
         List<Section> sideMenuSections = Lists.newArrayList();
         sideMenuSections.add(null);
@@ -232,7 +261,7 @@ public abstract class MigrationTask extends CustomTask {
         return sideMenuSections;
     }
 
-    private List<Section> selectTopMenuSections(net.sourceforge.fenixedu.domain.Site site) {
+    private static List<Section> selectTopMenuSections(net.sourceforge.fenixedu.domain.Site site) {
         //children of top level Top Menu sections. The original Top Menu section is in first place.
         List<Section> topMenuSections = Lists.newArrayList();
         topMenuSections.add(null);
@@ -246,15 +275,15 @@ public abstract class MigrationTask extends CustomTask {
         return topMenuSections;
     }
 
-    private boolean isTopSection(Section section) {
+    private static boolean isTopSection(Section section) {
         return section.getName().getAllContents().stream().anyMatch(matchesTop);
     }
 
-    private boolean isSideSection(Section section) {
+    private static boolean isSideSection(Section section) {
         return section.getName().getAllContents().stream().anyMatch(matchesSide);
     }
 
-    private boolean isTemplatedSection(Section section) {
+    private static boolean isTemplatedSection(Section section) {
         return section instanceof TemplatedSection || section instanceof TemplatedSectionInstance;
     }
 
@@ -267,8 +296,15 @@ public abstract class MigrationTask extends CustomTask {
         return null;
     }
 
-//TODO Check if the following methods can go somewhere else since they're not strictly related with migration
-    protected LocalizedString localizedStr(String str) {
+    private static String getSectionPath(Section section) {
+        if (isTemplatedSection(section)) {
+            return getTemplatedSection(section).getCustomPath();
+        }
+        return section.getFullPath();
+    }
+
+    //TODO Check if the following methods can go somewhere else since they're not strictly related with migration
+    protected static LocalizedString localizedStr(String str) {
         LocalizedString result = new LocalizedString();
         if (!Strings.isNullOrEmpty(str)) {
             for (Locale locale : CoreConfiguration.supportedLocales()) {
@@ -278,7 +314,7 @@ public abstract class MigrationTask extends CustomTask {
         return result;
     }
 
-    protected LocalizedString localized(MultiLanguageString mls) {
+    protected static LocalizedString localized(MultiLanguageString mls) {
         return mls != null ? mls.toLocalizedString() : new LocalizedString();
     }
 }

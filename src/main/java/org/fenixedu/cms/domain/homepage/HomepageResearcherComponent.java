@@ -17,12 +17,20 @@ public class HomepageResearcherComponent extends HomepageResearcherComponent_Bas
     public HomepageResearcherComponent(String titleKey, String dataKey) {
         setTitleKey(titleKey);
         setDataKey(dataKey);
+        setTitleBundle("resources.ResearcherResources");
+    }
+
+    public HomepageResearcherComponent(String titleKey, String titleBundle, String dataKey) {
+        setTitleKey(titleKey);
+        setDataKey(dataKey);
+        setTitleBundle(titleBundle);
     }
 
     @Override
     public void handle(Page page, HttpServletRequest req, TemplateContext local, TemplateContext global) {
         Homepage homepage = homepage(page.getSite());
         if (homepage != null) {
+            global.put("bundle", getTitleBundle());
             global.put("researcher", homepage.getPerson().getUsername());
             global.put("sotisUrl", "https://sotis.tecnico.ulisboa.pt"); //FIXME get real configuration property when available
             global.put("language", I18N.getLocale().toLanguageTag());
