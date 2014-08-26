@@ -35,7 +35,6 @@ import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
 public class CreateExecutionCourseSite extends MigrationTask {
     private static final Set<String> siteSlugs = Sets.newHashSet();
     private static final String BUNDLE = "resources.FenixEduCMSResources";
-    private static final Logger log = LoggerFactory.getLogger(CreateExecutionCourseSite.class);
 
     private static final LocalizedString ANNOUNCEMENTS = getLocalizedString(BUNDLE, "label.announcement");
     private static final int TRANSACTION_SIZE = 100;
@@ -48,12 +47,15 @@ public class CreateExecutionCourseSite extends MigrationTask {
         Iterable<net.sourceforge.fenixedu.domain.ExecutionCourseSite> oldSites = Iterables.filter(sites, net.sourceforge.fenixedu.domain.ExecutionCourseSite.class);
         Iterable<List<net.sourceforge.fenixedu.domain.ExecutionCourseSite>> oldSitesChunks = Iterables.partition(oldSites, TRANSACTION_SIZE);
 
+        getLogger().info("creating sites for chunks " + Sets.newHashSet(oldSitesChunks).size());
+
         for(List<net.sourceforge.fenixedu.domain.ExecutionCourseSite> chunk : oldSitesChunks) {
             FenixFramework.atomic(()->create(chunk));
         }
     }
 
     private void create(List<net.sourceforge.fenixedu.domain.ExecutionCourseSite> oldSites) {
+        getLogger().info("creating for sites " + oldSites.size());
         oldSites.stream().filter(oldSite->oldSite.getSiteExecutionCourse()!=null).forEach(oldSite->create(oldSite));
     }
 
@@ -68,7 +70,7 @@ public class CreateExecutionCourseSite extends MigrationTask {
 
     @Atomic
     public void create(net.sourceforge.fenixedu.domain.ExecutionCourseSite oldSite) {
-        log.info("{ number: " + siteSlugs.size() + ", oldPath: " + oldSite.getReversePath() + " }");
+        getLogger().info("{ number: " + siteSlugs.size() + ", oldPath: " + oldSite.getReversePath() + " }");
 
         ExecutionCourse executionCourse = oldSite.getExecutionCourse();
 

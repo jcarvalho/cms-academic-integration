@@ -36,8 +36,6 @@ import com.google.common.collect.Lists;
 
 public abstract class MigrationTask extends CustomTask {
 
-    private static final Logger log = LoggerFactory.getLogger(MigrationTask.class);
-
     private static final LocalizedString TOP_MENU = getLocalizedString("resources.FenixEduCMSResources", "label.topMenu");
     public static final LocalizedString MENU = getLocalizedString("resources.FenixEduCMSResources", "label.menu");
 
@@ -48,8 +46,6 @@ public abstract class MigrationTask extends CustomTask {
     public Menu sideMenu;
 
     public void createStaticPages(Site newSite, MenuItem menuItemParent, net.sourceforge.fenixedu.domain.Site oldSite) {
-        log.info("creating static pages for site " + newSite.getSlug());
-
         List<Section> topMenuSections = topMenuSections(oldSite.getOrderedSections());
         List<Section> sideMenuSections = sideMenuSections(oldSite.getOrderedSections());
 
@@ -152,8 +148,9 @@ public abstract class MigrationTask extends CustomTask {
     }
 
     public void deleteAllSites() {
-        log.info("removing all sites..");
+        getLogger().info("removing all sites..");
         for (Site site : Bennu.getInstance().getSitesSet()) {
+            getLogger().info("removing site " + site.getExternalId() + " - " + site.getSlug());
             site.delete();
         }
     }
