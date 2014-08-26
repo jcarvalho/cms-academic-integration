@@ -10,6 +10,7 @@ import net.sourceforge.fenixedu.domain.ExecutionSemester;
 
 import org.fenixedu.bennu.cms.domain.Site;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 import pt.ist.fenixframework.Atomic;
@@ -54,6 +55,6 @@ public class ExecutionCourseSite extends ExecutionCourseSite_Base {
         String acronym = getExecutionCourse().getSigla();
         Integer semester = executionSemester.getSemester();
         String executionYear = executionSemester.getExecutionYear().getYear().replace('/', '-');
-        return Site.slugify(String.format("%s-%s-%d-semestre", acronym, executionYear, semester));
+        return StringNormalizer.slugify(String.format("%s-%s-%d-semestre", acronym, executionYear, semester));
     }
 }
