@@ -74,7 +74,12 @@ public class SummaryListener {
 
         Space room = summary.getRoom();
         if(room != null) {
-            post.addCategories(site.categoryForSlug("summary-room-" + room.getExternalId(), makeLocalized(room.getName())));
+            try {
+                post.addCategories(site.categoryForSlug("summary-room-" + room.getExternalId(), makeLocalized(room.getName())));
+            } catch(Exception  e){
+                e.printStackTrace();
+                //continue without a room category
+            }
         }
 
     }
