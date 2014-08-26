@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.FenixFramework;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -37,30 +38,27 @@ public class CreateExecutionCourseSite extends MigrationTask {
     private static final Logger log = LoggerFactory.getLogger(CreateExecutionCourseSite.class);
 
     private static final LocalizedString ANNOUNCEMENTS = getLocalizedString(BUNDLE, "label.announcement");
+    private static final int TRANSACTION_SIZE = 100;
 
     @Override
     public void runTask() throws Exception {
-        DateTime start = new DateTime();
-        deleteAllSites();
+        FenixFramework.atomic(() -> deleteAllSites());
+
         Set<Site> sites = Bennu.getInstance().getSiteSet();
-        Set<net.sourceforge.fenixedu.domain.ExecutionCourseSite> oldSites = Sets.newHashSet(Iterables.filter(sites, net.sourceforge.fenixedu.domain.ExecutionCourseSite.class));
+        Iterable<net.sourceforge.fenixedu.domain.ExecutionCourseSite> oldSites = Iterables.filter(sites, net.sourceforge.fenixedu.domain.ExecutionCourseSite.class);
+        Iterable<List<net.sourceforge.fenixedu.domain.ExecutionCourseSite>> oldSitesChunks = Iterables.partition(oldSites, TRANSACTION_SIZE);
 
-        oldSites.stream().forEach(s -> createExecutionCourseSite(s));
-        DateTime end = new DateTime();
+        for(List<net.sourceforge.fenixedu.domain.ExecutionCourseSite> chunk : oldSitesChunks) {
+            FenixFramework.atomic(()->create(chunk));
+        }
+    }
 
+    private void create(List<net.sourceforge.fenixedu.domain.ExecutionCourseSite> oldSites) {
+        oldSites.stream().filter(oldSite->oldSite.getSiteExecutionCourse()!=null).forEach(oldSite->create(oldSite));
+    }
 
-        log.info("[ duration: " + Hours.hoursBetween(start, end) + "hours, " + Minutes.minutesBetween(start, end) + "minutes, "
-                + Seconds.secondsBetween(start, end) + " ]");
-        /*
-        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612946319"));
-        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612917134"));
-        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612898443"));
-        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612875684"));
-        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612846760"));
-        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612818202"));
-        createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612802249"));
-         */
-
+    @Override public Atomic.TxMode getTxMode() {
+        return Atomic.TxMode.READ;
     }
 
     private net.sourceforge.fenixedu.domain.ExecutionCourseSite oldExecutionCourseSiteByExecutionCourse(String externalId) {
@@ -69,7 +67,7 @@ public class CreateExecutionCourseSite extends MigrationTask {
     }
 
     @Atomic
-    public void createExecutionCourseSite(net.sourceforge.fenixedu.domain.ExecutionCourseSite oldSite) {
+    public void create(net.sourceforge.fenixedu.domain.ExecutionCourseSite oldSite) {
         log.info("{ number: " + siteSlugs.size() + ", oldPath: " + oldSite.getReversePath() + " }");
 
         ExecutionCourse executionCourse = oldSite.getExecutionCourse();
