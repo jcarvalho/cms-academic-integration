@@ -5,7 +5,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import net.sourceforge.fenixedu.domain.ExecutionCourse;
-import net.sourceforge.fenixedu.domain.Site;
 import net.sourceforge.fenixedu.domain.messaging.Announcement;
 import org.fenixedu.bennu.cms.domain.CMSTheme;
 import org.fenixedu.bennu.cms.domain.Post;
@@ -16,12 +15,6 @@ import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.cms.domain.MigrationTask;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.spaces.domain.Space;
-import org.joda.time.DateTime;
-import org.joda.time.Hours;
-import org.joda.time.Minutes;
-import org.joda.time.Seconds;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.FenixFramework;
 
@@ -35,19 +28,29 @@ import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
 public class CreateExecutionCourseSite extends MigrationTask {
     private static final Set<String> siteSlugs = Sets.newHashSet();
     private static final String BUNDLE = "resources.FenixEduCMSResources";
-
     private static final LocalizedString ANNOUNCEMENTS = getLocalizedString(BUNDLE, "label.announcement");
     private static final int TRANSACTION_SIZE = 100;
 
     @Override
     public void runTask() throws Exception {
-        FenixFramework.atomic(() -> deleteAllSites());
+        //delete existing sites
+        Set<org.fenixedu.bennu.cms.domain.Site> allSites = Bennu.getInstance().getSitesSet();
+        Iterable<List<org.fenixedu.bennu.cms.domain.Site>> sitesChunks = Iterables.partition(allSites, 100);
+        getLogger().info("removing all sites..");
+        for(List<org.fenixedu.bennu.cms.domain.Site> siteChunk : sitesChunks) {
+            getLogger().info("removing sites " + siteChunk.size());
+            FenixFramework.atomic(()->siteChunk.stream().forEach(s->s.delete()));
+        }
 
-        Set<Site> sites = Bennu.getInstance().getSiteSet();
+        //create execution course sites
+        Set<net.sourceforge.fenixedu.domain.Site> sites = Bennu.getInstance().getSiteSet();
+        getLogger().info("existing sites " + sites.size());
+
         Iterable<net.sourceforge.fenixedu.domain.ExecutionCourseSite> oldSites = Iterables.filter(sites, net.sourceforge.fenixedu.domain.ExecutionCourseSite.class);
-        Iterable<List<net.sourceforge.fenixedu.domain.ExecutionCourseSite>> oldSitesChunks = Iterables.partition(oldSites, TRANSACTION_SIZE);
+        getLogger().info("starting migration of " + Iterables.size(oldSites) + " execution course sites.");
 
-        getLogger().info("creating sites for chunks " + Sets.newHashSet(oldSitesChunks).size());
+        Iterable<List<net.sourceforge.fenixedu.domain.ExecutionCourseSite>> oldSitesChunks = Iterables.partition(oldSites, TRANSACTION_SIZE);
+        getLogger().info("creating sites for " + +Iterables.size(oldSitesChunks) + " chunks.");
 
         for(List<net.sourceforge.fenixedu.domain.ExecutionCourseSite> chunk : oldSitesChunks) {
             FenixFramework.atomic(()->create(chunk));

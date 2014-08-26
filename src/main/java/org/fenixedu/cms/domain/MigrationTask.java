@@ -46,7 +46,7 @@ public abstract class MigrationTask extends CustomTask {
     public Menu sideMenu;
 
     public void createStaticPages(Site newSite, MenuItem menuItemParent, net.sourceforge.fenixedu.domain.Site oldSite) {
-        List<Section> topMenuSections = topMenuSections(oldSite.getOrderedSections());
+            List<Section> topMenuSections = topMenuSections(oldSite.getOrderedSections());
         List<Section> sideMenuSections = sideMenuSections(oldSite.getOrderedSections());
 
         topMenu = new Menu(newSite, TOP_MENU);
