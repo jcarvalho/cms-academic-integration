@@ -10,6 +10,8 @@ import org.fenixedu.bennu.cms.domain.CMSTheme;
 import org.fenixedu.bennu.cms.domain.Post;
 import org.fenixedu.bennu.cms.routing.CMSBackend;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.domain.User;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.portal.domain.MenuFunctionality;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.cms.domain.MigrationTask;
@@ -116,8 +118,7 @@ public class CreateExecutionCourseSite extends MigrationTask {
             if (hasSubject && hasBody) {
                 Post post = new Post();
                 post.setSite(site);
-
-                post.setCreatedBy(announcement.getCreator() != null ? announcement.getCreator().getUser() : null);
+                post.setCreatedBy(announcement.getCreator() != null ? announcement.getCreator().getUser() : Authenticate.getUser());
                 post.setCreationDate(announcement.getCreationDate());
                 post.setBody(localized(announcement.getBody()));
                 post.setName(localized(announcement.getSubject()));
