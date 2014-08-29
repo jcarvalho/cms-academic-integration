@@ -28,8 +28,6 @@ import java.util.UUID;
 import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
 
 public class CreateExecutionCourseSite extends MigrationTask {
-    private static final Set<String> siteSlugs = Sets.newHashSet();
-    private static final String BUNDLE = "resources.FenixEduCMSResources";
     private static final LocalizedString ANNOUNCEMENTS = getLocalizedString(BUNDLE, "label.announcement");
     private static final int TRANSACTION_SIZE = 100;
 
@@ -84,7 +82,7 @@ public class CreateExecutionCourseSite extends MigrationTask {
         newSite.setPublished(true);
         newSite.setDescription(localized(oldSite.getDescription()));
         newSite.setName(executionCourse.getNameI18N().toLocalizedString());
-        newSite.setSlug(createSlug(oldSite.getReversePath()));
+        newSite.setSlug(createSlug(oldSite));
         newSite.setBennu(Bennu.getInstance());
         newSite.setAlternativeSite(oldSite.getAlternativeSite());
         newSite.setStyle(oldSite.getStyle());
@@ -94,21 +92,11 @@ public class CreateExecutionCourseSite extends MigrationTask {
 
         createStaticPages(newSite, null, oldSite);
 
-        //migrateSummaries(newSite);
-        migrateAnnouncements(newSite);
+        migrateSummaries(newSite);
+        //migrateAnnouncements(newSite);
 
         ExecutionCourseListener.createDynamicPages(newSite, sideMenu);
         createMenuComponents(newSite);
-    }
-
-    private String createSlug(String oldPath) {
-        String newSlug = oldPath.substring(1).replace("/", "-");
-        while (siteSlugs.contains(newSlug)) {
-            String randomSlug = UUID.randomUUID().toString().substring(0, 3);
-            newSlug = Joiner.on("-").join(newSlug, randomSlug);
-        }
-        siteSlugs.add(newSlug);
-        return newSlug;
     }
 
     private void migrateAnnouncements(ExecutionCourseSite site) {

@@ -5,6 +5,7 @@ import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
 import java.util.Locale;
 import java.util.Optional;
 
+import com.google.common.base.Strings;
 import net.sourceforge.fenixedu.domain.*;
 
 import org.fenixedu.bennu.cms.domain.Post;
@@ -73,15 +74,20 @@ public class SummaryListener {
         }
 
         Space room = summary.getRoom();
-        if(room != null) {
-            try {
-                post.addCategories(site.categoryForSlug("summary-room-" + room.getExternalId(), makeLocalized(room.getName())));
-            } catch(Exception  e){
-                e.printStackTrace();
-                //continue without a room category
-            }
+        Optional<LocalizedString> roomName = tryGetRoomName(room);
+        if(roomName.isPresent()) {
+            post.addCategories(site.categoryForSlug("summary-room-" + room.getExternalId(), roomName.get()));
         }
 
+    }
+
+    private static Optional<LocalizedString> tryGetRoomName(Space room) {
+        try {
+            if(room!=null && !Strings.isNullOrEmpty(room.getName())) {
+                return Optional.of(makeLocalized(room.getName()));
+            }
+        } catch(Exception e) {}
+        return Optional.empty();
     }
 
     private static LocalizedString makeLocalized(String value) {
