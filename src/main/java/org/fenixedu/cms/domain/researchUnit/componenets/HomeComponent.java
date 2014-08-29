@@ -12,7 +12,7 @@ public class HomeComponent extends HomeComponent_Base {
 
     private static final long NUM_POSTS = 5;
 
-    @Override public void handle(Page page, HttpServletRequest req, TemplateContext componentContext,
+    @Override public void handle(Page page, TemplateContext componentContext,
             TemplateContext global){
         global.put("announcements", postsForCategory(page.getSite().categoryForSlug("announcement")));
         global.put("events", postsForCategory(page.getSite().categoryForSlug("events")));

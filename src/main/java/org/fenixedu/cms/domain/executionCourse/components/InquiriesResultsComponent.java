@@ -20,24 +20,23 @@ import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
 public class InquiriesResultsComponent extends InquiriesResultsComponent_Base {
 
     @Override
-    public void handle(Page page, HttpServletRequest req, TemplateContext componentContext, TemplateContext globalContext) {
-        ExecutionCourse executionCourse = ((ExecutionCourseSite) page.getSite()).getExecutionCourse();
+    public void handle(Page page, TemplateContext componentContext, TemplateContext globalContext) {        ExecutionCourse executionCourse = ((ExecutionCourseSite) page.getSite()).getExecutionCourse();
         InquirieResultsBean bean = new InquirieResultsBean(executionCourse);
         globalContext.put("hasAccess", Authenticate.isLogged() && Authenticate.getUser().getPerson() != null);
         globalContext.put("institutionAcronym", Unit.getInstitutionAcronym());
         globalContext.put("notAvailableMessage", notAvailableMessage(bean));
         globalContext.put("executionCourse", executionCourse);
         globalContext.put("inquiriesResultsBean", bean);
-        globalContext.put("loginUrl", loginUrl(req));
+        globalContext.put("loginUrl", loginUrl());
     }
 
     private String notAvailableMessage(InquirieResultsBean bean) {
         return Optional.ofNullable(bean.getNewQucIsNotAvailableMessage()).orElseGet(() -> bean.getOldQucIsNotAvailableMessage());
     }
     
-    private String loginUrl(HttpServletRequest request) {
+    private String loginUrl() {
         if (CoreConfiguration.casConfig().isCasEnabled()) {
-            return CoreConfiguration.casConfig().getCasLoginUrl(request);
+            return CoreConfiguration.casConfig().getCasLoginUrl();
         } else {
             return FenixConfigurationManager.getConfiguration().getLoginPage();
         }

@@ -21,8 +21,7 @@ import com.google.common.collect.Lists;
 public class BibliographicReferencesComponent extends BibliographicReferencesComponent_Base {
 
     @Override
-    public void handle(Page page, HttpServletRequest req, TemplateContext componentContext, TemplateContext globalContext) {
-        ExecutionCourse executionCourse = ((ExecutionCourseSite) page.getSite()).getExecutionCourse();
+    public void handle(Page page, TemplateContext componentContext, TemplateContext globalContext) {        ExecutionCourse executionCourse = ((ExecutionCourseSite) page.getSite()).getExecutionCourse();
         globalContext.put("executionCourse", executionCourse);
         globalContext.put("mainReferences", mainReferences(executionCourse));
         globalContext.put("secundaryReferences", secundaryReferences(executionCourse));

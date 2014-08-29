@@ -34,7 +34,7 @@ public class ScheduleComponent extends ScheduleComponent_Base {
     private static final int MIN_HOUR = 8;
 
     @Override
-    public void handle(Page page, HttpServletRequest req, TemplateContext componentContext, TemplateContext globalContext) {
+    public void handle(Page page, TemplateContext componentContext, TemplateContext globalContext) {
         ExecutionCourse executionCourse = ((ExecutionCourseSite) page.getSite()).getExecutionCourse();
         boolean hasPermissionToViewSchedule = hasPermissionToViewSchedule(executionCourse);
 

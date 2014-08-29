@@ -13,8 +13,7 @@ import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
 public class EvaluationMethodsComponent extends EvaluationMethodsComponent_Base {
 
     @Override
-    public void handle(Page page, HttpServletRequest req, TemplateContext componentContext, TemplateContext globalContext) {
-        ExecutionCourse executionCourse = ((ExecutionCourseSite) page.getSite()).getExecutionCourse();
+    public void handle(Page page, TemplateContext componentContext, TemplateContext globalContext) {        ExecutionCourse executionCourse = ((ExecutionCourseSite) page.getSite()).getExecutionCourse();
         globalContext.put("evaluationMethod", executionCourse.getEvaluationMethod());
         globalContext.put("evaluationMethodText", executionCourse.getEvaluationMethodText());
     }

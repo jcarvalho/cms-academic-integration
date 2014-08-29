@@ -17,8 +17,7 @@ public class InitialPageComponent extends InitialPageComponent_Base {
     public final static int ANNOUNCEMENTS_TO_SHOW = 5;
 
     @Override
-    public void handle(Page page, HttpServletRequest req, TemplateContext componentContext, TemplateContext globalContext) {
-        ExecutionCourse executionCourse = ((ExecutionCourseSite) page.getSite()).getExecutionCourse();
+    public void handle(Page page, TemplateContext componentContext, TemplateContext globalContext) {        ExecutionCourse executionCourse = ((ExecutionCourseSite) page.getSite()).getExecutionCourse();
         globalContext.put("professorships", executionCourse.getProfessorshipsSortedAlphabetically());
         globalContext.put("isStudent", isStudent(Authenticate.getUser()));
         globalContext.put("executionCourse", executionCourse);

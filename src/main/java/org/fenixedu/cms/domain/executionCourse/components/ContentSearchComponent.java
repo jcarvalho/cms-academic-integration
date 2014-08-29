@@ -9,6 +9,5 @@ import org.fenixedu.bennu.cms.rendering.TemplateContext;
 @ComponentType(type = "contentSearch", name = "ContentSearch", description = "Search content of an Execution Course")
 public class ContentSearchComponent extends ContentSearchComponent_Base {
     @Override
-    public void handle(Page page, HttpServletRequest req, TemplateContext componentContext, TemplateContext globalContext) {
-    }
+    public void handle(Page page, TemplateContext componentContext, TemplateContext globalContext) {    }
 }

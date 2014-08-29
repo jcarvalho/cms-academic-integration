@@ -22,11 +22,11 @@ import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
 public class ObjectivesComponent extends ObjectivesComponent_Base {
     
     @Override
-    public void handle(Page page, HttpServletRequest req, TemplateContext local, TemplateContext global) {
+    public void handle(Page page, TemplateContext componentContext, TemplateContext globalContext) {
         ExecutionCourse executionCourse = ((ExecutionCourseSite) page.getSite()).getExecutionCourse();
-        global.put("executionPeriod", executionCourse.getExecutionPeriod());
-        global.put("competenceCourseBeans", CompetenceCourseBean.approvedCompetenceCourses(executionCourse));
-        global.put("curriculumByCurricularCourse", curriculumsByCurricularCourses(executionCourse));
+        globalContext.put("executionPeriod", executionCourse.getExecutionPeriod());
+        globalContext.put("competenceCourseBeans", CompetenceCourseBean.approvedCompetenceCourses(executionCourse));
+        globalContext.put("curriculumByCurricularCourse", curriculumsByCurricularCourses(executionCourse));
     }
 
     private Map<CurricularCourse, Curriculum> curriculumsByCurricularCourses(ExecutionCourse executionCourse) {

@@ -13,8 +13,7 @@ import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
 public class GroupsComponent extends GroupsComponent_Base {
 
     @Override
-    public void handle(Page page, HttpServletRequest req, TemplateContext componentContext, TemplateContext globalContext) {
-        ExecutionCourse executionCourse = ((ExecutionCourseSite) page.getSite()).getExecutionCourse();
+    public void handle(Page page, TemplateContext componentContext, TemplateContext globalContext) {        ExecutionCourse executionCourse = ((ExecutionCourseSite) page.getSite()).getExecutionCourse();
         globalContext.put("groupings", executionCourse.getGroupings());
     }
     

@@ -13,7 +13,7 @@ import org.fenixedu.cms.domain.researchUnit.ResearchUnitSite;
 public class ResearchUnitComponent extends ResearchUnitComponent_Base {
 
     @Override
-    public void handle(Page page, HttpServletRequest req, TemplateContext componentContext, TemplateContext globalContext) {
+    public void handle(Page page, TemplateContext componentContext, TemplateContext globalContext) {
         ResearchUnit researchUnit = ((ResearchUnitSite) page.getSite()).getResearchUnit();
         componentContext.put("researchUnit", researchUnit);
         globalContext.put("researchUnit", researchUnit);

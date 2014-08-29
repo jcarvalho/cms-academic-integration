@@ -30,7 +30,7 @@ import org.fenixedu.bennu.core.security.Authenticate;
 public class HomepagePresentationComponent extends HomepagePresentationComponent_Base {
 
     @Override
-    public void handle(Page page, HttpServletRequest req, TemplateContext local, TemplateContext global) {
+    public void handle(Page page, TemplateContext local, TemplateContext global) {
         Homepage homepage = homepage(page.getSite());
         if (homepage == null || !homepage.isHomepageActivated()) {
             return; //TODO we might want 404 here

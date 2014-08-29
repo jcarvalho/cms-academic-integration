@@ -18,7 +18,7 @@ import static java.util.stream.Collectors.*;
 public class Organization extends Organization_Base {
 
     @Override
-    public void handle(Page page, HttpServletRequest req, TemplateContext componentContext, TemplateContext globalContext) {
+    public void handle(Page page, TemplateContext componentContext, TemplateContext globalContext) {
         ResearchUnit researchUnit = ((ResearchUnitSite) page.getSite()).getResearchUnit();
         globalContext.put("unitBean", new UnitFunctionsBean(researchUnit));
     }

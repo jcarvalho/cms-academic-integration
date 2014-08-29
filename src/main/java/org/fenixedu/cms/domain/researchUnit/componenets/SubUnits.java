@@ -19,7 +19,7 @@ import org.fenixedu.cms.domain.researchUnit.ResearchUnitSite;
 public class SubUnits extends SubUnits_Base {
 
     @Override
-    public void handle(Page page, HttpServletRequest req, TemplateContext componentContext, TemplateContext globalContext) {
+    public void handle(Page page, TemplateContext componentContext, TemplateContext globalContext) {
         ResearchUnit unit = ((ResearchUnitSite) page.getSite()).getResearchUnit();
         globalContext.put("subunits", subUnitsWithSite(unit));
     }

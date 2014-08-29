@@ -19,7 +19,7 @@ import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
 public class MarksComponent extends MarksComponent_Base {
 
     @Override
-    public void handle(Page page, HttpServletRequest req, TemplateContext componentContext, TemplateContext globalContext) {
+    public void handle(Page page, TemplateContext componentContext, TemplateContext globalContext) {
         ExecutionCourse executionCourse = ((ExecutionCourseSite) page.getSite()).getExecutionCourse();
         Map<Attends, Map<Evaluation, Mark>> attendsMap = attendsMap(executionCourse);
         globalContext.put("attendsMap", attendsMap);
