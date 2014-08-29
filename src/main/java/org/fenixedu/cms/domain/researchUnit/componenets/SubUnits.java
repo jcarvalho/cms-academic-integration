@@ -5,6 +5,7 @@ import net.sourceforge.fenixedu.domain.organizationalStructure.Unit;
 import org.fenixedu.bennu.cms.domain.Page;
 import org.fenixedu.bennu.cms.domain.component.ComponentType;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
+import org.fenixedu.cms.domain.department.DepartmentSite;
 import org.fenixedu.cms.domain.researchUnit.ResearchUnitSite;
 
 import java.util.List;
@@ -17,7 +18,13 @@ public class SubUnits extends SubUnits_Base {
 
     @Override
     public void handle(Page page, TemplateContext componentContext, TemplateContext globalContext) {
-        ResearchUnit unit = ((ResearchUnitSite) page.getSite()).getResearchUnit();
+        //temporary hack until unit sites refactorization!!!
+        Unit unit = null;
+        if(page.getSite() instanceof ResearchUnitSite) {
+            unit = ((ResearchUnitSite) page.getSite()).getResearchUnit();
+        } else if(page.getSite() instanceof DepartmentSite) {
+            unit = ((DepartmentSite) page.getSite()).getDepartment().getDepartmentUnit();
+        }
         globalContext.put("subunits", subUnitsWithSite(unit));
     }
 

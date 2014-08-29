@@ -1,5 +1,15 @@
 package org.fenixedu.cms.domain;
 
+class department.DepartmentSite extends .org.fenixedu.bennu.cms.domain.Site {}
+class department.componenets.DepartmentHomepage extends .org.fenixedu.bennu.cms.domain.component.Component  {}
+class department.componenets.DepartmentTeachers extends .org.fenixedu.bennu.cms.domain.component.Component  {}
+class department.componenets.DepartmentEmployees extends .org.fenixedu.bennu.cms.domain.component.Component  {}
+class department.componenets.DepartmentDegrees extends .org.fenixedu.bennu.cms.domain.component.Component  {}
+class department.componenets.DepartmentTheses extends .org.fenixedu.bennu.cms.domain.component.Component  {}
+class department.componenets.DepartmentPublications extends .org.fenixedu.bennu.cms.domain.component.Component  {}
+class department.componenets.DepartmentCourses extends .org.fenixedu.bennu.cms.domain.component.Component  {}
+
+
 class researchUnit.ResearchUnitSite extends .org.fenixedu.bennu.cms.domain.Site {}
 class researchUnit.componenets.ResearchUnitComponent extends .org.fenixedu.bennu.cms.domain.component.Component  {}
 class researchUnit.componenets.SubUnits extends .org.fenixedu.bennu.cms.domain.component.Component  {}
@@ -44,4 +54,10 @@ class homepage.HomepageResearcherComponent extends .org.fenixedu.bennu.cms.domai
 relation HomepageFenixEduHomepageSite {
 	homepage.HomepageSite playsRole cmsSite;
 	.net.sourceforge.fenixedu.domain.homepage.Homepage playsRole homepage;
+}
+
+
+relation DepartmentSiteHasDepartment {
+    department.DepartmentSite playsRole cmsSite;
+    .net.sourceforge.fenixedu.domain.Department playsRole department;
 }
