@@ -6,25 +6,28 @@
 	
 	<h4>{{ unitBean.unit.name }}</h4>
 
-	{% for entry in entries(unitBean.personFunctionsByFunction) %}
-		{% set function = entry.key %}
-		{% set personsFunctions = entry.value %}
-		
-		{% if personsFunctions is not empty %}
-			<h5 class="persons-title">{{ function.typeName.content }}</h5>
-			{% for personFunction in personsFunctions %}
-				<li class="person-card-item">
-					{{ personCard(personFunction.person, staticDir) }}
-					<hr>
-				</li>
-			{% endfor %}
-		{% endif %}
-	{% endfor %}
+    {% if entries(unitBean.personFunctionsByFunction) is empty and unitBean.subunitBeans is empty %}
+        <p>{{ i18n('resources.FenixEduCMSResources', 'researchUnit.organization.empty') }}</p>
+    {% else %}
+        {% for entry in entries(unitBean.personFunctionsByFunction) %}
+            {% set function = entry.key %}
+            {% set personsFunctions = entry.value %}
 
-	{% for subUnitBean in unitBean.subunitBeans %}
-		<div class="subUnits">{{ unitOrganization(subUnitBean) }}</div>
-	{% endfor %}
+            {% if personsFunctions is not empty %}
+                <h5 class="persons-title">{{ function.typeName.content }}</h5>
+                {% for personFunction in personsFunctions %}
+                    <li class="person-card-item">
+                        {{ personCard(personFunction.person, staticDir) }}
+                        <hr>
+                    </li>
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
 
+        {% for subUnitBean in unitBean.subunitBeans %}
+            <div class="subUnits">{{ unitOrganization(subUnitBean) }}</div>
+        {% endfor %}
+    {% endif %}
 {% endmacro %}
 
 {% block content %}

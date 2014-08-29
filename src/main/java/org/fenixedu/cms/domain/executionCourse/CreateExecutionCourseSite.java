@@ -95,7 +95,7 @@ public class CreateExecutionCourseSite extends MigrationTask {
         createStaticPages(newSite, null, oldSite);
 
         //migrateSummaries(newSite);
-        //migrateAnnouncements(newSite);
+        migrateAnnouncements(newSite);
 
         ExecutionCourseListener.createDynamicPages(newSite, sideMenu);
         createMenuComponents(newSite);

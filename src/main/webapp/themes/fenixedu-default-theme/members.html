@@ -5,16 +5,20 @@
 {% block content %}
 
 	{% macro researchUnitMembers(unit, staticDir) %}
-		{{ personsCards(unit.researchers, i18n('resources.SiteResources', 'label.researchers'), staticDir) }}
+        {% if unit.researchers is empty and unit.technicalStaff is empty and unit.internships is empty and unit.scholarships is empty %}
+            <p>{{ i18n('resources.FenixEduCMSResources', 'researchUnit.members.empty') }}</p>
+        {% else %}
+            {{ personsCards(unit.researchers, i18n('resources.SiteResources', 'label.researchers'), staticDir) }}
 
-		{{ personsCards(unit.technicalStaff, i18n('resources.SiteResources', 'label.technicalStaff'), staticDir) }}
+            {{ personsCards(unit.technicalStaff, i18n('resources.SiteResources', 'label.technicalStaff'), staticDir) }}
 
-		{{ personsCards(unit.internships, i18n('resources.SiteResources', 'label.internship'), staticDir) }}
+            {{ personsCards(unit.internships, i18n('resources.SiteResources', 'label.internship'), staticDir) }}
 
-		{{ personsCards(unit.scholarships, i18n('resources.SiteResources', 'label.scholarship'), staticDir) }}
+            {{ personsCards(unit.scholarships, i18n('resources.SiteResources', 'label.scholarship'), staticDir) }}
+        {% endif %}
 	{% endmacro %}
 
-	<h3>{{ researchUnit.nameWithAcronym }}</h3>
+	<h4>{{ researchUnit.nameWithAcronym }}</h4>
 
 	<div>{{ researchUnitMembers(researchUnit, staticDir) }}</div>
 
@@ -22,7 +26,7 @@
 		{% for unit in researchUnit.allCurrentActiveSubUnits %}
 			{% if unit.researchUnit %}
 				{% set unitUrl = unit.cmsSite.initialPage is not empty ? 'unit.cmsSite.initialPage.pageAddress' : '#'%}
-				<a href="{{ unitUrl }}">{{ unit }}</a>
+				<h4><a href="{{ unitUrl }}">{{ unit.nameWithAcronym }}</a></h4>
 				
 				{% if unit.siteAvailable %}
 					{{ researchUnitMembers(unit, staticDir) }}		

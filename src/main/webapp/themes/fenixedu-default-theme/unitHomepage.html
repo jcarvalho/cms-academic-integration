@@ -11,17 +11,19 @@
 
 	<br />
 
-	<blockquote>
-		{% for event in events %}
-			{{ viewPost(event) }}
-			<hr>
-		{% endfor %}
+    {% if events is not empty %}
+        <blockquote>
+            {% for event in events %}
+                {{ viewPost(event) }}
+                <hr>
+            {% endfor %}
 
-		{% for announcement in announcements %}
-			<p>{{ viewPost(announcement) }}</p>
-			<hr>
-		{% endfor %}
-	</blockquote>
+            {% for announcement in announcements %}
+                <p>{{ viewPost(announcement) }}</p>
+                <hr>
+            {% endfor %}
+        </blockquote>
+    {% endif %}
 
 
 {% endblock content %}
