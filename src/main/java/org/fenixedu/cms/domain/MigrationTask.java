@@ -35,6 +35,7 @@ import org.fenixedu.spaces.domain.Space;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pt.ist.fenixframework.FenixFramework;
 import pt.utl.ist.fenix.tools.util.i18n.MultiLanguageString;
 
 import com.google.common.base.Strings;
@@ -165,10 +166,12 @@ public abstract class MigrationTask extends CustomTask {
     }
 
     public void deleteAllSites() {
+        Set<org.fenixedu.bennu.cms.domain.Site> allSites = Bennu.getInstance().getSitesSet();
+        Iterable<List<org.fenixedu.bennu.cms.domain.Site>> sitesChunks = Iterables.partition(allSites, 100);
         getLogger().info("removing all sites..");
-        for (Site site : Bennu.getInstance().getSitesSet()) {
-            getLogger().info("removing site " + site.getExternalId() + " - " + site.getSlug());
-            site.delete();
+        for(List<org.fenixedu.bennu.cms.domain.Site> siteChunk : sitesChunks) {
+            getLogger().info("removing sites " + siteChunk.size());
+            FenixFramework.atomic(() -> siteChunk.stream().forEach(s -> s.delete()));
         }
     }
 

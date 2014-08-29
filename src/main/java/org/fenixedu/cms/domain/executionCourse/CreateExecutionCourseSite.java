@@ -28,19 +28,19 @@ import java.util.UUID;
 import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
 
 public class CreateExecutionCourseSite extends MigrationTask {
+
+    /*
+    * BEFORE EXECUTING THIS SCRIPT PLEASE CORRECT SOME INVALID DATA ON DB BY RUNNING THE FOLLOWING COMMAND:
+    * UPDATE SUMMARY SET SUMMARY_DATE_YEAR_MONTH_DAY = '2006-09-04' WHERE OID = 1498943591500;
+    * */
+
     private static final LocalizedString ANNOUNCEMENTS = getLocalizedString(BUNDLE, "label.announcement");
     private static final int TRANSACTION_SIZE = 100;
 
     @Override
     public void runTask() throws Exception {
-        //delete existing sites
-        Set<org.fenixedu.bennu.cms.domain.Site> allSites = Bennu.getInstance().getSitesSet();
-        Iterable<List<org.fenixedu.bennu.cms.domain.Site>> sitesChunks = Iterables.partition(allSites, 100);
-        getLogger().info("removing all sites..");
-        for(List<org.fenixedu.bennu.cms.domain.Site> siteChunk : sitesChunks) {
-            getLogger().info("removing sites " + siteChunk.size());
-            FenixFramework.atomic(()->siteChunk.stream().forEach(s->s.delete()));
-        }
+        //UNCOMENT IF YOU WANT TO DELETE ALL SITES CREATED PREVIOUSLY
+        //deleteAllSites();
 
         //create execution course sites
         Set<net.sourceforge.fenixedu.domain.Site> sites = Bennu.getInstance().getSiteSet();
@@ -93,7 +93,7 @@ public class CreateExecutionCourseSite extends MigrationTask {
         createStaticPages(newSite, null, oldSite);
 
         migrateSummaries(newSite);
-        //migrateAnnouncements(newSite);
+        migrateAnnouncements(newSite);
 
         ExecutionCourseListener.createDynamicPages(newSite, sideMenu);
         createMenuComponents(newSite);
