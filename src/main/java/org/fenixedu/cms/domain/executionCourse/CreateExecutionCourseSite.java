@@ -15,7 +15,7 @@ import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
 import org.fenixedu.bennu.signals.DomainObjectEvent;
 import org.fenixedu.bennu.signals.Signal;
-import org.fenixedu.cms.domain.MigrationUtils;
+import org.fenixedu.cms.domain.MigrationUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.spaces.domain.Space;
 import org.joda.time.DateTime;
@@ -39,7 +39,7 @@ public class CreateExecutionCourseSite extends CustomTask {
     @Override
     public void runTask() throws Exception {
         DateTime start = new DateTime();
-        MigrationUtils.deleteAllSites();
+        MigrationUtil.deleteAllSites();
         Set<ExecutionCourse> executionCourses = Bennu.getInstance().getExecutionCoursesSet();
         executionCourses.stream().map(e -> e.getSite()).filter(Objects::nonNull).forEach(site -> {
             log.info("{ number: " + numSites++ + ", oldPath: " + site.getReversePath() + " }");
@@ -58,7 +58,7 @@ public class CreateExecutionCourseSite extends CustomTask {
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612846760"));
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612818202"));
         createExecutionCourseSite(oldExecutionCourseSiteByExecutionCourse("1610612802249"));
-        */
+         */
 
     }
 
@@ -72,14 +72,14 @@ public class CreateExecutionCourseSite extends CustomTask {
         ExecutionCourse executionCourse = oldSite.getExecutionCourse();
         ExecutionCourseSite newSite = ExecutionCourseListener.create(executionCourse);
 
-        newSite.setDescription(MigrationUtils.localized(oldSite.getDescription()));
+        newSite.setDescription(MigrationUtil.localized(oldSite.getDescription()));
         newSite.setAlternativeSite(oldSite.getAlternativeSite());
         newSite.setStyle(oldSite.getStyle());
 
         migrateSummaries(newSite);
         migrateAnnouncements(newSite);
 
-        MigrationUtils.createStaticPages(newSite, null, oldSite);
+        MigrationUtil.createStaticPages(newSite, null, oldSite);
 
     }
 
@@ -94,16 +94,16 @@ public class CreateExecutionCourseSite extends CustomTask {
 
                 post.setCreatedBy(announcement.getCreator() != null ? announcement.getCreator().getUser() : null);
                 post.setCreationDate(announcement.getCreationDate());
-                post.setBody(MigrationUtils.localized(announcement.getBody()));
-                post.setName(MigrationUtils.localized(announcement.getSubject()));
+                post.setBody(MigrationUtil.localized(announcement.getBody()));
+                post.setName(MigrationUtil.localized(announcement.getSubject()));
                 post.setActive(announcement.getVisible());
-                post.setLocation(MigrationUtils.localizedStr(announcement.getPlace()));
+                post.setLocation(MigrationUtil.localizedStr(announcement.getPlace()));
                 post.setPublicationBegin(announcement.getPublicationBegin());
                 post.setPublicationEnd(announcement.getPublicationEnd());
 
                 post.addCategories(site.categoryForSlug("announcement", ANNOUNCEMENTS));
 
-                announcement.getCategoriesSet().stream().map(ac -> MigrationUtils.localized(ac.getName()))
+                announcement.getCategoriesSet().stream().map(ac -> MigrationUtil.localized(ac.getName()))
                         .map(name -> site.categoryForSlug(name.getContent(), name))
                         .forEach(category -> post.addCategories(category));
 
@@ -112,7 +112,7 @@ public class CreateExecutionCourseSite extends CustomTask {
                     String campusName = Optional.ofNullable(campus.getPresentationName()).orElse(campus.getName());
                     if (!Strings.isNullOrEmpty(campusName)) {
                         post.addCategories(site.categoryForSlug("campus-" + campus.getExternalId(),
-                                MigrationUtils.localizedStr(campusName)));
+                                MigrationUtil.localizedStr(campusName)));
                     }
                 }
             }

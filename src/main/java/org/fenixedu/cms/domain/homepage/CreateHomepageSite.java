@@ -1,20 +1,23 @@
 package org.fenixedu.cms.domain.homepage;
 
+import java.util.HashMap;
+
 import net.sourceforge.fenixedu.domain.homepage.Homepage;
 
 import org.fenixedu.bennu.cms.domain.CMSTheme;
 import org.fenixedu.bennu.cms.domain.Site;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.cms.domain.MigrationTask;
-import org.fenixedu.cms.domain.MigrationUtils;
+import org.fenixedu.bennu.scheduler.custom.CustomTask;
+import org.fenixedu.cms.domain.MigrationUtil;
+import org.fenixedu.cms.domain.MigrationUtil.PageTemplate;
 import org.fenixedu.cms.domain.executionCourse.CreateExecutionCourseSite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pt.ist.fenixframework.FenixFramework;
 
-public class CreateHomepageSite extends MigrationTask {
+public class CreateHomepageSite extends CustomTask {
     private static final Logger log = LoggerFactory.getLogger(CreateExecutionCourseSite.class);
 
     private static final String BUNDLE = "resources.FenixEduCMSResources";
@@ -44,7 +47,10 @@ public class CreateHomepageSite extends MigrationTask {
     private static final String ACTIVITIES_KEY = RESEARCHER_SECTION + ACTIVITIES;
     private static final String PRIZES_KEY = RESEARCHER_SECTION + PRIZES;
 
-    private void setupExceptionalPages() {
+    HashMap<String, PageTemplate> exceptionalPages;
+
+    public CreateHomepageSite() {
+        exceptionalPages = new HashMap<String, PageTemplate>();
         PageTemplate INTERESTS_PAGE =
                 new PageTemplate(BundleUtil.getLocalizedString(BUNDLE, INTERESTS_KEY), null, RESEARCHER_SECTION_TEMPLATE,
                         new HomepageResearcherComponent(INTERESTS_KEY, BUNDLE, INTERESTS));
@@ -63,19 +69,17 @@ public class CreateHomepageSite extends MigrationTask {
         PageTemplate PRESENTATION_PAGE =
                 new PageTemplate(null, PRESENTATION, PRESENTATION_TEMPLATE, new HomepagePresentationComponent());
 
-        EXCEPTIONAL_PAGES.put(INTERESTS_PATH, INTERESTS_PAGE);
-        EXCEPTIONAL_PAGES.put(PRIZES_PATH, PRIZES_PAGE);
-        EXCEPTIONAL_PAGES.put(ACTIVITIES_PATH, ACTIVITIES_PAGE);
-        EXCEPTIONAL_PAGES.put(PATENTS_PATH, PATENTS_PAGE);
-        EXCEPTIONAL_PAGES.put(PUBLICATIONS_PATH, PUBLICATIONS_PAGE);
-        EXCEPTIONAL_PAGES.put(PRESENTATION_PATH, PRESENTATION_PAGE);
+        exceptionalPages.put(INTERESTS_PATH, INTERESTS_PAGE);
+        exceptionalPages.put(PRIZES_PATH, PRIZES_PAGE);
+        exceptionalPages.put(ACTIVITIES_PATH, ACTIVITIES_PAGE);
+        exceptionalPages.put(PATENTS_PATH, PATENTS_PAGE);
+        exceptionalPages.put(PUBLICATIONS_PATH, PUBLICATIONS_PAGE);
+        exceptionalPages.put(PRESENTATION_PATH, PRESENTATION_PAGE);
     }
 
     @Override
     public void runTask() throws Exception {
-        deleteAllSites();
-
-        setupExceptionalPages();
+        MigrationUtil.deleteAllSites();
 
         /*David Matos's Homepage*/
         Homepage hp = FenixFramework.getDomainObject("910533118347");
@@ -89,7 +93,7 @@ public class CreateHomepageSite extends MigrationTask {
             Site newSite = new HomepageSite(hp);
             newSite.setBennu(Bennu.getInstance());
             newSite.setTheme(CMSTheme.forType("fenixedu-default-theme"));
-            newSite.setDescription(MigrationUtils.localized(hp.getDescription()));
+            newSite.setDescription(MigrationUtil.localized(hp.getDescription()));
             newSite.setAlternativeSite(hp.getAlternativeSite());
             newSite.setName(BundleUtil.getLocalizedString(BUNDLE, "homepage.title", hp.getOwnersName()));
             newSite.setSlug(hp.getPerson().getUsername());
@@ -97,7 +101,7 @@ public class CreateHomepageSite extends MigrationTask {
             newSite.setStyle(hp.getStyle());
             newSite.setPublished(true);
 
-            migrateSite(newSite, hp);
+            MigrationUtil.migrateSite(newSite, hp, exceptionalPages);
 
             newSite.setInitialPage(newSite.getPagesSet().stream().filter(page -> {
                 return page.getSlug().equals(PRESENTATION);
