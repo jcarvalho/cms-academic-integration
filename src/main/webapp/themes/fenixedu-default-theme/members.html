@@ -1,54 +1,24 @@
 {% extends "fenixedu-default-theme/base.html" %}
 
+{% import "fenixedu-default-theme/personCard.html" %}
+
 {% block content %}
-	{% macro personsCards(persons, title, staticDir) %}
-
-		{% if persons is not empty %}
-			<h4>{{ title }}</h4>
-			{% for person in persons %}
-				<li>
-					{{ personCard(person, staticDir) }}
-					<hr>
-				</li>
-			{% endfor %}
-		{% endif %}
-
-	{% endmacro %}
-
-	{% macro personCard(person, staticDir) %}
-	<div class="person-card">
-		<div class="col-md-2 person-photo">
-				{% if person is not empty and person.photoPubliclyAvailable %}
-					{% set url = "/publico/retrievePersonalPhoto.do?method=retrievePhotographOnPublicSpace&personId="%}
-					<img class="img-circle" alt="{{ person.presentationName }}" src="{{ url + person.externalId}}">
-				{% else %}
-					<img class="img-circle" alt="No Photo Available" src="{{ staticDir }}/images/noPhotoAvailable.gif">
-				{% endif %}
-		</div>
-		<div class="col-md-10 person-details">
-			<a href="{{ person.homepageWebAddress }}">
-				<p>{{ person.presentationName }}</p>
-			</a>
-			{% if person.getDefaultEmailAddressValue is not empty %}
-				<a href="mailto:{{ person.getDefaultEmailAddressValue }}">
-					<p>{{ person.getDefaultEmailAddressValue }}
-				</a>
-			{% endif %}
-		</div>
-	</div>
-	{% endmacro %}
 
 	{% macro researchUnitMembers(unit, staticDir) %}
-		{{ personsCards(unit.researchers, i18n('resources.SiteResources', 'label.researchers'), staticDir) }}
+        {% if unit.researchers is empty and unit.technicalStaff is empty and unit.internships is empty and unit.scholarships is empty %}
+            <p>{{ i18n('resources.FenixEduCMSResources', 'researchUnit.members.empty') }}</p>
+        {% else %}
+            {{ personsCards(unit.researchers, i18n('resources.SiteResources', 'label.researchers'), staticDir) }}
 
-		{{ personsCards(unit.technicalStaff, i18n('resources.SiteResources', 'label.technicalStaff'), staticDir) }}
+            {{ personsCards(unit.technicalStaff, i18n('resources.SiteResources', 'label.technicalStaff'), staticDir) }}
 
-		{{ personsCards(unit.internships, i18n('resources.SiteResources', 'label.internship'), staticDir) }}
+            {{ personsCards(unit.internships, i18n('resources.SiteResources', 'label.internship'), staticDir) }}
 
-		{{ personsCards(unit.scholarships, i18n('resources.SiteResources', 'label.scholarship'), staticDir) }}
+            {{ personsCards(unit.scholarships, i18n('resources.SiteResources', 'label.scholarship'), staticDir) }}
+        {% endif %}
 	{% endmacro %}
 
-	<h1>{{ researchUnit.nameWithAcronym }}</h1>
+	<h4>{{ researchUnit.nameWithAcronym }}</h4>
 
 	<div>{{ researchUnitMembers(researchUnit, staticDir) }}</div>
 
@@ -56,7 +26,7 @@
 		{% for unit in researchUnit.allCurrentActiveSubUnits %}
 			{% if unit.researchUnit %}
 				{% set unitUrl = unit.cmsSite.initialPage is not empty ? 'unit.cmsSite.initialPage.pageAddress' : '#'%}
-				<a href="{{ unitUrl }}">{{ unit }}</a>
+				<h4><a href="{{ unitUrl }}">{{ unit.nameWithAcronym }}</a></h4>
 				
 				{% if unit.siteAvailable %}
 					{{ researchUnitMembers(unit, staticDir) }}		
@@ -77,10 +47,10 @@
 	</script>
 
 	<style type="text/css">
-		li {
+		.person-card-item {
 			list-style-type: none;
 		}
-		h4 {
+		.persons-title {
 			padding-top: 7px;
 			padding-bottom: 10px;
 		}

@@ -2,11 +2,13 @@
   {% if menuItems is not empty %}
     <ul class="list-unstyled children">
       {% for item in menuItems %}
-        {% if item.isFolder %}
-          {{ menuFolder(item) }}
-        {% else %}
-          {{ menuItem(item) }}
-        {% endif %}
+		{%if item.isVisible %}
+          {% if item.isFolder %}
+            {{ menuFolder(item) }}
+          {% else %}
+            {{ menuItem(item) }}
+          {% endif %}
+		{% endif %}
       {% endfor %}
     </ul>
   {% endif %}

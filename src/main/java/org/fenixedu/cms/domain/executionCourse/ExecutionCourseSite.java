@@ -10,6 +10,7 @@ import net.sourceforge.fenixedu.domain.ExecutionSemester;
 
 import org.fenixedu.bennu.cms.domain.Site;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.commons.StringNormalizer;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 import pt.ist.fenixframework.Atomic;
@@ -17,12 +18,16 @@ import pt.utl.ist.fenix.tools.util.i18n.MultiLanguageString;
 
 public class ExecutionCourseSite extends ExecutionCourseSite_Base {
 
+    public ExecutionCourseSite() {
+    }
+
     public ExecutionCourseSite(ExecutionCourse executionCourse) {
         setExecutionCourse(executionCourse);
         setPublished(true);
         setDescription(createDescription(executionCourse));
         setName(executionCourse.getNameI18N().toLocalizedString());
         setSlug(createSlug(executionCourse));
+        updateMenuFunctionality();
         setBennu(Bennu.getInstance());
     }
 
@@ -32,8 +37,8 @@ public class ExecutionCourseSite extends ExecutionCourseSite_Base {
 
         Stream<LocalizedString> objectives =
                 courses.stream().map(CurricularCourse::getCompetenceCourse).filter(Objects::nonNull)
-                        .map(c -> c.getObjectivesI18N(period))
-                        .filter(Objects::nonNull).map(MultiLanguageString::toLocalizedString);
+                        .map(c -> c.getObjectivesI18N(period)).filter(Objects::nonNull)
+                        .map(MultiLanguageString::toLocalizedString);
 
         return objectives.findAny().orElse(new LocalizedString());
     }
@@ -50,6 +55,6 @@ public class ExecutionCourseSite extends ExecutionCourseSite_Base {
         String acronym = getExecutionCourse().getSigla();
         Integer semester = executionSemester.getSemester();
         String executionYear = executionSemester.getExecutionYear().getYear().replace('/', '-');
-        return Site.slugify(String.format("%s-%s-%d-semestre", acronym, executionYear, semester));
+        return StringNormalizer.slugify(String.format("%s-%s-%d-semestre", acronym, executionYear, semester));
     }
 }

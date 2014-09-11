@@ -16,18 +16,19 @@
 {% endmacro %}
 
 {% block content %}
-	<h2>{{ i18n('resources.ApplicationResources', 'title.bibliography') }}</h2>
+    {% if (mainReferences is not empty) or (nonOptionalReferences is not empty) %}
+        <h3>{{ i18n('resources.ApplicationResources', 'message.recommendedBibliography') }}</h3>
+        <ul>
+            {{ referencesList(mainReferences) }}
+            {{ referencesList(nonOptionalReferences) }}
+        </ul>
+    {% endif %}
 
-	<h3>{{ i18n('resources.ApplicationResources', 'message.recommendedBibliography') }}</h3>
-	<ul>	
-		{{ referencesList(mainReferences) }}
-		{{ referencesList(nonOptionalReferences) }}
-	</ul>
-	
-	<h3>{{ i18n('resources.ApplicationResources', 'message.optionalBibliography') }}<h3>
-	<ul>
-		{{ referencesList(secundaryReferences) }}
-		{{ referencesList(optionalReferences) }}
-	</ul>
-
+    {% if (secondaryReferences is not empty) or (optionalReferences is not empty) %}
+        <h3>{{ i18n('resources.ApplicationResources', 'message.optionalBibliography') }}</h3>
+        <ul>
+            {{ referencesList(secondaryReferences) }}
+            {{ referencesList(optionalReferences) }}
+        </ul>
+    {% endif %}
 {% endblock content %}

@@ -1,0 +1,68 @@
+{% extends "fenixedu-default-theme/base.html" %}
+
+{% import "fenixedu-default-theme/personCard.html" %}
+
+{% macro unitOrganization(unitBean) %}
+	
+	<h4>{{ unitBean.unit.name }}</h4>
+
+    {% if entries(unitBean.personFunctionsByFunction) is empty and unitBean.subunitBeans is empty %}
+        <p>{{ i18n('resources.FenixEduCMSResources', 'researchUnit.organization.empty') }}</p>
+    {% else %}
+        {% for entry in entries(unitBean.personFunctionsByFunction) %}
+            {% set function = entry.key %}
+            {% set personsFunctions = entry.value %}
+
+            {% if personsFunctions is not empty %}
+                <h5 class="persons-title">{{ function.typeName.content }}</h5>
+                {% for personFunction in personsFunctions %}
+                    <li class="person-card-item">
+                        {{ personCard(personFunction.person, staticDir) }}
+                        <hr>
+                    </li>
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+
+        {% for subUnitBean in unitBean.subunitBeans %}
+            <div class="subUnits">{{ unitOrganization(subUnitBean) }}</div>
+        {% endfor %}
+    {% endif %}
+{% endmacro %}
+
+{% block content %}
+	{% if unitBean is not empty %}
+		{{ unitOrganization(unitBean) }}
+	{% else %}
+		<p>{{ i18n('resources.SiteResources', 'label.noMembersDefined') }}</p>
+	{% endif%}
+
+	<script type="text/javascript">
+		/**
+		 * When an image fails to load, a default error image is presented.
+		**/
+		$("img").error(function () {
+		  $(this).unbind("error").attr("src", "{{ staticDir }}/images/noPhotoAvailable.gif");
+		});
+	</script>
+
+	<style type="text/css">
+		.person-card-item {
+			list-style-type: none;
+		}
+		.persons-title {
+			padding-top: 7px;
+			padding-bottom: 10px;
+		}
+		.person-card {
+			height: 100px;
+			margin: 15px;
+		}
+		.person-details {
+			margin-top: 10px;
+		}
+		.subUnits {
+			padding-left: 5px;
+		}
+	</style>
+{% endblock content %}

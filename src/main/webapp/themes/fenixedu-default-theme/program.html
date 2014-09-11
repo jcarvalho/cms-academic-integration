@@ -1,12 +1,10 @@
 {% extends "fenixedu-default-theme/base.html" %}
 
 {% block content %}
-	<h2>{{ i18n('resources.ApplicationResources', 'link.program') }}</h2>
-
 	{% for info in competenceCourseBeans %}
 
 		{% if info.competenceCourse.isApproved %}
-			<p>{{ info.name.content }}</p>
+			<h3>{{ info.name.content }}</h3>
 		{% endif %}
     
     	{% for curricularCourse in info.curricularCourses %}
@@ -28,13 +26,13 @@
 		{% set curriculum = entry.value %}
 		{% set degree = curricularCourse.degreeCurricularPlan.degree %}
 		
-		<p>{{ curricularCourse.nameI18N }}</p>
+		<h3>{{ curricularCourse.nameI18N }}</h3>
 
-		<h3>{{ i18n('resources.EnumerationResources', degree.degreeType.name) }}
-	    			 {{ i18n('resources.ApplicationResources', 'label.in') }} {{ degree.nameI18N }}</h3>
+		<h4>{{ i18n('resources.EnumerationResources', degree.degreeType.name) }}
+	    			 {{ i18n('resources.ApplicationResources', 'label.in') }} {{ degree.nameI18N }}</h4>
 
 	    {% if curriculum is not empty %}
-	    	<h4>{{ i18n('resources.ApplicationResources', 'title.program') }}</h4>
+	    	<h5>{{ i18n('resources.ApplicationResources', 'title.program') }}</h5>
 	    	<p>{{ curriculum.programI18N }}</p>
 	    {% else %}
 	    	{{ i18n('resources.ApplicationResources', 'message.program.not.defined') }}

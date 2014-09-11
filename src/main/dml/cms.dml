@@ -1,22 +1,8 @@
 package org.fenixedu.cms.domain;
 
 class researchUnit.ResearchUnitSite extends .org.fenixedu.bennu.cms.domain.Site {}
-class researchUnit.componenets.ResearchUnitComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
 
 class executionCourse.ExecutionCourseSite extends .org.fenixedu.bennu.cms.domain.Site {}
-
-class executionCourse.components.BibliographicReferencesComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
-class executionCourse.components.ExecutionCourseComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
-class executionCourse.components.ScheduleComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
-class executionCourse.components.ObjectivesComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
-class executionCourse.components.EvaluationMethodsComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
-class executionCourse.components.ContentSearchComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
-class executionCourse.components.EvaluationsComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
-class executionCourse.components.MarksComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
-class executionCourse.components.LessonsPlanningComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
-class executionCourse.components.GroupsComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
-class executionCourse.components.InquiriesResultsComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
-class executionCourse.components.InitialPageComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
 
 relation ResearchUnitSiteHasResearchUnit {
 	researchUnit.ResearchUnitSite playsRole cmsSite;
@@ -35,8 +21,7 @@ relation SummaryPost {
 
 class homepage.HomepageSite extends .org.fenixedu.bennu.cms.domain.Site {}
 
-class homepage.HomepagePresentationComponent extends .org.fenixedu.bennu.cms.domain.Component  {}
-class homepage.HomepageResearcherComponent extends .org.fenixedu.bennu.cms.domain.Component  {
+class homepage.HomepageResearcherComponent extends .org.fenixedu.bennu.cms.domain.component.Component  {
 	String titleKey;
 	String titleBundle;
 	String dataKey;

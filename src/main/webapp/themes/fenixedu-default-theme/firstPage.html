@@ -5,7 +5,7 @@
 	{% if person.homepage is not empty %}
 		{% if person.homepage.activated is not empty %}
 			{% if person.homepage.activated %}
-				<a href="{{ person.homepage.fullPath }}" >{{ person.nickname }}</a>
+				<a href="{{ person.homepage.fullPath }}">{{ person.nickname }}</a>
 			{% else %}
 				<p>{{ person.name }}</p>
 			{% endif %}
@@ -40,14 +40,6 @@
 		{{ viewPost(announcement) }}
 		<footer>
 			<a href="announcements">Other Announcements</a>
-<!-- 			{% for p in pagination.posts | tail %}
-				<ul class="list-inline">
-					<li class="small blog-post-meta">
-						<a href="{{ p.address }}">{{ p.name.content }}</a>
-						({{ p.creationDate|formatDate("MMMM d") }})
-					</li>
-				</ul>
-			{% endfor %} -->
 		</footer>
 	</blockquote>
 {% endif %}

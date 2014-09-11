@@ -53,10 +53,10 @@
 			"description":"Execution Course Program",
 			"file":"program.html"
 		},
-		"lessonPlanings":{
-			"name": "Planing",
-			"description":"Lesson Planings for an Course Program",
-			"file":"lessonPlanings.html"
+		"lessonPlan":{
+			"name": "Planning",
+			"description":"Lesson Plan for an Course Program",
+			"file":"lessonPlan.html"
 		},
 		"groupings":{
 			"name": "Groupings",
@@ -117,6 +117,21 @@
 			"name": "Members",
 			"description":"Members of the Research Unit",
 			"file":"members.html"
+		},
+		"subunits":{
+			"name": "Subunits",
+			"description":"Subunits of a Research Unit",
+			"file":"subunits.html"
+		},
+		"unitHomepage":{
+			"name": "Unit Homepage",
+			"description":"Homepage for a unit site",  
+			"file":"unitHomepage.html"
+		},
+		"unitOrganization":{
+			"name": "Unit Organization",
+			"description":"Organization of a Research Unit",
+			"file":"unitOrganization.html"
 		}
 	}
 }

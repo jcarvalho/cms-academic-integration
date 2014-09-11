@@ -11,7 +11,6 @@
 	<a id="breadcrumb" href="#" onclick="back();"><span class="glyphicon glyphicon-chevron-left"> Back</span></a>
 
 	<section id="groupings">
-		<h2>{{ i18n('resources.ApplicationResources', 'label.groupings') }}</h2>
 
 		<table class="table">
 			<thead>
@@ -148,8 +147,7 @@
 	</section>
 {% else %}
 
-	<h2>{{ i18n('resources.ApplicationResources', 'label.groupings') }}</h2>
-	<p><em>{{ i18n('resources.ApplicationResources', 'message.infoGroupPropertiesList.not.available') }}</em></p>
+	<h4><em>{{ i18n('resources.ApplicationResources', 'message.infoGroupPropertiesList.not.available') }}</em></h4>
 
 {% endif %}
 
