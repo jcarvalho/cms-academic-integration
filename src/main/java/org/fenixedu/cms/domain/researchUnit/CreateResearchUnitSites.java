@@ -1,91 +1,165 @@
 package org.fenixedu.cms.domain.researchUnit;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import net.sourceforge.fenixedu.domain.UnitSite;
-import net.sourceforge.fenixedu.domain.messaging.Announcement;
-import net.sourceforge.fenixedu.domain.messaging.AnnouncementBoard;
-import net.sourceforge.fenixedu.domain.organizationalStructure.ResearchUnit;
-import net.sourceforge.fenixedu.domain.organizationalStructure.Unit;
-import org.fenixedu.bennu.cms.domain.*;
+import static org.fenixedu.bennu.cms.domain.component.StrategyBasedComponent.forType;
+import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
+import static org.fenixedu.cms.domain.MigrationUtil.BUNDLE;
+import static org.fenixedu.cms.domain.MigrationUtil.CATEGORY_TEMPLATE;
+import static org.fenixedu.cms.domain.MigrationUtil.EVENTS_SLUG;
+import static org.fenixedu.cms.domain.MigrationUtil.EVENTS_TITLE;
+import static org.fenixedu.cms.domain.MigrationUtil.SUBUNITS_TEMPLATE;
+import static org.fenixedu.cms.domain.MigrationUtil.UNIT_HOMEPAGE_TEMPLATE;
+import static org.fenixedu.cms.domain.MigrationUtil.UNIT_MEMBERS_TEMPLATE;
+import static org.fenixedu.cms.domain.MigrationUtil.UNIT_ORGANIZATION_TEMPLATE;
+import static org.fenixedu.cms.domain.MigrationUtil.VIEW_POST_TITLE;
+import static org.fenixedu.cms.domain.MigrationUtil.VIEW_TEMPLATE;
+import static pt.ist.fenixframework.FenixFramework.atomic;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.fenixedu.bennu.cms.domain.CMSFolder;
+import org.fenixedu.bennu.cms.domain.Category;
+import org.fenixedu.bennu.cms.domain.Site;
+import org.fenixedu.bennu.cms.domain.component.ListCategoryPosts;
+import org.fenixedu.bennu.cms.domain.component.StrategyBasedComponent;
+import org.fenixedu.bennu.cms.domain.component.ViewPost;
 import org.fenixedu.bennu.cms.routing.CMSBackend;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.portal.domain.MenuFunctionality;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
-import org.fenixedu.cms.domain.MigrationTask;
-import org.fenixedu.cms.domain.researchUnit.componenets.HomeComponent;
-import org.fenixedu.cms.domain.researchUnit.componenets.Organization;
-import org.fenixedu.cms.domain.researchUnit.componenets.ResearchUnitComponent;
-import org.fenixedu.cms.domain.researchUnit.componenets.SubUnits;
+import org.fenixedu.bennu.scheduler.custom.CustomTask;
+import org.fenixedu.cms.domain.MigrationUtil;
+import org.fenixedu.cms.domain.MigrationUtil.PageTemplate;
+import org.fenixedu.cms.domain.researchUnit.components.HomeComponent;
+import org.fenixedu.cms.domain.researchUnit.components.Organization;
+import org.fenixedu.cms.domain.researchUnit.components.ResearchUnitComponent;
+import org.fenixedu.cms.domain.researchUnit.components.SubUnits;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.spaces.domain.Space;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import pt.ist.fenixframework.Atomic;
-import pt.utl.ist.fenix.tools.util.i18n.MultiLanguageString;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import com.google.common.collect.Iterables;
 
-import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
+public class CreateResearchUnitSites extends CustomTask {
 
-public class CreateResearchUnitSites extends MigrationTask {
+    private static final String RESEARCH_UNIT_SITE_FOLDER = "research-unit";
+    private static final LocalizedString RESEARCH_UNIT_FOLDER_DESCRIPTION = getLocalizedString(BUNDLE,
+            "researchUnit.folder.description");
 
+    private static final String HOMEPAGE_PATH = "/publico/researchSite/viewResearchUnitSite.do?method=presentation";
+    private static final String PUBLICATIONS_PATH =
+            "/publico/researchSite/viewResearchUnitSiteResearch.do?method=showPublications";
+    private static final String MEMBERS_PATH = "/publico/researchSite/viewResearchUnitSite.do?method=showResearchers";
+    private static final String ORGANIZATION_PATH = "/publico/researchSite/viewResearchUnitSite.do?method=organization";
+    private static final String EVENTS_PATH = "/publico/researchSite/manageResearchUnitAnnouncements.do?method=viewEvents";
+    private static final String SUBUNITS_PATH = "/publico/researchSite/viewResearchUnitSite.do?method=subunits";
+
+    private static final LocalizedString MEMBERS_TITLE = getLocalizedString(BUNDLE, "label.researchers");
+    private static final LocalizedString SUBUNITS_TITLE = getLocalizedString(BUNDLE, "researchUnit.subunits");
+    private static final LocalizedString ORGANIZATION_TITLE = getLocalizedString(BUNDLE, "researchUnit.organization");
+    private static final LocalizedString HOMEPAGE_TITLE = getLocalizedString(BUNDLE, "researchUnit.homepage");
+
+    private static final int TRANSACTION_SIZE = 30;
+
+    private static final Map<String, PageTemplate> migrationTemplates = new HashMap<String, PageTemplate>();
+    private static final List<PageTemplate> additionalTemplates = new ArrayList<PageTemplate>();
+    private static CMSFolder ruFolder = null;
 
     @Override
     public void runTask() throws Exception {
-        deleteAllSites();
-        sitesForClass(net.sourceforge.fenixedu.domain.ResearchUnitSite.class).forEach(oldSite -> create(oldSite));
+        MigrationUtil.deleteSiteClass(ResearchUnitSite.class);
+        MigrationUtil.deleteMatchingFolder(RESEARCH_UNIT_SITE_FOLDER);
+
+        Iterable<List<net.sourceforge.fenixedu.domain.ResearchUnitSite>> oldSitesChunks =
+                Iterables.partition(MigrationUtil.sitesForClass(net.sourceforge.fenixedu.domain.ResearchUnitSite.class),
+                        TRANSACTION_SIZE);
+
+//        for (List<net.sourceforge.fenixedu.domain.ResearchUnitSite> chunk : oldSitesChunks) {
+//            atomic(() -> chunk.stream().forEach(oldSite -> migrateResearchUnitSite(oldSite)));
+//        }
+
+        //only one chunck for testing
+        atomic(() -> oldSitesChunks.iterator().next().stream().forEach(oldSite -> migrateResearchUnitSite(oldSite)));
+
     }
 
-    @Atomic
-    private Site create(net.sourceforge.fenixedu.domain.ResearchUnitSite oldSite) {
-        getLogger().info("[ old site: " + oldSite.getExternalId() + ", path: " + oldSite.getReversePath() + " ]");
+    public static CMSFolder getFolder() {
+        if (ruFolder == null) {
+            ruFolder =
+                    new CMSFolder(PortalConfiguration.getInstance().getMenu(), RESEARCH_UNIT_SITE_FOLDER,
+                            RESEARCH_UNIT_FOLDER_DESCRIPTION);
+        }
+        return ruFolder;
+    }
+
+    private static Map<String, PageTemplate> getMigrationTemplates() {
+        if (migrationTemplates.isEmpty()) {
+            migrationTemplates.put(HOMEPAGE_PATH, new PageTemplate(HOMEPAGE_TITLE, null, UNIT_HOMEPAGE_TEMPLATE,
+                    StrategyBasedComponent.forType(HomeComponent.class)));
+            migrationTemplates.put(MEMBERS_PATH, new PageTemplate(MEMBERS_TITLE, null, UNIT_MEMBERS_TEMPLATE,
+                    StrategyBasedComponent.forType(ResearchUnitComponent.class)));
+            migrationTemplates.put(SUBUNITS_PATH, new PageTemplate(SUBUNITS_TITLE, null, SUBUNITS_TEMPLATE,
+                    StrategyBasedComponent.forType(SubUnits.class)));
+            migrationTemplates.put(ORGANIZATION_PATH, new PageTemplate(ORGANIZATION_TITLE, null, UNIT_ORGANIZATION_TEMPLATE,
+                    StrategyBasedComponent.forType(Organization.class)));
+            //TODO Publications
+            //exceptionalPages.put(PUBLICATIONS_PATH,);
+        }
+        return migrationTemplates;
+    }
+
+    public static Map<String, PageTemplate> getMigrationTemplates(Site newSite) {
+        Map<String, PageTemplate> siteIndependentTemplates = getMigrationTemplates();
+        Map<String, PageTemplate> migrationTemplates = new HashMap<String, PageTemplate>(siteIndependentTemplates);
+
+        Category eventsCategory = newSite.categoryForSlug(EVENTS_SLUG, EVENTS_TITLE);
+        ListCategoryPosts eventsComponent = new ListCategoryPosts(eventsCategory);
+
+        migrationTemplates.put(EVENTS_PATH, new PageTemplate(EVENTS_TITLE, null, CATEGORY_TEMPLATE, eventsComponent));
+
+        return migrationTemplates;
+    }
+
+    private static List<PageTemplate> getAdditionalTemplates() {
+        if (additionalTemplates.isEmpty()) {
+            additionalTemplates.add(new PageTemplate(VIEW_POST_TITLE, null, VIEW_TEMPLATE, false, forType(ViewPost.class)));
+        }
+        return additionalTemplates;
+    }
+
+    public static List<PageTemplate> getAdditionalTemplates(Site newSite) {
+        return getAdditionalTemplates();
+    }
+
+    private Site migrateResearchUnitSite(net.sourceforge.fenixedu.domain.ResearchUnitSite oldSite) {
 
         ResearchUnitSite newSite = new ResearchUnitSite(oldSite.getUnit());
 
-        newSite.setPublished(true);
-        newSite.setDescription(localized(oldSite.getDescription()));
+        newSite.setDescription(MigrationUtil.localized(oldSite.getDescription()));
         newSite.setName(oldSite.getUnit().getNameI18n().toLocalizedString());
-        newSite.setSlug(createSlug(oldSite));
+        newSite.setSlug(MigrationUtil.createSlug(oldSite));
         newSite.setBennu(Bennu.getInstance());
-        newSite.setTheme(CMSTheme.forType(THEME));
+        newSite.setTheme(MigrationUtil.THEME);
         newSite.setFunctionality(new MenuFunctionality(PortalConfiguration.getInstance().getMenu(), false, newSite.getSlug(),
                 CMSBackend.BACKEND_KEY, "anyone", newSite.getDescription(), newSite.getName(), newSite.getSlug()));
-        Page.create(newSite, null, null, getLocalizedString(BUNDLE, "label.viewPost"), true, "view", new ViewPost());
 
-        createStaticPages(newSite, null, oldSite);
-        createDynamicPages(newSite, sideMenu);
-        createMenuComponents(newSite);
-        migrateAnnouncements(oldSite, newSite);
+        getFolder().addSite(newSite);
+
+        MigrationUtil.migrateSite(newSite, oldSite, getMigrationTemplates(newSite));
+        MigrationUtil.addPages(newSite, getAdditionalTemplates(newSite));
+
+        MigrationUtil.migrateAnnouncements(newSite, oldSite.getUnit().getBoardsSet().iterator());
+
+        newSite.setPublished(true);
+
         return newSite;
     }
 
-
-    private void createDynamicPages(Site site, Menu menu) {
-        Page.create(site, null, null,  getLocalizedString(BUNDLE, "label.viewPost"), true, "view", new ViewPost());
-
-        Page.create(site, menu, null, getLocalizedString(BUNDLE, "label.researchers"), true, "members",
-                new ResearchUnitComponent());
-        Page.create(site, menu, null, getLocalizedString(BUNDLE, "reseachUnit.subunits"), true, "subunits", new SubUnits());
-
-        Page.create(site, menu, null, getLocalizedString(BUNDLE, "reseachUnit.organization"), true, "unitOrganization",
-                new Organization());
-
-        Page homepage = Page.create(site, menu, null, getLocalizedString(BUNDLE, "researchUnit.homepage"), true, "unitHomepage",
-                new HomeComponent());
-
-        site.setInitialPage(homepage);
-
-        Component eventsCategory = new ListCategoryPosts(site.categoryForSlug("event", EVENTS));
-        Page.create(site, menu, null, getLocalizedString(BUNDLE, "researchUnit.events"), true, "category", eventsCategory);
-
+    @Override
+    public Atomic.TxMode getTxMode() {
+        return Atomic.TxMode.READ;
     }
-
 
 }

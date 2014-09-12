@@ -1,198 +1,130 @@
 package org.fenixedu.cms.domain.homepage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
+import static org.fenixedu.cms.domain.MigrationUtil.BUNDLE;
+import static org.fenixedu.cms.domain.MigrationUtil.PRESENTATION_TEMPLATE;
+import static org.fenixedu.cms.domain.MigrationUtil.RESEARCHER_SECTION_TEMPLATE;
 
-import net.sourceforge.fenixedu.domain.Item;
-import net.sourceforge.fenixedu.domain.Section;
-import net.sourceforge.fenixedu.domain.cms.TemplatedSection;
-import net.sourceforge.fenixedu.domain.cms.TemplatedSectionInstance;
+import java.util.HashMap;
+import java.util.Map;
+
 import net.sourceforge.fenixedu.domain.homepage.Homepage;
 
-import org.fenixedu.bennu.cms.domain.CMSTheme;
-import org.fenixedu.bennu.cms.domain.Component;
-import org.fenixedu.bennu.cms.domain.Menu;
-import org.fenixedu.bennu.cms.domain.MenuComponent;
-import org.fenixedu.bennu.cms.domain.MenuItem;
-import org.fenixedu.bennu.cms.domain.Page;
-import org.fenixedu.bennu.cms.domain.Post;
+import org.fenixedu.bennu.cms.domain.CMSFolder;
 import org.fenixedu.bennu.cms.domain.Site;
-import org.fenixedu.bennu.cms.domain.StaticPost;
-import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.bennu.core.util.CoreConfiguration;
+import org.fenixedu.bennu.cms.domain.component.StrategyBasedComponent;
+import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
+import org.fenixedu.cms.domain.MigrationUtil;
+import org.fenixedu.cms.domain.MigrationUtil.PageTemplate;
+import org.fenixedu.cms.domain.executionCourse.CreateExecutionCourseSite;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import pt.ist.fenixframework.FenixFramework;
-import pt.utl.ist.fenix.tools.util.i18n.MultiLanguageString;
 
 public class CreateHomepageSite extends CustomTask {
+    private static final Logger log = LoggerFactory.getLogger(CreateExecutionCourseSite.class);
+
+    private static final String HOMEPAGE_FOLDER = "homepages"; //TODO switch to "homepage" once old homepages are deleted
+    private static final LocalizedString HOMEPAGE_FOLDER_DESCRIPTION = getLocalizedString(BUNDLE, "homepage.folder.description");
+
+    private static final String INTERESTS_PATH = "/publico/viewHomepageResearch.do?method=showInterests";
+    private static final String PATENTS_PATH = "/publico/viewHomepageResearch.do?method=showPatents";
+    private static final String PUBLICATIONS_PATH = "/publico/viewHomepageResearch.do?method=showPublications";
+    private static final String ACTIVITIES_PATH = "/publico/viewHomepageResearch.do?method=showParticipations";
+    private static final String PRIZES_PATH = "/publico/viewHomepageResearch.do?method=showPrizes";
+    private static final String PRESENTATION_PATH = "/publico/viewHomepage.do?method=show";
+
+    private static final String PRESENTATION = "presentation";
+
+    private static final String INTERESTS = "interests";
+    private static final String PATENTS = "patents";
+    private static final String PUBLICATIONS = "publications";
+    private static final String ACTIVITIES = "activities";
+    private static final String PRIZES = "prizes";
+
+    private static final String RESEARCHER_SECTION = "homepage.researcher.";
+    private static final String INTERESTS_KEY = RESEARCHER_SECTION + INTERESTS;
+    private static final String PATENTS_KEY = RESEARCHER_SECTION + PATENTS;
+    private static final String PUBLICATIONS_KEY = RESEARCHER_SECTION + PUBLICATIONS;
+    private static final String ACTIVITIES_KEY = RESEARCHER_SECTION + ACTIVITIES;
+    private static final String PRIZES_KEY = RESEARCHER_SECTION + PRIZES;
+
+    private static final LocalizedString INTERESTS_TITLE = getLocalizedString(BUNDLE, INTERESTS_KEY);
+    private static final LocalizedString PATENTS_TITLE = getLocalizedString(BUNDLE, PATENTS_KEY);
+    private static final LocalizedString PUBLICATIONS_TITLE = getLocalizedString(BUNDLE, PUBLICATIONS_KEY);
+    private static final LocalizedString ACTIVITIES_TITLE = getLocalizedString(BUNDLE, ACTIVITIES_KEY);
+    private static final LocalizedString PRIZES_TITLE = getLocalizedString(BUNDLE, PRIZES_KEY);
+    private static final LocalizedString PRESENTATION_TITLE = getLocalizedString(BUNDLE, "homepage.presentation.title");
+
+    private static final int TRANSACTION_SIZE = 30;
+
+    private static final Map<String, PageTemplate> migrationTemplates = new HashMap<String, PageTemplate>();
+    private static CMSFolder hpFolder = null;
 
     @Override
     public void runTask() throws Exception {
-        /*David Matos*/
+        MigrationUtil.deleteSiteClass(HomepageSite.class);
+        MigrationUtil.deleteMatchingFolder(HOMEPAGE_FOLDER);
+
+//        Iterable<List<Homepage>> hpChunks = Iterables.partition(MigrationUtil.sitesForClass(Homepage.class), TRANSACTION_SIZE);
+
+//        for (List<Homepage> chunk : hpChunks) {
+//            atomic(() -> chunk.stream().forEach(hp -> migrateHomepage(hp)));
+//        }
+
+//        atomic(() -> hpChunks.iterator().next().stream().forEach(hp -> migrateHomepage(hp)));
+
+        /*David Matos's Homepage*/
         Homepage hp = FenixFramework.getDomainObject("910533118347");
-        Site newSite;
-        if (hp instanceof Homepage && hp.isHomepageActivated()) {
-            newSite = new HomepageSite(hp);
-        } else if (hp instanceof Homepage) {
-            throw new Exception("Homepage is not activated");
+        migrateHomepage(hp);
+    }
+
+    public static CMSFolder getFolder() {
+        if (hpFolder == null) {
+            hpFolder = new CMSFolder(PortalConfiguration.getInstance().getMenu(), HOMEPAGE_FOLDER, HOMEPAGE_FOLDER_DESCRIPTION);
+        }
+        return hpFolder;
+    }
+
+    public static Map<String, PageTemplate> getMigrationTemplates() {
+        if (migrationTemplates.isEmpty()) {
+            migrationTemplates.put(INTERESTS_PATH, new PageTemplate(INTERESTS_TITLE, null, RESEARCHER_SECTION_TEMPLATE,
+                    new HomepageResearcherComponent(INTERESTS_KEY, BUNDLE, INTERESTS)));
+            migrationTemplates.put(PRIZES_PATH, new PageTemplate(PRIZES_TITLE, null, RESEARCHER_SECTION_TEMPLATE,
+                    new HomepageResearcherComponent(PRIZES_KEY, BUNDLE, PRIZES)));
+            migrationTemplates.put(ACTIVITIES_PATH, new PageTemplate(ACTIVITIES_TITLE, null, RESEARCHER_SECTION_TEMPLATE,
+                    new HomepageResearcherComponent(ACTIVITIES_KEY, BUNDLE, ACTIVITIES)));
+            migrationTemplates.put(PATENTS_PATH, new PageTemplate(PATENTS_TITLE, null, RESEARCHER_SECTION_TEMPLATE,
+                    new HomepageResearcherComponent(PATENTS_KEY, BUNDLE, PATENTS)));
+            migrationTemplates.put(PUBLICATIONS_PATH, new PageTemplate(PUBLICATIONS_TITLE, null, RESEARCHER_SECTION_TEMPLATE,
+                    new HomepageResearcherComponent(PUBLICATIONS_KEY, BUNDLE, PUBLICATIONS)));
+            migrationTemplates.put(PRESENTATION_PATH, new PageTemplate(PRESENTATION_TITLE, PRESENTATION, PRESENTATION_TEMPLATE,
+                    StrategyBasedComponent.forType(HomepagePresentationComponent.class)));
+        }
+        return migrationTemplates;
+    }
+
+    private Site migrateHomepage(Homepage hp) {
+        if (hp.isHomepageActivated()) {
+            log.info("Migrating " + hp.getOwnersName() + "'s homepage");
+
+            Site newSite = new HomepageSite(hp);
+            newSite.setTheme(MigrationUtil.THEME);
+
+            getFolder().addSite(newSite);
+
+            MigrationUtil.migrateSite(newSite, hp, getMigrationTemplates());
+
+            newSite.setPublished(true);
+
+            return newSite;
+
         } else {
-            throw new Exception("Not an Homepage domain object.");
-        }
-
-        newSite.setBennu(Bennu.getInstance());
-        newSite.setTheme(CMSTheme.forType("fenixedu-default-theme"));
-        newSite.setDescription(localized(hp.getDescription()));
-        newSite.setAlternativeSite(hp.getAlternativeSite());
-        newSite.setName(localized(hp.getName())); // TODO set user friendly name
-        newSite.setCreatedBy(hp.getPerson().getUser());
-        newSite.setStyle(hp.getStyle());
-        newSite.setPublished(true);
-
-        Menu menu = createMenu(newSite, hp.getOrderedSections());
-        createPages(newSite, menu, null, hp.getOrderedSections());
-    }
-
-    private Menu createMenu(Site site, List<Section> orderedSections) {
-        Menu menu = new Menu();
-        menu.setName(makeLocalized("Menu"));
-        menu.setSite(site);
-        return menu;
-    }
-
-    private MenuComponent createMenuComponent(Menu menu, Page page) {
-        MenuComponent menuComponent = new MenuComponent();
-        //TODO checkout the createdBy attributes of the site components
-        menuComponent.setCreatedBy(Authenticate.getUser());
-        menuComponent.setCreationDate(new DateTime());
-        menuComponent.setMenu(menu);
-        menuComponent.setPage(page);
-        return menuComponent;
-    }
-
-    private MenuItem createMenuItem(Site site, Menu menu, Page page, Section section, MenuItem parent) {
-        MenuItem menuItem = new MenuItem();
-        menuItem.setMenu(menu);
-        menuItem.setName(localized(section.getName()));
-        menuItem.setPage(page);
-        menuItem.setParent(parent);
-        menuItem.setPosition(section.getOrder());
-        if (parent != null) {
-            parent.add(menuItem);
-            menu.add(menuItem);
-        } else {
-            menu.addToplevelItems(menuItem);
-        }
-        return menuItem;
-    }
-
-    private void createPages(Site site, Menu menu, MenuItem menuItemParent, List<Section> sections) {
-        for (Section section : sections) {
-            Page page = createPage(site, menu, section);
-            MenuItem menuItem = page != null ? createMenuItem(site, menu, page, section, menuItemParent) : null;
-            if (!section.getSubSections().isEmpty()) {
-                createPages(site, menu, menuItem, section.getSubSections());
-            }
+            log.warn(hp.getOwnersName() + "'s homepage is not activated, skipping migration");
+            return null;
         }
     }
-
-    private Page createPage(Site site, Menu menu, Section section) {
-        if (section instanceof TemplatedSection) {
-            return createDynamicPage(site, menu, (TemplatedSection) section);
-        } else if (section instanceof TemplatedSectionInstance) {
-            return createDynamicPage(site, menu, ((TemplatedSectionInstance) section).getSectionTemplate());
-        } else {
-            return createStaticPage(site, menu, section);
-        }
-    }
-
-    private Page createDynamicPage(Site site, Menu menu, TemplatedSection section) {
-        List<Component> components = new ArrayList<Component>();
-        String templateType = "researcherSection";
-        switch (section.getCustomPath()) {
-        case "/publico/viewHomepage.do?method=show":
-            templateType = "presentation";
-            components.add(new HomepagePresentationComponent());
-            break;
-        case "/publico/viewHomepageResearch.do?method=showInterests":
-            components.add(new HomepageResearcherComponent("researcher.interests.title.complete", "interests"));
-            break;
-        case "/publico/viewHomepageResearch.do?method=showPrizes":
-            components.add(new HomepageResearcherComponent("researcher.PrizeAssociation.title.label", "prizes"));
-            break;
-        case "/publico/viewHomepageResearch.do?method=showParticipations":
-            components.add(new HomepageResearcherComponent("link.activitiesManagement", "activities"));
-            break;
-        case "/publico/viewHomepageResearch.do?method=showPatents":
-            components.add(new HomepageResearcherComponent("link.patentsManagement", "patents"));
-            break;
-        case "/publico/viewHomepageResearch.do?method=showPublications":
-            components.add(new HomepageResearcherComponent("link.Publications", "publications"));
-            break;
-        default:
-            break;
-        }
-        if (templateType != null && !components.isEmpty()) {
-            Page page = new Page();
-            page.setSite(site);
-            page.setName(section.getName().toLocalizedString());
-            for (Component component : components) {
-                page.addComponents(component);
-            }
-            page.setTemplate(site.getTheme().templateForType(templateType));
-            page.setCreatedBy(site.getCreatedBy());
-
-            createMenuComponent(menu, page);
-            return page;
-        }
-        return null;
-    }
-
-    private Page createStaticPage(Site site, Menu menu, Section section) {
-        //create only if the page has static content
-        Page page = new Page();
-        page.setCreationDate(site.getCreationDate());
-        page.setCreatedBy(site.getCreatedBy());
-        page.setSite(site);
-        page.setName(localized(section.getName()));
-        page.setPublished(section.getEnabled());
-        page.setTemplate(site.getTheme().templateForType("view"));
-        for (Item item : section.getChildrenItems()) {
-            createStaticPost(site, page, item);
-        }
-        createMenuComponent(menu, page);
-
-        return page;
-    }
-
-    private void createStaticPost(Site site, Page page, Item item) {
-
-        Post post = new Post();
-        post.setCreatedBy(site.getCreatedBy());
-        post.setSite(site);
-        post.setName(localized(item.getName()));
-        post.setBody(localized(item.getBody()));
-        post.setCreationDate(new DateTime());
-
-        StaticPost staticPostComponent = new StaticPost();
-        staticPostComponent.setPage(page);
-        staticPostComponent.setPost(post);
-    }
-
-    private static LocalizedString makeLocalized(String value) {
-        LocalizedString.Builder builder = new LocalizedString.Builder();
-        for (Locale locale : CoreConfiguration.supportedLocales()) {
-            builder.with(locale, value);
-        }
-        return builder.build();
-    }
-
-    private static LocalizedString localized(MultiLanguageString mls) {
-        return mls != null ? mls.toLocalizedString() : makeLocalized("");
-    }
-
 }

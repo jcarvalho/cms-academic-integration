@@ -24,10 +24,10 @@
         </ul>
     {% endif %}
 
-    {% if (secundaryReferences is not empty) or (optionalReferences is not empty) %}
-        <h3>{{ i18n('resources.ApplicationResources', 'message.optionalBibliography') }}<h3>
+    {% if (secondaryReferences is not empty) or (optionalReferences is not empty) %}
+        <h3>{{ i18n('resources.ApplicationResources', 'message.optionalBibliography') }}</h3>
         <ul>
-            {{ referencesList(secundaryReferences) }}
+            {{ referencesList(secondaryReferences) }}
             {{ referencesList(optionalReferences) }}
         </ul>
     {% endif %}

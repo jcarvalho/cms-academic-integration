@@ -5,22 +5,20 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
-
 import net.sourceforge.fenixedu.domain.CurricularCourse;
 import net.sourceforge.fenixedu.domain.Curriculum;
 import net.sourceforge.fenixedu.domain.ExecutionCourse;
 
-import org.fenixedu.bennu.cms.domain.ComponentType;
 import org.fenixedu.bennu.cms.domain.Page;
+import org.fenixedu.bennu.cms.domain.component.CMSComponent;
+import org.fenixedu.bennu.cms.domain.component.ComponentType;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
 import org.fenixedu.cms.domain.executionCourse.CompetenceCourseBean;
 import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
 
-@ComponentType(type = "competenceCourse", name = "CompetenceCourse",
-        description = "Competence Course information for an Execution Course")
-public class ObjectivesComponent extends ObjectivesComponent_Base {
-    
+@ComponentType(name = "CompetenceCourse", description = "Competence Course information for an Execution Course")
+public class ObjectivesComponent implements CMSComponent {
+
     @Override
     public void handle(Page page, TemplateContext componentContext, TemplateContext globalContext) {
         ExecutionCourse executionCourse = ((ExecutionCourseSite) page.getSite()).getExecutionCourse();

@@ -15,7 +15,7 @@
 		},
 		"categories":{
 			"name": "Categories",
-			"description": "List of Categoryories",
+			"description": "List of Categories",
 			"file":"categories.html"
 		},
 		"category":{
@@ -53,10 +53,10 @@
 			"description":"Execution Course Program",
 			"file":"program.html"
 		},
-		"lessonPlanings":{
-			"name": "Planing",
-			"description":"Lesson Planings for an Course Program",
-			"file":"lessonPlanings.html"
+		"lessonPlan":{
+			"name": "Planning",
+			"description":"Lesson Plan for an Course Program",
+			"file":"lessonPlan.html"
 		},
 		"groupings":{
 			"name": "Groupings",

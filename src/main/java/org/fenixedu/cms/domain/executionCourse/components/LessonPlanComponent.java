@@ -1,19 +1,21 @@
 package org.fenixedu.cms.domain.executionCourse.components;
 
-import net.sourceforge.fenixedu.domain.ExecutionCourse;
-import net.sourceforge.fenixedu.domain.LessonPlanning;
-import net.sourceforge.fenixedu.domain.ShiftType;
-import org.fenixedu.bennu.cms.domain.ComponentType;
-import org.fenixedu.bennu.cms.domain.Page;
-import org.fenixedu.bennu.cms.rendering.TemplateContext;
-import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
-
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-@ComponentType(type = "lessonsPlaning", name = "LessonsPlanning", description = "Lessons planing for an Execution Course")
-public class LessonsPlanningComponent extends LessonsPlanningComponent_Base {
+import net.sourceforge.fenixedu.domain.ExecutionCourse;
+import net.sourceforge.fenixedu.domain.LessonPlanning;
+import net.sourceforge.fenixedu.domain.ShiftType;
+
+import org.fenixedu.bennu.cms.domain.Page;
+import org.fenixedu.bennu.cms.domain.component.CMSComponent;
+import org.fenixedu.bennu.cms.domain.component.ComponentType;
+import org.fenixedu.bennu.cms.rendering.TemplateContext;
+import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
+
+@ComponentType(name = "LessonsPlanning", description = "Lessons planing for an Execution Course")
+public class LessonPlanComponent implements CMSComponent {
 
     @Override
     public void handle(Page page, TemplateContext componentContext, TemplateContext globalContext) {
@@ -30,6 +32,5 @@ public class LessonsPlanningComponent extends LessonsPlanningComponent_Base {
         }
         globalContext.put("lessonPlanningsMap", lessonPlanningsMap);
     }
-    
-    
+
 }

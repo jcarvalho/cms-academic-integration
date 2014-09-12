@@ -1,21 +1,23 @@
-package org.fenixedu.cms.domain.researchUnit.componenets;
+package org.fenixedu.cms.domain.researchUnit.components;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import static java.util.stream.Collectors.toList;
+
+import java.util.List;
+import java.util.Map;
+
 import net.sourceforge.fenixedu.domain.organizationalStructure.Function;
 import net.sourceforge.fenixedu.domain.organizationalStructure.PersonFunction;
 import net.sourceforge.fenixedu.domain.organizationalStructure.ResearchUnit;
 import net.sourceforge.fenixedu.domain.organizationalStructure.Unit;
+
 import org.fenixedu.bennu.cms.domain.Page;
+import org.fenixedu.bennu.cms.domain.component.CMSComponent;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
 import org.fenixedu.cms.domain.researchUnit.ResearchUnitSite;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-import java.util.Map;
-import static java.util.stream.Collectors.*;
+import com.google.common.collect.Maps;
 
-public class Organization extends Organization_Base {
+public class Organization implements CMSComponent {
 
     @Override
     public void handle(Page page, TemplateContext componentContext, TemplateContext globalContext) {
@@ -32,7 +34,7 @@ public class Organization extends Organization_Base {
 
         public Map<Function, List<PersonFunction>> getPersonFunctionsByFunction() {
             Map<Function, List<PersonFunction>> personFunctionsByFunction = Maps.newHashMap();
-            for(Function function : getUnit().getOrderedActiveFunctions()) {
+            for (Function function : getUnit().getOrderedActiveFunctions()) {
                 personFunctionsByFunction.put(function, function.getActivePersonFunctions());
             }
             return personFunctionsByFunction;
