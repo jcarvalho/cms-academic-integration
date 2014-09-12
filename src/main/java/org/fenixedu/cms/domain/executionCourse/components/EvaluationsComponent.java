@@ -8,12 +8,12 @@ import javax.servlet.http.HttpServletRequest;
 import net.sourceforge.fenixedu.domain.Exam;
 import net.sourceforge.fenixedu.domain.ExecutionCourse;
 
-import org.fenixedu.bennu.cms.domain.ComponentType;
+import org.fenixedu.bennu.cms.domain.component.ComponentType;
 import org.fenixedu.bennu.cms.domain.Page;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
 import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
 
-@ComponentType(type = "evaluations", name = "Evaluations", description = "Evaluations for an Execution Course")
+@ComponentType(name = "Evaluations", description = "Evaluations for an Execution Course")
 public class EvaluationsComponent extends EvaluationsComponent_Base {
 
     @Override

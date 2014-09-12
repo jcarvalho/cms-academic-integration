@@ -1,28 +1,20 @@
 package org.fenixedu.cms.domain.executionCourse;
 
-import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
+import com.google.common.eventbus.Subscribe;
 import net.sourceforge.fenixedu.domain.ExecutionCourse;
-
 import org.fenixedu.bennu.cms.domain.CMSTheme;
-import org.fenixedu.bennu.cms.domain.ListCategoryPosts;
 import org.fenixedu.bennu.cms.domain.Menu;
 import org.fenixedu.bennu.cms.domain.Page;
-import org.fenixedu.bennu.cms.domain.ViewPost;
+import org.fenixedu.bennu.cms.domain.component.ListCategoryPosts;
+import org.fenixedu.bennu.cms.domain.component.StrategyBasedComponent;
+import org.fenixedu.bennu.cms.domain.component.ViewPost;
+import org.fenixedu.bennu.core.domain.User;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.signals.DomainObjectEvent;
-import org.fenixedu.cms.domain.executionCourse.components.BibliographicReferencesComponent;
-import org.fenixedu.cms.domain.executionCourse.components.EvaluationMethodsComponent;
-import org.fenixedu.cms.domain.executionCourse.components.EvaluationsComponent;
-import org.fenixedu.cms.domain.executionCourse.components.ExecutionCourseComponent;
-import org.fenixedu.cms.domain.executionCourse.components.GroupsComponent;
-import org.fenixedu.cms.domain.executionCourse.components.InitialPageComponent;
-import org.fenixedu.cms.domain.executionCourse.components.InquiriesResultsComponent;
-import org.fenixedu.cms.domain.executionCourse.components.LessonsPlanningComponent;
-import org.fenixedu.cms.domain.executionCourse.components.MarksComponent;
-import org.fenixedu.cms.domain.executionCourse.components.ObjectivesComponent;
-import org.fenixedu.cms.domain.executionCourse.components.ScheduleComponent;
+import org.fenixedu.cms.domain.executionCourse.components.*;
 import org.fenixedu.commons.i18n.LocalizedString;
 
-import com.google.common.eventbus.Subscribe;
+import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
 
 public class ExecutionCourseListener {
 
@@ -65,23 +57,23 @@ public class ExecutionCourseListener {
     public static void createDynamicPages(ExecutionCourseSite site, Menu menu) {
         ListCategoryPosts summaryCategory = new ListCategoryPosts(site.categoryForSlug("summary", SUMMARY));
         ListCategoryPosts announcementCategory = new ListCategoryPosts(site.categoryForSlug("announcement", ANNOUNCEMENTS));
+        User user = Authenticate.getUser();
 
-        Page.create(site, null, null, VIEW_POST, true, "view", new ViewPost());
-        site.setInitialPage(Page.create(site, menu, null, TITLE_INITIAL_PAGE, true, "firstPage", new InitialPageComponent(), announcementCategory));
-        Page.create(site, menu, null, TITLE_BIBLIOGRAPHIC_REFS, true, "bibliographicReferences",
-                new BibliographicReferencesComponent());
-        Page.create(site, menu, null, TITLE_EVALUATION_METHODS, true, "evaluationMethods", new EvaluationMethodsComponent());
-        Page.create(site, menu, null, TITLE_INQUIRIES_RESULTS, true, "inqueriesResults", new InquiriesResultsComponent());
-        Page.create(site, menu, null, TITLE_LESSONS_PLANINGS, true, "lessonPlanings", new LessonsPlanningComponent());
-        Page.create(site, menu, null, TITLE_EVALUATIONS, true, "evaluations", new EvaluationsComponent());
-        Page.create(site, menu, null, TITLE_OBJECTIVES, true, "objectives", new ObjectivesComponent());
-        Page.create(site, menu, null, TITLE_SHIFTS, true, "shifts", new ExecutionCourseComponent());
-        Page.create(site, menu, null, TITLE_ANNOUNCEMENTS, true, "category", announcementCategory);
-        Page.create(site, menu, null, TITLE_PROGRAM, true, "program", new ObjectivesComponent());
-        Page.create(site, menu, null, TITLE_SCHEDULE, true, "schedule", new ScheduleComponent());
-        Page.create(site, menu, null, TITLE_GROUPS, true, "groupings", new GroupsComponent());
-        Page.create(site, menu, null, TITLE_MARKS, true, "marks", new MarksComponent());
-        Page.create(site, menu, null, SUMMARY, true, "category", summaryCategory);
+        Page.create(site, menu, null, VIEW_POST, true, "view", user, StrategyBasedComponent.forType(ViewPost.class));
+        site.setInitialPage(Page.create(site, menu, null, TITLE_INITIAL_PAGE, true, "firstPage", user, new InitialPageComponent(), announcementCategory));
+        Page.create(site, menu, null, TITLE_BIBLIOGRAPHIC_REFS, true, "bibliographicReferences", user, new BibliographicReferencesComponent());
+        Page.create(site, menu, null, TITLE_EVALUATION_METHODS, true, "evaluationMethods", user, new EvaluationMethodsComponent());
+        Page.create(site, menu, null, TITLE_INQUIRIES_RESULTS, true, "inqueriesResults", user, new InquiriesResultsComponent());
+        Page.create(site, menu, null, TITLE_LESSONS_PLANINGS, true, "lessonPlanings", user, new LessonsPlanningComponent());
+        Page.create(site, menu, null, TITLE_EVALUATIONS, true, "evaluations", user, new EvaluationsComponent());
+        Page.create(site, menu, null, TITLE_OBJECTIVES, true, "objectives", user, new ObjectivesComponent());
+        Page.create(site, menu, null, TITLE_SHIFTS, true, "shifts", user, new ExecutionCourseComponent());
+        Page.create(site, menu, null, TITLE_ANNOUNCEMENTS, true, "category", user, announcementCategory);
+        Page.create(site, menu, null, TITLE_PROGRAM, true, "program", user, new ObjectivesComponent());
+        Page.create(site, menu, null, TITLE_SCHEDULE, true, "schedule", user, new ScheduleComponent());
+        Page.create(site, menu, null, TITLE_GROUPS, true, "groupings", user, new GroupsComponent());
+        Page.create(site, menu, null, TITLE_MARKS, true, "marks", user, new MarksComponent());
+        Page.create(site, menu, null, SUMMARY, true, "category", user, summaryCategory);
     }
 
 }

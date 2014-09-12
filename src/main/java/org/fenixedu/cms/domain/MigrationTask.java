@@ -1,45 +1,34 @@
 package org.fenixedu.cms.domain;
 
-import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
-
-import java.util.*;
-import java.util.function.Predicate;
-
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import net.sourceforge.fenixedu.domain.Item;
 import net.sourceforge.fenixedu.domain.Section;
 import net.sourceforge.fenixedu.domain.UnitSite;
 import net.sourceforge.fenixedu.domain.cms.CmsContent;
 import net.sourceforge.fenixedu.domain.cms.TemplatedSection;
-
 import net.sourceforge.fenixedu.domain.messaging.Announcement;
 import net.sourceforge.fenixedu.domain.messaging.AnnouncementBoard;
 import net.sourceforge.fenixedu.domain.organizationalStructure.Unit;
-import org.fenixedu.bennu.cms.domain.Category;
-import org.fenixedu.bennu.cms.domain.ListCategoryPosts;
-import org.fenixedu.bennu.cms.domain.Menu;
-import org.fenixedu.bennu.cms.domain.MenuComponent;
-import org.fenixedu.bennu.cms.domain.MenuItem;
-import org.fenixedu.bennu.cms.domain.Page;
-import org.fenixedu.bennu.cms.domain.Post;
-import org.fenixedu.bennu.cms.domain.SideMenuComponent;
-import org.fenixedu.bennu.cms.domain.Site;
-import org.fenixedu.bennu.cms.domain.TopMenuComponent;
+import org.fenixedu.bennu.cms.domain.*;
+import org.fenixedu.bennu.cms.domain.component.*;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.domain.User;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.spaces.domain.Space;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import pt.ist.fenixframework.FenixFramework;
 import pt.utl.ist.fenix.tools.util.i18n.MultiLanguageString;
 
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
+import java.util.*;
+import java.util.function.Predicate;
+
+import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
 
 public abstract class MigrationTask extends CustomTask {
 
@@ -77,8 +66,8 @@ public abstract class MigrationTask extends CustomTask {
     public void createMenuComponents(Site newSite) {
         //assign top and side menu components to all pages
         for (Page page : newSite.getPagesSet()) {
-            new TopMenuComponent(topMenu, page);
-            new SideMenuComponent(sideMenu, page);
+            new TopMenuComponent(topMenu);
+            new SideMenuComponent(sideMenu);
         }
 
         //remove unused menus
@@ -88,11 +77,6 @@ public abstract class MigrationTask extends CustomTask {
         if (sideMenu.getComponentSet().isEmpty()) {
             sideMenu.delete();
         }
-    }
-
-    private boolean hasMenu(Page page, Menu menu) {
-        return menu.getComponentsOfClass(MenuComponent.class).stream().filter(m -> m.getPage().equals(page)).findAny()
-                .isPresent();
     }
 
     private List<Section> sideMenuSections(List<Section> sections) {
@@ -144,7 +128,7 @@ public abstract class MigrationTask extends CustomTask {
             //it means that the folder has no content and just acts like a folder on the menu
             boolean isFolderSection = section.getOrderedChildItems().isEmpty() && section.getFileContentSet().isEmpty();
             if (isFolderSection) {
-                MenuItem parent = MenuItem.create(site, menu, null, name, menuItemParent);
+                MenuItem parent = MenuItem.create(menu, null, name, menuItemParent);
                 subsections.forEach(subsection -> createStaticPage(site, menu, parent, subsection));
                 return;
             } else {
@@ -153,12 +137,12 @@ public abstract class MigrationTask extends CustomTask {
                 ListCategoryPosts pageCategory = new ListCategoryPosts(category);
 
                 boolean isPublished = Optional.ofNullable(section.getEnabled()).orElse(true);
-                final Page page = Page.create(site, menu, menuItemParent, name, isPublished, "category", pageCategory);
+                final Page page = Page.create(site, menu, menuItemParent, name, isPublished, "category", Authenticate.getUser(),pageCategory);
                 page.setCreationDate(site.getCreationDate());
 
                 section.getOrderedChildItems().stream().filter(hasName.and(hasBody)).forEach(item -> {
                     boolean isEnabled = Optional.ofNullable(item.getEnabled()).orElse(true);
-                    Post.create(site, page, localized(item.getName()), localized(item.getBody()), category, isEnabled);
+                    Post.create(site, page, localized(item.getName()), localized(item.getBody()), category, isEnabled, Authenticate.getUser());
                 });
             }
         }

@@ -1,33 +1,26 @@
 package org.fenixedu.cms.domain.homepage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 import net.sourceforge.fenixedu.domain.Item;
 import net.sourceforge.fenixedu.domain.Section;
 import net.sourceforge.fenixedu.domain.cms.TemplatedSection;
 import net.sourceforge.fenixedu.domain.cms.TemplatedSectionInstance;
 import net.sourceforge.fenixedu.domain.homepage.Homepage;
-
-import org.fenixedu.bennu.cms.domain.CMSTheme;
-import org.fenixedu.bennu.cms.domain.Component;
-import org.fenixedu.bennu.cms.domain.Menu;
-import org.fenixedu.bennu.cms.domain.MenuComponent;
-import org.fenixedu.bennu.cms.domain.MenuItem;
-import org.fenixedu.bennu.cms.domain.Page;
-import org.fenixedu.bennu.cms.domain.Post;
-import org.fenixedu.bennu.cms.domain.Site;
-import org.fenixedu.bennu.cms.domain.StaticPost;
+import org.fenixedu.bennu.cms.domain.*;
+import org.fenixedu.bennu.cms.domain.component.Component;
+import org.fenixedu.bennu.cms.domain.component.MenuComponent;
+import org.fenixedu.bennu.cms.domain.component.StaticPost;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.joda.time.DateTime;
-
 import pt.ist.fenixframework.FenixFramework;
 import pt.utl.ist.fenix.tools.util.i18n.MultiLanguageString;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 public class CreateHomepageSite extends CustomTask {
 
@@ -70,7 +63,6 @@ public class CreateHomepageSite extends CustomTask {
         menuComponent.setCreatedBy(Authenticate.getUser());
         menuComponent.setCreationDate(new DateTime());
         menuComponent.setMenu(menu);
-        menuComponent.setPage(page);
         return menuComponent;
     }
 
@@ -178,9 +170,7 @@ public class CreateHomepageSite extends CustomTask {
         post.setBody(localized(item.getBody()));
         post.setCreationDate(new DateTime());
 
-        StaticPost staticPostComponent = new StaticPost();
-        staticPostComponent.setPage(page);
-        staticPostComponent.setPost(post);
+        StaticPost staticPostComponent = new StaticPost(post);
     }
 
     private static LocalizedString makeLocalized(String value) {

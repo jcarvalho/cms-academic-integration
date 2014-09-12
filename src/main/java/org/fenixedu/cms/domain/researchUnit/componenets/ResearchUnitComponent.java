@@ -1,15 +1,12 @@
 package org.fenixedu.cms.domain.researchUnit.componenets;
 
-import javax.servlet.http.HttpServletRequest;
-
 import net.sourceforge.fenixedu.domain.organizationalStructure.ResearchUnit;
-
-import org.fenixedu.bennu.cms.domain.ComponentType;
 import org.fenixedu.bennu.cms.domain.Page;
+import org.fenixedu.bennu.cms.domain.component.ComponentType;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
 import org.fenixedu.cms.domain.researchUnit.ResearchUnitSite;
 
-@ComponentType(type = "researchUnit", name = "Research Unit", description = "Provides the research unit associated with the site")
+@ComponentType(name = "Research Unit", description = "Provides the research unit associated with the site")
 public class ResearchUnitComponent extends ResearchUnitComponent_Base {
 
     @Override

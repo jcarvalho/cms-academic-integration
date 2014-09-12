@@ -1,22 +1,19 @@
 package org.fenixedu.cms.domain.executionCourse.components;
 
-import java.util.Optional;
-
-import javax.servlet.http.HttpServletRequest;
-
 import net.sourceforge.fenixedu.domain.ExecutionCourse;
 import net.sourceforge.fenixedu.domain.organizationalStructure.Unit;
 import net.sourceforge.fenixedu.presentationTier.Action.publico.InquirieResultsBean;
 import net.sourceforge.fenixedu.util.FenixConfigurationManager;
-
-import org.fenixedu.bennu.cms.domain.ComponentType;
 import org.fenixedu.bennu.cms.domain.Page;
+import org.fenixedu.bennu.cms.domain.component.ComponentType;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
 
-@ComponentType(type = "inquiriesResults", name = "InquiriesResults", description = "Inquirires Results of an Execution Course")
+import java.util.Optional;
+
+@ComponentType(name = "InquiriesResults", description = "Inquirires Results of an Execution Course")
 public class InquiriesResultsComponent extends InquiriesResultsComponent_Base {
 
     @Override

@@ -1,13 +1,16 @@
 package org.fenixedu.cms.domain.researchUnit.componenets;
 
 import com.google.common.collect.Lists;
-import org.fenixedu.bennu.cms.domain.*;
+import org.fenixedu.bennu.cms.domain.Category;
+import org.fenixedu.bennu.cms.domain.Page;
+import org.fenixedu.bennu.cms.domain.Post;
+import org.fenixedu.bennu.cms.domain.PostsPresentationBean;
+import org.fenixedu.bennu.cms.domain.component.ComponentType;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
-@ComponentType(type = "home", name = "Unit Homepage", description = "Provides the latest events and announcements")
+@ComponentType(name = "Unit Homepage", description = "Provides the latest events and announcements")
 public class HomeComponent extends HomeComponent_Base {
 
     private static final long NUM_POSTS = 5;

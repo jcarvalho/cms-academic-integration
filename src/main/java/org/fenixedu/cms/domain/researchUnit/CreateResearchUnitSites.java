@@ -11,8 +11,13 @@ import net.sourceforge.fenixedu.domain.messaging.AnnouncementBoard;
 import net.sourceforge.fenixedu.domain.organizationalStructure.ResearchUnit;
 import net.sourceforge.fenixedu.domain.organizationalStructure.Unit;
 import org.fenixedu.bennu.cms.domain.*;
+import org.fenixedu.bennu.cms.domain.component.Component;
+import org.fenixedu.bennu.cms.domain.component.ListCategoryPosts;
+import org.fenixedu.bennu.cms.domain.component.StrategyBasedComponent;
+import org.fenixedu.bennu.cms.domain.component.ViewPost;
 import org.fenixedu.bennu.cms.routing.CMSBackend;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.portal.domain.MenuFunctionality;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.cms.domain.MigrationTask;
@@ -57,7 +62,7 @@ public class CreateResearchUnitSites extends MigrationTask {
         newSite.setTheme(CMSTheme.forType(THEME));
         newSite.setFunctionality(new MenuFunctionality(PortalConfiguration.getInstance().getMenu(), false, newSite.getSlug(),
                 CMSBackend.BACKEND_KEY, "anyone", newSite.getDescription(), newSite.getName(), newSite.getSlug()));
-        Page.create(newSite, null, null, getLocalizedString(BUNDLE, "label.viewPost"), true, "view", new ViewPost());
+        //Page.create(newSite, null, null, getLocalizedString(BUNDLE, "label.viewPost"), true, "view", new ViewPost());
 
         createStaticPages(newSite, null, oldSite);
         createDynamicPages(newSite, sideMenu);
@@ -68,22 +73,25 @@ public class CreateResearchUnitSites extends MigrationTask {
 
 
     private void createDynamicPages(Site site, Menu menu) {
-        Page.create(site, null, null,  getLocalizedString(BUNDLE, "label.viewPost"), true, "view", new ViewPost());
 
-        Page.create(site, menu, null, getLocalizedString(BUNDLE, "label.researchers"), true, "members",
+        User user = site.getCreatedBy();
+
+        Page.create(site, null, null,  getLocalizedString(BUNDLE, "label.viewPost"), true, "view", user, StrategyBasedComponent.forType(ViewPost.class));
+
+        Page.create(site, menu, null, getLocalizedString(BUNDLE, "label.researchers"), true, "members", user,
                 new ResearchUnitComponent());
-        Page.create(site, menu, null, getLocalizedString(BUNDLE, "reseachUnit.subunits"), true, "subunits", new SubUnits());
+        Page.create(site, menu, null, getLocalizedString(BUNDLE, "reseachUnit.subunits"), true, "subunits", user, new SubUnits());
 
-        Page.create(site, menu, null, getLocalizedString(BUNDLE, "reseachUnit.organization"), true, "unitOrganization",
+        Page.create(site, menu, null, getLocalizedString(BUNDLE, "reseachUnit.organization"), true, "unitOrganization", user,
                 new Organization());
 
         Page homepage = Page.create(site, menu, null, getLocalizedString(BUNDLE, "researchUnit.homepage"), true, "unitHomepage",
-                new HomeComponent());
+                user, new HomeComponent());
 
         site.setInitialPage(homepage);
 
         Component eventsCategory = new ListCategoryPosts(site.categoryForSlug("event", EVENTS));
-        Page.create(site, menu, null, getLocalizedString(BUNDLE, "researchUnit.events"), true, "category", eventsCategory);
+        Page.create(site, menu, null, getLocalizedString(BUNDLE, "researchUnit.events"), true, "category", user,  eventsCategory);
 
     }
 

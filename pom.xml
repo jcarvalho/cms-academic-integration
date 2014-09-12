@@ -15,9 +15,10 @@
     <name>FenixEduCMS</name>
 
     <properties>
-        <version.pt.ist.fenix>3.8.0-SNAPSHOT</version.pt.ist.fenix>
+        <version.pt.ist.fenix>3.12.0-SNAPSHOT</version.pt.ist.fenix>
         <version.org.fenixedu.bennu-cms>1.0.0-SNAPSHOT</version.org.fenixedu.bennu-cms>
         <version.org.fenixedu.bennu-signals>0.0.1-SNAPSHOT</version.org.fenixedu.bennu-signals>
+        <version.org.fenixedu.bennu>3.3.3</version.org.fenixedu.bennu>
     </properties>
 
     <build>
@@ -44,23 +45,21 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.fenixedu</groupId>
-            <artifactId>bennu-signals</artifactId>
-            <version>${version.org.fenixedu.bennu-signals}</version>
-        </dependency>
-
-        <dependency>
             <groupId>pt.ist</groupId>
             <artifactId>fenix</artifactId>
             <version>${version.pt.ist.fenix}</version>
         </dependency>
-        
         <dependency>
             <groupId>org.fenixedu</groupId>
             <artifactId>bennu-cms</artifactId>
             <version>${version.org.fenixedu.bennu-cms}</version>
         </dependency> 
-    </dependencies>
+        <dependency>
+            <groupId>org.fenixedu</groupId>
+            <artifactId>bennu-signals</artifactId>
+            <version>${version.org.fenixedu.bennu-signals}</version>
+        </dependency>
+  </dependencies>
 
     <repositories>
         <repository>

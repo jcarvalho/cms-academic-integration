@@ -9,15 +9,14 @@ import net.sourceforge.fenixedu.domain.ExecutionCourse;
 import net.sourceforge.fenixedu.domain.degreeStructure.BibliographicReferences.BibliographicReference;
 import net.sourceforge.fenixedu.domain.degreeStructure.CompetenceCourseInformation;
 
-import org.fenixedu.bennu.cms.domain.ComponentType;
+import org.fenixedu.bennu.cms.domain.component.ComponentType;
 import org.fenixedu.bennu.cms.domain.Page;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
 import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
 
 import com.google.common.collect.Lists;
 
-@ComponentType(type = "bibliographicReferences", name = "bibliographicReferences",
-        description = "Bibliographic References for an Execution Course")
+@ComponentType(name = "bibliographicReferences", description = "Bibliographic References for an Execution Course")
 public class BibliographicReferencesComponent extends BibliographicReferencesComponent_Base {
 
     @Override
