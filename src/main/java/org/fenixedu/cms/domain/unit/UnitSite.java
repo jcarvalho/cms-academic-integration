@@ -29,4 +29,10 @@ public class UnitSite extends UnitSite_Base {
     public DomainObject getObject() {
         return getUnit();
     }
+
+    @Override public void delete() {
+        this.setUnit(null);
+        this.setBennu(null);
+        super.delete();
+    }
 }

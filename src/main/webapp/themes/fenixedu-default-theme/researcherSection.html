@@ -4,9 +4,9 @@
 
 {% block content %}
 
-<h1>
-	{{ i18n(bundle,titleKey) }}
-</h1>
+{% if bundle is not empty and titleKey is not empty %}
+    <h1>{{ i18n(bundle,titleKey) }}</h1>
+{% endif %}
 
 {{ sotisCall(sotisUrl,language,researcher,dataKey) }}
 

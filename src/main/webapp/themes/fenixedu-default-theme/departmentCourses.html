@@ -1,0 +1,24 @@
+{% extends "fenixedu-default-theme/base.html" %}
+
+{% block content %}
+    {% for scientificAreaUnit in scientificAreaUnits %}
+        <h2><small>{{ scientificAreaUnit.nameI18n }}</small></h2>
+        {% for competenceCourseGroupUnit in scientificAreaUnit.competenceCourseGroupUnits %}
+            <h3>{{ competenceCourseGroupUnit.nameI18n }}</h3>
+            <ul class="list-unstyled">
+                {% for competenceCourse in competenceCourseGroupUnit.competenceCourses %}
+                    {% if competenceCourse.curricularStage.name == 'APPROVED' %}
+                        {% set url = "disciplina/" + competenceCourse.externalId %}
+                        <li><a href="{{ url }}">{{ competenceCourse.nameI18N }} ({{ competenceCourse.acronym }})</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            <hr/>
+        {% else %}
+            <h5>{{ i18n('resources.ScientificCouncilResources', 'noCompetenceCourseGroupUnits') }}</h5>
+        {% endfor %}
+    {% else %}
+        <h5>{{ i18n('resources.ScientificCouncilResources', 'noScientificAreaUnits') }}</h5>
+    {% endfor %}
+
+{% endblock content %}

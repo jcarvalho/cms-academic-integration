@@ -147,6 +147,46 @@
 			"name": "Scientific Area Courses",
 			"description": "Courses of a Scientific Area",
 			"file": "courses.html"
-		}
+		},
+        "dissertations":{
+            "name": "Dissertations",
+            "description":"Dissertations",
+            "file":"dissertations.html"
+        },
+        "dissertation":{
+            "name": "Dissertation",
+            "description":"Details of a specific dissertation",
+            "file":"dissertation.html"
+        },
+        "departmentFaculty":{
+            "name": "Department Faculty",
+            "description":"Department Faculty",
+            "file":"departmentFaculty.html"
+        },
+        "employeesByArea":{
+            "name": "Emplyoees by Area",
+            "description":"Shows employees organized by area",
+            "file":"employeesByArea.html"
+        },
+        "departmentCourses":{
+            "name": "Courses for a department",
+            "description":"Shows courses for a department",
+            "file":"departmentCourses.html"
+        },
+        "departmentDegrees":{
+            "name": "Degrees for a department",
+            "description":"Shows degrees for a department",
+            "file":"departmentDegrees.html"
+        },
+        "competenceCourse":{
+            "name": "Competence Course",
+            "description":"Specific competence course based on path parameter",
+            "file":"competenceCourse.html"
+        },
+        "publications":{
+            "name": "Publications",
+            "description":"Publications",
+            "file":"publications.html"
+        }
 	}
 }

@@ -2,6 +2,8 @@ package org.fenixedu.cms.domain.unit;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import net.sourceforge.fenixedu.domain.organizationalStructure.Function;
@@ -13,6 +15,7 @@ import org.fenixedu.cms.domain.component.ComponentType;
 import org.fenixedu.cms.rendering.TemplateContext;
 
 import com.google.common.collect.Maps;
+import org.joda.time.YearMonthDay;
 
 @ComponentType(name = "Unit Organization", description = "Provides the organizational structure for this unit")
 public class Organization extends UnitSiteComponent {
@@ -30,15 +33,17 @@ public class Organization extends UnitSiteComponent {
         }
 
         public Map<Function, List<PersonFunction>> getPersonFunctionsByFunction() {
-            Map<Function, List<PersonFunction>> personFunctionsByFunction = Maps.newHashMap();
-            for (Function function : getUnit().getOrderedActiveFunctions()) {
-                personFunctionsByFunction.put(function, function.getActivePersonFunctions());
-            }
-            return personFunctionsByFunction;
+            return getPersonFunctionsByFunction(getUnit());
         }
 
         public Stream<UnitFunctionsBean> getSubunitBeans() {
-            return getUnit().getSubUnits().stream().map(UnitFunctionsBean::new);
+            Predicate<Unit> hasPersons = subunit->!getPersonFunctionsByFunction(subunit).isEmpty();
+            return getUnit().getActiveSubUnits(new YearMonthDay()).stream().filter(hasPersons).map(UnitFunctionsBean::new);
+        }
+
+        private Map<Function, List<PersonFunction>> getPersonFunctionsByFunction(Unit unit) {
+            return unit.getOrderedActiveFunctions().stream().flatMap(function->function.getActivePersonFunctions().stream())
+                    .collect(Collectors.groupingBy(personFunction->personFunction.getFunction()));
         }
 
         public Unit getUnit() {

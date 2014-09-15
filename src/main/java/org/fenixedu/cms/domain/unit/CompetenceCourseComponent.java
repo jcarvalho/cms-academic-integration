@@ -1,0 +1,96 @@
+package org.fenixedu.cms.domain.unit;
+
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import net.sourceforge.fenixedu.domain.CompetenceCourse;
+import net.sourceforge.fenixedu.domain.ExecutionSemester;
+import net.sourceforge.fenixedu.domain.degreeStructure.BibliographicReferences;
+import net.sourceforge.fenixedu.domain.degreeStructure.CompetenceCourseInformation;
+import org.fenixedu.cms.domain.Page;
+import org.fenixedu.cms.domain.component.ComponentType;
+import org.fenixedu.cms.rendering.TemplateContext;
+import pt.ist.fenixframework.FenixFramework;
+
+import java.util.*;
+import java.util.function.Predicate;
+
+import static java.util.stream.Collectors.toList;
+
+@ComponentType(name = "departmentCourse", description = "Provides a specific competence course")
+public class CompetenceCourseComponent extends UnitSiteComponent {
+
+    @Override public void handle(Page page, TemplateContext componentContext, TemplateContext globalContext) {
+        CompetenceCourse competenceCourse = FenixFramework.getDomainObject(globalContext.getRequestContext()[1]);
+        ExecutionSemester semester = executionSemester(competenceCourse, globalContext.getRequestContext());
+        globalContext.put("competenceCourse", wrap(competenceCourse, semester));
+        globalContext.put("executionSemesterUrls", executionSemesterUrls(competenceCourse, page));
+    }
+
+    private Map<String, Object> wrap(CompetenceCourse competenceCourse, ExecutionSemester semester) {
+        HashMap<String, Object> wrap = Maps.newHashMap();
+        wrap.put("courseLoads", competenceCourse.getSortedCompetenceCourseLoads(semester));
+        wrap.put("mainBibliographicReferences", bibliographicReferences(competenceCourse,
+                BibliographicReferences.BibliographicReferenceType.MAIN, semester));
+        wrap.put("secondaryBibliographicReferences", bibliographicReferences(competenceCourse,
+                BibliographicReferences.BibliographicReferenceType.SECONDARY, semester));
+        wrap.put("executionSemester", semester);
+        wrap.put("evaluationMethod", competenceCourse.getLocalizedEvaluationMethod(semester));
+        wrap.put("program", competenceCourse.getProgramI18N(semester).toLocalizedString());
+        wrap.put("objectives", competenceCourse.getObjectivesI18N(semester).toLocalizedString());
+        wrap.put("regime", competenceCourse.getRegime(semester).getLocalizedName());
+        wrap.put("isBasic", competenceCourse.isBasic(semester));
+        wrap.put("competenceCourseLevel", competenceCourse.getLocalizedEvaluationMethod(semester));
+        wrap.put("associatedCurricularCourses", competenceCourse.getAssociatedCurricularCoursesSet());
+        wrap.put("competenceCourseGroupUnit", competenceCourse.getCompetenceCourseGroupUnit(semester));
+        return wrap;
+    }
+
+    private Map<ExecutionSemester, String> executionSemesterUrls(CompetenceCourse competenceCourse, Page page) {
+        Map<ExecutionSemester, String> semesterUrl = Maps.newHashMap();
+        for (ExecutionSemester semester : executionSemesters(competenceCourse)) {
+            semesterUrl.put(semester,
+                    String.format("%s/%s/%s", page.getAddress(), competenceCourse.getExternalId(), semester.getExternalId()));
+        }
+        return semesterUrl;
+    }
+
+    private List<BibliographicReferences.BibliographicReference> bibliographicReferences(CompetenceCourse competenceCourse,
+            BibliographicReferences.BibliographicReferenceType type, ExecutionSemester semester) {
+        Predicate<BibliographicReferences.BibliographicReference> isType =
+                bibliographicReference -> bibliographicReference.getType().equals(type);
+        return bibliographicReferences(competenceCourse, semester).stream().filter(isType).collect(toList());
+    }
+
+    private List<BibliographicReferences.BibliographicReference> bibliographicReferences(CompetenceCourse competenceCourse,
+            ExecutionSemester semester) {
+        if(competenceCourse.getBibliographicReferences(semester) != null) {
+            return competenceCourse.getBibliographicReferences(semester).getBibliographicReferencesList();
+        } else {
+            return Lists.newArrayList();
+        }
+    }
+
+    private ExecutionSemester executionSemester(CompetenceCourse competenceCourse, String[] requestContext) {
+        if(requestContext.length>=3 && !Strings.isNullOrEmpty(requestContext[2])) {
+            return FenixFramework.getDomainObject(requestContext[2]);
+        } else {
+            Optional<CompetenceCourseInformation> information = competenceCourse.getCompetenceCourseInformationsSet().stream().findFirst();
+            return information.isPresent() ? information.get().getExecutionPeriod() : ExecutionSemester.readActualExecutionSemester();
+        }
+    }
+
+    private TreeSet<ExecutionSemester> executionSemesters(CompetenceCourse competenceCourse) {
+        final TreeSet<ExecutionSemester> result = Sets.newTreeSet(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR);
+        ExecutionSemester semester = competenceCourse.getStartExecutionSemester();
+        result.add(semester);
+        while (semester.hasNextExecutionPeriod()) {
+            semester = semester.getNextExecutionPeriod();
+            result.add(semester);
+        }
+        return result;
+    }
+
+
+}
