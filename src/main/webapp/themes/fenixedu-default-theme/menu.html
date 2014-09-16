@@ -1,6 +1,6 @@
 {% macro menuChildren(menuItems) %}
   {% if menuItems is not empty %}
-    <ul class="list-unstyled children">
+    <ul class="nav nav-pills nav-stacked list-unstyled children">
       {% lazyFor item in menuItems %}
           {% if item.isFolder %}
             {{ menuFolder(item) }}
@@ -30,7 +30,7 @@
     {% endif %}
 {% endmacro %}
 
-<div class="col-sm-3 col-sm-offset-1 blog-sidebar">
+<nav class="col-sm-3 blog-sidebar">
   <!-- TOP MENU -->
   {% for menu in topMenus %}
     <div class="sidebar-module">
@@ -46,9 +46,16 @@
       <h4>{{ menu.name.content }}</h4>
       {{ menuChildren(menu.children) }}
     </div>
-    <hr>
   {% endfor %}
-</div>
+
+  <!-- REGULAR MENU -->
+  {% for menu in menus %}
+    <div class="sidebar-module">
+      <h4>{{ menu.name.content }}</h4>
+      {{ menuChildren(menu.children) }}
+    </div>
+  {% endfor %}
+</nav>
 
 <script type="text/javascript">
   $('.menuFolder:not(.open)>.children').hide();
@@ -58,27 +65,3 @@
     event.preventDefault();
   });
 </script>
-
-<style type="text/css">
-  .list-unstyled {
-    padding-left: 5px;
-  }
-
-  .menuItem:not(.open) {
-    /* TODO - menu items that are not open*/
-  }
-
-  .menuFolder:not(.open) {
-    /* TODO - menu items that are not open*/
-  }
-
-  .open {
-    /*TODO - when a folder or item is open*/  
-  }
-
-  .active {
-    /*TODO - when an item is active*/
-    font-weight: bold;
-  }
-
-</style>

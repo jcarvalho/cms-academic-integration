@@ -1,19 +1,6 @@
 {% extends "fenixedu-default-theme/base.html" %}
 {% import "fenixedu-default-theme/view.html" %}
 
-{% macro personName(person) %}
-	{% if person.homepage is not empty %}
-		{% if person.homepage.activated is not empty %}
-			{% if person.homepage.activated %}
-				<a href="{{ person.homepage.fullPath }}">{{ person.nickname }}</a>
-			{% else %}
-				<p>{{ person.name }}</p>
-			{% endif %}
-		{% else %}
-			{{ person.nickname }}
-		{% endif %}
-	{% endif %}
-{% endmacro %}
 {% block content %}
 
 
@@ -48,20 +35,25 @@
 {% if professorships is not empty %}
 	<h4>{{ i18n('resources.ApplicationResources', 'label.lecturingTeachers') }}</h4>
 
-	{% for professorship in professorships %}
-		{% if professorship.responsibleFor %}
-			<p>
-				{{ personName(professorship.person)}}
-				({{ i18n('resources.ApplicationResources', 'label.responsible') }})
-			</p>
-		{% endif %}
-	{% endfor %}
-
-	{% for professorship in professorships %}
-		{% if not professorship.responsibleFor %}
-			<p>{{ personName(professorship.person)}}</p>
-		{% endif %}
-	{% endfor %}
+	<div class="row">
+		{% for professorship in professorships %}
+			<div class="col-sm-6">
+				<div class="col-sm-3 text-center">
+					<img class="img-circle" width="60" src="{{professorship.person.user.profile.avatarUrl}}?s=60"/>
+				</div>
+				<div class="col-sm-9">
+					{% if professorship.person.homePageAvailable %}
+						<a href="{{professorship.person.homepageWebAddress}}">{{professorship.person.name}}</a>
+					{% else %}
+						{{professorship.person.name}}
+					{% endif %}
+					{% if professorship.responsibleFor %}
+						<p class="badge">{{ i18n('resources.ApplicationResources', 'label.responsible') }}</p>
+					{% endif %}
+				</div>
+			</div>
+		{% endfor %}
+	</div>
 
 {% endif %}
 
