@@ -132,6 +132,21 @@
 			"name": "Unit Organization",
 			"description":"Organization of a Research Unit",
 			"file":"unitOrganization.html"
+		},
+		"teachers":{
+			"name": "Scientific Area Teachers",
+			"description":"Teachers of a Scientific Area",
+			"file":"teachers.html"
+		},
+		"employees":{
+			"name": "Unit Employees",
+			"description":"Employees of a Unit",
+			"file":"employees.html"
+		},
+		"courses":{
+			"name": "Scientific Area Courses",
+			"description": "Courses of a Scientific Area",
+			"file": "courses.html"
 		}
 	}
 }

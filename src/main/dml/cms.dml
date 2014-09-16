@@ -1,12 +1,12 @@
 package org.fenixedu.cms.domain;
 
-class researchUnit.ResearchUnitSite extends .org.fenixedu.bennu.cms.domain.Site {}
+public class unit.UnitSite extends .org.fenixedu.bennu.cms.domain.Site;
 
 class executionCourse.ExecutionCourseSite extends .org.fenixedu.bennu.cms.domain.Site {}
 
-relation ResearchUnitSiteHasResearchUnit {
-	researchUnit.ResearchUnitSite playsRole cmsSite;
-	.net.sourceforge.fenixedu.domain.organizationalStructure.ResearchUnit playsRole researchUnit;
+relation UnitSiteHasUnit {
+    unit.UnitSite playsRole unitSite;
+    .net.sourceforge.fenixedu.domain.organizationalStructure.Unit playsRole unit;
 }
 
 relation ExecutionCourseFenixEduExecutionCourseSite {

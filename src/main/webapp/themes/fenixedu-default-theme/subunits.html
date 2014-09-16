@@ -1,15 +1,15 @@
 {% extends "fenixedu-default-theme/base.html" %}
 
 {% block content %}
-	{% if subunits is not empty %}
+	{% if subunits.findAny.isPresent %}
 		<ul>
-			{% for subunit in subunits %}
+			{% lazyFor subunit in subunits %}
 				<li>
 					<a href="{{ subunit.cmsSite.initialPage.address }}">
 						{{ subunit.nameI18n }}
 					</a>
 				</li>
-			{% endfor %}
+			{% endLazyFor %}
 		</ul>
 	{% else %}
 		<h4>{{ i18n('resources.SiteResources', 'message.unitSite.unit.subunits.empty') }}</h4>

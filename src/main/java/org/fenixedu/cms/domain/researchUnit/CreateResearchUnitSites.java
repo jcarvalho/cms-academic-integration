@@ -1,6 +1,6 @@
 package org.fenixedu.cms.domain.researchUnit;
 
-import static org.fenixedu.bennu.cms.domain.component.StrategyBasedComponent.forType;
+import static org.fenixedu.bennu.cms.domain.component.Component.forType;
 import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
 import static org.fenixedu.cms.domain.MigrationUtil.BUNDLE;
 import static org.fenixedu.cms.domain.MigrationUtil.CATEGORY_TEMPLATE;
@@ -32,10 +32,10 @@ import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
 import org.fenixedu.cms.domain.MigrationUtil;
 import org.fenixedu.cms.domain.MigrationUtil.PageTemplate;
-import org.fenixedu.cms.domain.researchUnit.components.HomeComponent;
-import org.fenixedu.cms.domain.researchUnit.components.Organization;
-import org.fenixedu.cms.domain.researchUnit.components.ResearchUnitComponent;
-import org.fenixedu.cms.domain.researchUnit.components.SubUnits;
+import org.fenixedu.cms.domain.unit.HomeComponent;
+import org.fenixedu.cms.domain.unit.Organization;
+import org.fenixedu.cms.domain.unit.SubUnits;
+import org.fenixedu.cms.domain.unit.UnitSite;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 import pt.ist.fenixframework.Atomic;
@@ -69,7 +69,7 @@ public class CreateResearchUnitSites extends CustomTask {
 
     @Override
     public void runTask() throws Exception {
-        MigrationUtil.deleteSiteClass(ResearchUnitSite.class);
+        // MigrationUtil.deleteSiteClass(ResearchUnitSite.class);
         MigrationUtil.deleteMatchingFolder(RESEARCH_UNIT_SITE_FOLDER);
 
         Iterable<List<net.sourceforge.fenixedu.domain.ResearchUnitSite>> oldSitesChunks =
@@ -135,7 +135,7 @@ public class CreateResearchUnitSites extends CustomTask {
 
     private Site migrateResearchUnitSite(net.sourceforge.fenixedu.domain.ResearchUnitSite oldSite) {
 
-        ResearchUnitSite newSite = new ResearchUnitSite(oldSite.getUnit());
+        UnitSite newSite = new UnitSite(oldSite.getUnit());
 
         newSite.setDescription(MigrationUtil.localized(oldSite.getDescription()));
         newSite.setName(oldSite.getUnit().getNameI18n().toLocalizedString());

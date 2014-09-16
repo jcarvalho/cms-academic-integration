@@ -24,9 +24,9 @@
             {% endif %}
         {% endfor %}
 
-        {% for subUnitBean in unitBean.subunitBeans %}
+        {% lazyFor subUnitBean in unitBean.subunitBeans %}
             <div class="subUnits">{{ unitOrganization(subUnitBean) }}</div>
-        {% endfor %}
+        {% endLazyFor %}
     {% endif %}
 {% endmacro %}
 

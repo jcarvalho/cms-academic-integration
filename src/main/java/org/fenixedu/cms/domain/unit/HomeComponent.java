@@ -1,5 +1,6 @@
-package org.fenixedu.cms.domain.researchUnit.components;
+package org.fenixedu.cms.domain.unit;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.fenixedu.bennu.cms.domain.Category;
@@ -9,8 +10,6 @@ import org.fenixedu.bennu.cms.domain.PostsPresentationBean;
 import org.fenixedu.bennu.cms.domain.component.CMSComponent;
 import org.fenixedu.bennu.cms.domain.component.ComponentType;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
-
-import com.google.common.collect.Lists;
 
 @ComponentType(name = "Unit Homepage", description = "Provides the latest events and announcements")
 public class HomeComponent implements CMSComponent {
@@ -24,8 +23,8 @@ public class HomeComponent implements CMSComponent {
     }
 
     private List<Post> postsForCategory(Category category) {
-        return category != null ? new PostsPresentationBean(category.getPostsSet()).getVisiblePosts(NUM_POSTS) : Lists
-                .newArrayList();
+        return category != null ? new PostsPresentationBean(category.getPostsSet()).getVisiblePosts(NUM_POSTS) : Collections
+                .emptyList();
     }
 
 }

@@ -1,0 +1,27 @@
+{% extends "fenixedu-default-theme/base.html" %}
+
+{% import "fenixedu-default-theme/personCard.html" %}
+
+{% block content %}
+
+{{personsCards(employees, i18n('resources.SiteResources', 'label.employees'))}}
+
+
+	<style type="text/css">
+		.person-card-item {
+			list-style-type: none;
+		}
+		.persons-title {
+			padding-top: 7px;
+			padding-bottom: 10px;
+		}
+		.person-card {
+			height: 100px;
+			margin: 15px;
+		}
+		.person-details {
+			margin-top: 10px;
+		}
+	</style>
+
+{% endblock content %}

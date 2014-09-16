@@ -1,19 +1,18 @@
-package org.fenixedu.cms.domain.researchUnit.components;
+package org.fenixedu.cms.domain.researchUnit;
 
 import net.sourceforge.fenixedu.domain.organizationalStructure.ResearchUnit;
 
 import org.fenixedu.bennu.cms.domain.Page;
-import org.fenixedu.bennu.cms.domain.component.CMSComponent;
 import org.fenixedu.bennu.cms.domain.component.ComponentType;
 import org.fenixedu.bennu.cms.rendering.TemplateContext;
-import org.fenixedu.cms.domain.researchUnit.ResearchUnitSite;
+import org.fenixedu.cms.domain.unit.UnitSiteComponent;
 
 @ComponentType(name = "Research Unit", description = "Provides the research unit associated with the site")
-public class ResearchUnitComponent implements CMSComponent {
+public class ResearchUnitComponent extends UnitSiteComponent {
 
     @Override
     public void handle(Page page, TemplateContext componentContext, TemplateContext globalContext) {
-        ResearchUnit researchUnit = ((ResearchUnitSite) page.getSite()).getResearchUnit();
+        ResearchUnit researchUnit = (ResearchUnit) unit(page);
         componentContext.put("researchUnit", researchUnit);
         globalContext.put("researchUnit", researchUnit);
     }
