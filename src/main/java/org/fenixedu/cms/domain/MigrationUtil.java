@@ -368,8 +368,8 @@ public class MigrationUtil {
 
         newSite.setCreatedBy(Authenticate.getUser()); //sites do not have a creator. This could have been set to another value before so that pages and posts inherit it though.
 
-        Menu mainMenu = sideMenu == null || sideMenu.getChildrenSorted().isEmpty() ? topMenu : sideMenu;
-        newSite.setInitialPage(mainMenu.getChildrenSorted().get(0).getPage()); //first page in the main site menu is the initial page by default
+        Menu mainMenu = sideMenu == null || sideMenu.getToplevelItemsSet().isEmpty() ? topMenu : sideMenu;
+        newSite.setInitialPage(mainMenu.getToplevelItemsSorted().findFirst().get().getPage()); //first page in the main site menu is the initial page by default
 
     }
 
