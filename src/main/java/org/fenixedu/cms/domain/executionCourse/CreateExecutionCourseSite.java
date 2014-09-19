@@ -1,6 +1,5 @@
 package org.fenixedu.cms.domain.executionCourse;
 
-import static org.fenixedu.bennu.cms.domain.component.StrategyBasedComponent.forType;
 import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
 import static org.fenixedu.cms.domain.MigrationUtil.ANNOUNCEMENTS_SLUG;
 import static org.fenixedu.cms.domain.MigrationUtil.ANNOUNCEMENTS_TITLE;
@@ -20,6 +19,7 @@ import static org.fenixedu.cms.domain.MigrationUtil.SCHEDULE_TEMPLATE;
 import static org.fenixedu.cms.domain.MigrationUtil.SHIFTS_TEMPLATE;
 import static org.fenixedu.cms.domain.MigrationUtil.VIEW_POST_TITLE;
 import static org.fenixedu.cms.domain.MigrationUtil.VIEW_TEMPLATE;
+import static org.fenixedu.cms.domain.component.Component.forType;
 import static pt.ist.fenixframework.FenixFramework.atomic;
 
 import java.util.ArrayList;
@@ -30,19 +30,18 @@ import java.util.Set;
 
 import net.sourceforge.fenixedu.domain.ExecutionCourse;
 
-import org.fenixedu.bennu.cms.domain.CMSFolder;
-import org.fenixedu.bennu.cms.domain.Category;
-import org.fenixedu.bennu.cms.domain.Post;
-import org.fenixedu.bennu.cms.domain.Site;
-import org.fenixedu.bennu.cms.domain.component.ListCategoryPosts;
-import org.fenixedu.bennu.cms.domain.component.ViewPost;
-import org.fenixedu.bennu.cms.routing.CMSBackend;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.portal.domain.MenuFunctionality;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
+import org.fenixedu.cms.domain.CMSFolder;
+import org.fenixedu.cms.domain.Category;
 import org.fenixedu.cms.domain.MigrationUtil;
 import org.fenixedu.cms.domain.MigrationUtil.PageTemplate;
+import org.fenixedu.cms.domain.Post;
+import org.fenixedu.cms.domain.Site;
+import org.fenixedu.cms.domain.component.ListCategoryPosts;
+import org.fenixedu.cms.domain.component.ViewPost;
 import org.fenixedu.cms.domain.executionCourse.components.BibliographicReferencesComponent;
 import org.fenixedu.cms.domain.executionCourse.components.EvaluationsComponent;
 import org.fenixedu.cms.domain.executionCourse.components.ExecutionCourseComponent;
@@ -53,6 +52,7 @@ import org.fenixedu.cms.domain.executionCourse.components.LessonPlanComponent;
 import org.fenixedu.cms.domain.executionCourse.components.MarksComponent;
 import org.fenixedu.cms.domain.executionCourse.components.ObjectivesComponent;
 import org.fenixedu.cms.domain.executionCourse.components.ScheduleComponent;
+import org.fenixedu.cms.routing.CMSBackend;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 import pt.ist.fenixframework.Atomic;

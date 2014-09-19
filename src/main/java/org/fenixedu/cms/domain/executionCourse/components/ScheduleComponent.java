@@ -15,14 +15,14 @@ import net.sourceforge.fenixedu.domain.Shift;
 import net.sourceforge.fenixedu.domain.person.RoleType;
 import net.sourceforge.fenixedu.util.PeriodState;
 
-import org.fenixedu.bennu.cms.domain.Page;
-import org.fenixedu.bennu.cms.domain.component.CMSComponent;
-import org.fenixedu.bennu.cms.domain.component.ComponentType;
-import org.fenixedu.bennu.cms.rendering.TemplateContext;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.cms.domain.Page;
+import org.fenixedu.cms.domain.component.CMSComponent;
+import org.fenixedu.cms.domain.component.ComponentType;
 import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
 import org.fenixedu.cms.domain.executionCourse.LessonBean;
+import org.fenixedu.cms.rendering.TemplateContext;
 
 import com.google.common.collect.Lists;
 

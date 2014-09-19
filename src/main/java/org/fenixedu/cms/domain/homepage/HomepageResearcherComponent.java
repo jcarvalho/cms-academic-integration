@@ -2,12 +2,12 @@ package org.fenixedu.cms.domain.homepage;
 
 import net.sourceforge.fenixedu.domain.homepage.Homepage;
 
-import org.fenixedu.bennu.cms.domain.Page;
-import org.fenixedu.bennu.cms.domain.Site;
-import org.fenixedu.bennu.cms.domain.component.ComponentParameter;
-import org.fenixedu.bennu.cms.domain.component.ComponentType;
-import org.fenixedu.bennu.cms.domain.component.DynamicComponent;
-import org.fenixedu.bennu.cms.rendering.TemplateContext;
+import org.fenixedu.cms.domain.Page;
+import org.fenixedu.cms.domain.Site;
+import org.fenixedu.cms.domain.component.ComponentParameter;
+import org.fenixedu.cms.domain.component.ComponentType;
+import org.fenixedu.cms.domain.component.DynamicComponent;
+import org.fenixedu.cms.rendering.TemplateContext;
 import org.fenixedu.commons.i18n.I18N;
 
 @ComponentType(name = "Researcher Section Data Component",

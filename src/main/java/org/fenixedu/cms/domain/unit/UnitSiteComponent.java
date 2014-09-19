@@ -2,9 +2,9 @@ package org.fenixedu.cms.domain.unit;
 
 import net.sourceforge.fenixedu.domain.organizationalStructure.Unit;
 
-import org.fenixedu.bennu.cms.domain.Page;
-import org.fenixedu.bennu.cms.domain.component.CMSComponent;
-import org.fenixedu.bennu.cms.exceptions.ResourceNotFoundException;
+import org.fenixedu.cms.domain.Page;
+import org.fenixedu.cms.domain.component.CMSComponent;
+import org.fenixedu.cms.exceptions.ResourceNotFoundException;
 
 public abstract class UnitSiteComponent implements CMSComponent {
 

@@ -8,9 +8,9 @@ import net.sourceforge.fenixedu.domain.organizationalStructure.Function;
 import net.sourceforge.fenixedu.domain.organizationalStructure.PersonFunction;
 import net.sourceforge.fenixedu.domain.organizationalStructure.Unit;
 
-import org.fenixedu.bennu.cms.domain.Page;
-import org.fenixedu.bennu.cms.domain.component.ComponentType;
-import org.fenixedu.bennu.cms.rendering.TemplateContext;
+import org.fenixedu.cms.domain.Page;
+import org.fenixedu.cms.domain.component.ComponentType;
+import org.fenixedu.cms.rendering.TemplateContext;
 
 import com.google.common.collect.Maps;
 

@@ -7,11 +7,11 @@ import net.sourceforge.fenixedu.domain.ExecutionCourse;
 import net.sourceforge.fenixedu.domain.degreeStructure.BibliographicReferences.BibliographicReference;
 import net.sourceforge.fenixedu.domain.degreeStructure.CompetenceCourseInformation;
 
-import org.fenixedu.bennu.cms.domain.Page;
-import org.fenixedu.bennu.cms.domain.component.CMSComponent;
-import org.fenixedu.bennu.cms.domain.component.ComponentType;
-import org.fenixedu.bennu.cms.rendering.TemplateContext;
+import org.fenixedu.cms.domain.Page;
+import org.fenixedu.cms.domain.component.CMSComponent;
+import org.fenixedu.cms.domain.component.ComponentType;
 import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
+import org.fenixedu.cms.rendering.TemplateContext;
 
 import com.google.common.collect.Lists;
 

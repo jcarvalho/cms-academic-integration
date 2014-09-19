@@ -3,13 +3,13 @@ package org.fenixedu.cms.domain.unit;
 import java.util.Collections;
 import java.util.List;
 
-import org.fenixedu.bennu.cms.domain.Category;
-import org.fenixedu.bennu.cms.domain.Page;
-import org.fenixedu.bennu.cms.domain.component.CMSComponent;
-import org.fenixedu.bennu.cms.domain.component.ComponentType;
-import org.fenixedu.bennu.cms.domain.component.PostsPresentationBean;
-import org.fenixedu.bennu.cms.domain.wraps.Wrap;
-import org.fenixedu.bennu.cms.rendering.TemplateContext;
+import org.fenixedu.cms.domain.Category;
+import org.fenixedu.cms.domain.Page;
+import org.fenixedu.cms.domain.component.CMSComponent;
+import org.fenixedu.cms.domain.component.ComponentType;
+import org.fenixedu.cms.domain.component.PostsPresentationBean;
+import org.fenixedu.cms.domain.wraps.Wrap;
+import org.fenixedu.cms.rendering.TemplateContext;
 
 @ComponentType(name = "Unit Homepage", description = "Provides the latest events and announcements")
 public class HomeComponent implements CMSComponent {

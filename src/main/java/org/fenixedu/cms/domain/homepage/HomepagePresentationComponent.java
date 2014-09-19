@@ -16,13 +16,13 @@ import net.sourceforge.fenixedu.domain.contacts.PartyContactType;
 import net.sourceforge.fenixedu.domain.homepage.Homepage;
 import net.sourceforge.fenixedu.domain.person.RoleType;
 
-import org.fenixedu.bennu.cms.domain.Page;
-import org.fenixedu.bennu.cms.domain.Site;
-import org.fenixedu.bennu.cms.domain.component.CMSComponent;
-import org.fenixedu.bennu.cms.domain.component.ComponentType;
-import org.fenixedu.bennu.cms.rendering.TemplateContext;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.cms.domain.Page;
+import org.fenixedu.cms.domain.Site;
+import org.fenixedu.cms.domain.component.CMSComponent;
+import org.fenixedu.cms.domain.component.ComponentType;
+import org.fenixedu.cms.rendering.TemplateContext;
 
 @ComponentType(name = "Presentation Component", description = "Provides homepage owner's presentation data.")
 public class HomepagePresentationComponent implements CMSComponent {
@@ -31,7 +31,7 @@ public class HomepagePresentationComponent implements CMSComponent {
     public void handle(Page page, TemplateContext local, TemplateContext global) {
         Homepage homepage = homepage(page.getSite());
         if (homepage == null || !homepage.isHomepageActivated()) {
-            return; //TODO we might want 404 here
+            return; //TODO we might want 404 here 
         }
 
         global.put("homepage", homepage);

@@ -4,9 +4,9 @@ import java.util.stream.Stream;
 
 import net.sourceforge.fenixedu.domain.organizationalStructure.Unit;
 
-import org.fenixedu.bennu.cms.domain.Page;
-import org.fenixedu.bennu.cms.domain.component.ComponentType;
-import org.fenixedu.bennu.cms.rendering.TemplateContext;
+import org.fenixedu.cms.domain.Page;
+import org.fenixedu.cms.domain.component.ComponentType;
+import org.fenixedu.cms.rendering.TemplateContext;
 
 @ComponentType(name = "Subunits", description = "Subunits of a research unit that have a site")
 public class SubUnits extends UnitSiteComponent {

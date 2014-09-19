@@ -12,10 +12,10 @@ import net.sourceforge.fenixedu.domain.Teacher;
 import net.sourceforge.fenixedu.domain.organizationalStructure.Unit;
 import net.sourceforge.fenixedu.domain.personnelSection.contracts.ProfessionalCategory;
 
-import org.fenixedu.bennu.cms.domain.Page;
-import org.fenixedu.bennu.cms.domain.component.ComponentType;
-import org.fenixedu.bennu.cms.rendering.TemplateContext;
+import org.fenixedu.cms.domain.Page;
+import org.fenixedu.cms.domain.component.ComponentType;
 import org.fenixedu.cms.domain.unit.UnitSiteComponent;
+import org.fenixedu.cms.rendering.TemplateContext;
 import org.joda.time.YearMonthDay;
 
 @SuppressWarnings("deprecation")

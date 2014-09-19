@@ -21,21 +21,13 @@ import net.sourceforge.fenixedu.domain.cms.TemplatedSectionInstance;
 import net.sourceforge.fenixedu.domain.messaging.Announcement;
 import net.sourceforge.fenixedu.domain.messaging.AnnouncementBoard;
 
-import org.fenixedu.bennu.cms.domain.CMSTheme;
-import org.fenixedu.bennu.cms.domain.Category;
-import org.fenixedu.bennu.cms.domain.Menu;
-import org.fenixedu.bennu.cms.domain.MenuItem;
-import org.fenixedu.bennu.cms.domain.Page;
-import org.fenixedu.bennu.cms.domain.Post;
-import org.fenixedu.bennu.cms.domain.Site;
-import org.fenixedu.bennu.cms.domain.component.Component;
-import org.fenixedu.bennu.cms.domain.component.ListCategoryPosts;
-import org.fenixedu.bennu.cms.domain.component.SideMenuComponent;
-import org.fenixedu.bennu.cms.domain.component.TopMenuComponent;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
+import org.fenixedu.cms.domain.component.Component;
+import org.fenixedu.cms.domain.component.ListCategoryPosts;
+import org.fenixedu.cms.domain.component.MenuComponent;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.spaces.domain.Space;
 import org.joda.time.DateTime;
@@ -324,12 +316,7 @@ public class MigrationUtil {
     public static void addPages(Site newSite, Collection<PageTemplate> pageTemplates, boolean topMenu) {
         Menu menu = newSite.getMenusSet().isEmpty() ? new Menu(newSite, MENU) : newSite.getMenusSet().iterator().next();
 
-        Component menuComponent;
-        if (topMenu) {
-            menuComponent = new TopMenuComponent(menu);
-        } else {
-            menuComponent = new SideMenuComponent(menu);
-        }
+        Component menuComponent = new MenuComponent(menu);
         for (PageTemplate pageTemplate : pageTemplates) {
             Page page = pageTemplate.buildPage(newSite);
             if (pageTemplate.isOnMenu) {
@@ -357,12 +344,12 @@ public class MigrationUtil {
         Menu topMenu = migrateMenuSections(TOP_MENU, selectTopMenuSections(oldSite));
 
         if (sideMenu != null) {
-            Component menuComponent = new SideMenuComponent(sideMenu);
+            Component menuComponent = new MenuComponent(sideMenu);
             newSite.getPagesSet().forEach(p -> p.addComponents(menuComponent));
         }
 
         if (topMenu != null) {
-            Component menuComponent = new TopMenuComponent(topMenu);
+            Component menuComponent = new MenuComponent(topMenu);
             newSite.getPagesSet().forEach(p -> p.addComponents(menuComponent));
         }
 

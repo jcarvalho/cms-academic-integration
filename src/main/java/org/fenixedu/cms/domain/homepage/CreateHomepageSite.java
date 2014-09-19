@@ -10,13 +10,13 @@ import java.util.Map;
 
 import net.sourceforge.fenixedu.domain.homepage.Homepage;
 
-import org.fenixedu.bennu.cms.domain.CMSFolder;
-import org.fenixedu.bennu.cms.domain.Site;
-import org.fenixedu.bennu.cms.domain.component.StrategyBasedComponent;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
+import org.fenixedu.cms.domain.CMSFolder;
 import org.fenixedu.cms.domain.MigrationUtil;
 import org.fenixedu.cms.domain.MigrationUtil.PageTemplate;
+import org.fenixedu.cms.domain.Site;
+import org.fenixedu.cms.domain.component.StrategyBasedComponent;
 import org.fenixedu.cms.domain.executionCourse.CreateExecutionCourseSite;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.slf4j.Logger;

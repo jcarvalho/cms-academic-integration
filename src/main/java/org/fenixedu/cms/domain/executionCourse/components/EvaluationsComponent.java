@@ -6,11 +6,11 @@ import java.util.stream.Collectors;
 import net.sourceforge.fenixedu.domain.Exam;
 import net.sourceforge.fenixedu.domain.ExecutionCourse;
 
-import org.fenixedu.bennu.cms.domain.Page;
-import org.fenixedu.bennu.cms.domain.component.CMSComponent;
-import org.fenixedu.bennu.cms.domain.component.ComponentType;
-import org.fenixedu.bennu.cms.rendering.TemplateContext;
+import org.fenixedu.cms.domain.Page;
+import org.fenixedu.cms.domain.component.CMSComponent;
+import org.fenixedu.cms.domain.component.ComponentType;
 import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
+import org.fenixedu.cms.rendering.TemplateContext;
 
 @ComponentType(name = "Evaluations", description = "Evaluations for an Execution Course")
 public class EvaluationsComponent implements CMSComponent {

@@ -7,9 +7,9 @@ import javax.servlet.annotation.WebListener;
 import net.sourceforge.fenixedu.domain.ExecutionCourse;
 import net.sourceforge.fenixedu.domain.Summary;
 
-import org.fenixedu.bennu.cms.domain.Post;
 import org.fenixedu.bennu.signals.DomainObjectEvent;
 import org.fenixedu.bennu.signals.Signal;
+import org.fenixedu.cms.domain.Post;
 import org.fenixedu.cms.domain.executionCourse.ExecutionCourseListener;
 import org.fenixedu.cms.domain.executionCourse.SummaryListener;
 

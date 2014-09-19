@@ -6,10 +6,10 @@ import java.util.Collection;
 
 import net.sourceforge.fenixedu.domain.ExecutionCourse;
 
-import org.fenixedu.bennu.cms.domain.Page;
 import org.fenixedu.bennu.signals.DomainObjectEvent;
 import org.fenixedu.cms.domain.MigrationUtil;
 import org.fenixedu.cms.domain.MigrationUtil.PageTemplate;
+import org.fenixedu.cms.domain.Page;
 
 import com.google.common.eventbus.Subscribe;
 

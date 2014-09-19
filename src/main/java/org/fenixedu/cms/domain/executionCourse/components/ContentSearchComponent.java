@@ -1,9 +1,9 @@
 package org.fenixedu.cms.domain.executionCourse.components;
 
-import org.fenixedu.bennu.cms.domain.Page;
-import org.fenixedu.bennu.cms.domain.component.CMSComponent;
-import org.fenixedu.bennu.cms.domain.component.ComponentType;
-import org.fenixedu.bennu.cms.rendering.TemplateContext;
+import org.fenixedu.cms.domain.Page;
+import org.fenixedu.cms.domain.component.CMSComponent;
+import org.fenixedu.cms.domain.component.ComponentType;
+import org.fenixedu.cms.rendering.TemplateContext;
 
 @ComponentType(name = "ContentSearch", description = "Search content of an Execution Course")
 public class ContentSearchComponent implements CMSComponent {

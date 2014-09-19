@@ -1,6 +1,5 @@
 package org.fenixedu.cms.domain.researchUnit;
 
-import static org.fenixedu.bennu.cms.domain.component.Component.forType;
 import static org.fenixedu.bennu.core.i18n.BundleUtil.getLocalizedString;
 import static org.fenixedu.cms.domain.MigrationUtil.BUNDLE;
 import static org.fenixedu.cms.domain.MigrationUtil.CATEGORY_TEMPLATE;
@@ -19,23 +18,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.fenixedu.bennu.cms.domain.CMSFolder;
-import org.fenixedu.bennu.cms.domain.Category;
-import org.fenixedu.bennu.cms.domain.Site;
-import org.fenixedu.bennu.cms.domain.component.ListCategoryPosts;
-import org.fenixedu.bennu.cms.domain.component.StrategyBasedComponent;
-import org.fenixedu.bennu.cms.domain.component.ViewPost;
-import org.fenixedu.bennu.cms.routing.CMSBackend;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.portal.domain.MenuFunctionality;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
+import org.fenixedu.cms.domain.CMSFolder;
+import org.fenixedu.cms.domain.Category;
 import org.fenixedu.cms.domain.MigrationUtil;
 import org.fenixedu.cms.domain.MigrationUtil.PageTemplate;
+import org.fenixedu.cms.domain.Site;
+import org.fenixedu.cms.domain.component.Component;
+import org.fenixedu.cms.domain.component.ListCategoryPosts;
+import org.fenixedu.cms.domain.component.StrategyBasedComponent;
+import org.fenixedu.cms.domain.component.ViewPost;
 import org.fenixedu.cms.domain.unit.HomeComponent;
 import org.fenixedu.cms.domain.unit.Organization;
 import org.fenixedu.cms.domain.unit.SubUnits;
 import org.fenixedu.cms.domain.unit.UnitSite;
+import org.fenixedu.cms.routing.CMSBackend;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 import pt.ist.fenixframework.Atomic;
@@ -96,8 +96,8 @@ public class CreateResearchUnitSites extends CustomTask {
 
     private static Map<String, PageTemplate> getMigrationTemplates() {
         if (migrationTemplates.isEmpty()) {
-            migrationTemplates.put(HOMEPAGE_PATH, new PageTemplate(HOMEPAGE_TITLE, null, UNIT_HOMEPAGE_TEMPLATE,
-                    StrategyBasedComponent.forType(HomeComponent.class)));
+            migrationTemplates.put(HOMEPAGE_PATH,
+                    new PageTemplate(HOMEPAGE_TITLE, null, UNIT_HOMEPAGE_TEMPLATE, Component.forType(HomeComponent.class)));
             migrationTemplates.put(MEMBERS_PATH, new PageTemplate(MEMBERS_TITLE, null, UNIT_MEMBERS_TEMPLATE,
                     StrategyBasedComponent.forType(ResearchUnitComponent.class)));
             migrationTemplates.put(SUBUNITS_PATH, new PageTemplate(SUBUNITS_TITLE, null, SUBUNITS_TEMPLATE,
@@ -124,7 +124,8 @@ public class CreateResearchUnitSites extends CustomTask {
 
     private static List<PageTemplate> getAdditionalTemplates() {
         if (additionalTemplates.isEmpty()) {
-            additionalTemplates.add(new PageTemplate(VIEW_POST_TITLE, null, VIEW_TEMPLATE, false, forType(ViewPost.class)));
+            additionalTemplates.add(new PageTemplate(VIEW_POST_TITLE, null, VIEW_TEMPLATE, false, Component
+                    .forType(ViewPost.class)));
         }
         return additionalTemplates;
     }

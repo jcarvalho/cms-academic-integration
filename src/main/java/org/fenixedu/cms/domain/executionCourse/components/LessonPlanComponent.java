@@ -8,11 +8,11 @@ import net.sourceforge.fenixedu.domain.ExecutionCourse;
 import net.sourceforge.fenixedu.domain.LessonPlanning;
 import net.sourceforge.fenixedu.domain.ShiftType;
 
-import org.fenixedu.bennu.cms.domain.Page;
-import org.fenixedu.bennu.cms.domain.component.CMSComponent;
-import org.fenixedu.bennu.cms.domain.component.ComponentType;
-import org.fenixedu.bennu.cms.rendering.TemplateContext;
+import org.fenixedu.cms.domain.Page;
+import org.fenixedu.cms.domain.component.CMSComponent;
+import org.fenixedu.cms.domain.component.ComponentType;
 import org.fenixedu.cms.domain.executionCourse.ExecutionCourseSite;
+import org.fenixedu.cms.rendering.TemplateContext;
 
 @ComponentType(name = "LessonsPlanning", description = "Lessons planing for an Execution Course")
 public class LessonPlanComponent implements CMSComponent {

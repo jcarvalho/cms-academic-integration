@@ -1,8 +1,8 @@
 package org.fenixedu.cms.domain;
 
-public class unit.UnitSite extends .org.fenixedu.bennu.cms.domain.Site;
+public class unit.UnitSite extends .org.fenixedu.cms.domain.Site;
 
-class executionCourse.ExecutionCourseSite extends .org.fenixedu.bennu.cms.domain.Site {}
+class executionCourse.ExecutionCourseSite extends .org.fenixedu.cms.domain.Site {}
 
 relation UnitSiteHasUnit {
     unit.UnitSite playsRole unitSite;
@@ -16,12 +16,12 @@ relation ExecutionCourseFenixEduExecutionCourseSite {
 
 relation SummaryPost {
 	.net.sourceforge.fenixedu.domain.Summary playsRole; 
-	.org.fenixedu.bennu.cms.domain.Post playsRole post;
+	.org.fenixedu.cms.domain.Post playsRole post;
 }
 
-class homepage.HomepageSite extends .org.fenixedu.bennu.cms.domain.Site {}
+class homepage.HomepageSite extends .org.fenixedu.cms.domain.Site {}
 
-class homepage.HomepageResearcherComponent extends .org.fenixedu.bennu.cms.domain.component.Component  {
+class homepage.HomepageResearcherComponent extends .org.fenixedu.cms.domain.component.Component  {
 	String titleKey;
 	String titleBundle;
 	String dataKey;

@@ -4,10 +4,10 @@ import net.sourceforge.fenixedu.domain.Employee;
 import net.sourceforge.fenixedu.domain.organizationalStructure.Party;
 import net.sourceforge.fenixedu.domain.organizationalStructure.Unit;
 
-import org.fenixedu.bennu.cms.domain.Page;
-import org.fenixedu.bennu.cms.domain.component.ComponentType;
-import org.fenixedu.bennu.cms.rendering.TemplateContext;
+import org.fenixedu.cms.domain.Page;
+import org.fenixedu.cms.domain.component.ComponentType;
 import org.fenixedu.cms.domain.unit.UnitSiteComponent;
+import org.fenixedu.cms.rendering.TemplateContext;
 
 @ComponentType(description = "Shows the employees of the site's Scientific Area", name = "Scientific Area Employees")
 public class ScientificAreaEmployees extends UnitSiteComponent {
